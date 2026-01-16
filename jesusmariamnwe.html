@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="لوحة الخدام">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#0f172a">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/4230/4230633.png">
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/4230/4230633.png">
+
+    <title>لوحة إدارة إعدادي - الإصدار النهائي</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: white; margin: 0; padding: 10px; -webkit-tap-highlight-color: transparent; }
+        #login { position: fixed; inset: 0; background: #1e293b; display: flex; justify-content: center; align-items: center; z-index: 1000; }
+        .login-box { background: #334155; padding: 25px; border-radius: 20px; text-align: center; border: 2px solid #6366f1; width: 85%; max-width: 320px; }
+        #admin { display: none; max-width: 900px; margin: auto; padding-bottom: 50px; }
+        
+        .top-control { display: flex; justify-content: space-between; align-items: center; background: #1e293b; padding: 10px 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #334155; position: sticky; top: 10px; z-index: 99; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        .section { background: #1e293b; padding: 15px; border-radius: 15px; margin-bottom: 20px; border: 1px solid #334155; }
+        .psy-section-red { background: #450a0a; padding: 15px; border-radius: 15px; margin-bottom: 20px; border: 2px solid #ef4444; }
+        
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(115px, 1fr)); gap: 10px; }
+        .card { background: #0f172a; padding: 10px; border-radius: 12px; text-align: center; border: 1px solid #1e293b; border-top: 3px solid #fbbf24; transition: 0.3s; }
+        
+        button { border: none; border-radius: 6px; cursor: pointer; color: white; transition: 0.2s; }
+        .btn-edit-mode { background: #6366f1; padding: 8px 20px; font-weight: bold; }
+        .btn-reset { background: #ef4444; padding: 8px 15px; font-weight: bold; display: none; }
+        
+        .edit-tools { display: none; margin-top: 10px; border-top: 1px solid #334155; padding-top: 10px; }
+        .plus-minus { display: flex; gap: 4px; margin-bottom: 8px; flex-wrap: wrap; }
+        .plus-minus button { flex: 1; padding: 5px; font-weight: bold; font-size: 11px; }
+        
+        input, textarea { padding: 10px; border-radius: 8px; border: none; outline: none; background: #0f172a; color: white; width: 100%; box-sizing: border-box; font-size: 16px; }
+        .add-area { display: none; background: #334155; padding: 10px; border-radius: 10px; margin-bottom: 15px; gap: 10px; }
+        
+        .log-box { height: 110px; overflow-y: auto; font-size: 11px; background: #020617; padding: 8px; border-radius: 8px; color: #94a3b8; border: 1px dashed #334155; line-height: 1.6; }
+        .chat-area { height: 120px; overflow-y: auto; background: #0f172a; padding: 8px; border-radius: 8px; font-size: 12px; margin-top: 10px; border: 1px solid #334155; }
+
+        .psy-card { background: #1e293b; padding: 12px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #450a0a; border-right: 5px solid #ef4444; }
+        .psy-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 5px; margin-bottom: 8px; }
+        .responded-msg { background: #064e3b !important; border-right-color: #22c55e !important; opacity: 0.8; }
+        .check-area { display: flex; align-items: center; gap: 5px; font-size: 12px; cursor: pointer; }
+        .check-area input { width: 18px; height: 18px; cursor: pointer; }
+
+        .lib-admin input { margin-bottom: 8px; border: 1px solid #334155; }
+        .status-toggle { display: flex; justify-content: space-between; align-items: center; background: rgba(16, 185, 129, 0.1); padding: 8px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #10b981; }
+    </style>
+</head>
+<body>
+
+<div id="login">
+    <div class="login-box">
+        <h3 style="margin-top:0;">† دخول الخدام †</h3>
+        <input type="password" id="passInput" placeholder="أدخل كلمة السر">
+        <button onclick="checkPass()" style="background: #22c55e; width: 100%; padding: 12px; margin-top: 15px; font-weight: bold; border-radius: 8px;">دخول</button>
+    </div>
+</div>
+
+<div id="admin">
+    <div style="text-align: center; margin-bottom: 15px;">
+        <h3 style="margin:0; color:#818cf8;">إدارة خدمة إعدادي</h3>
+        <small id="welcomeServant" style="color: #fbbf24; font-weight: bold;"></small>
+    </div>
+
+    <div class="top-control">
+        <button id="modeBtn" onclick="toggleEditMode()" class="btn-edit-mode">📝 وضع التعديل</button>
+        <button id="resetBtn" onclick="resetAllScores()" class="btn-reset">🔄 تصفير الكل</button>
+    </div>
+
+    <div class="section" style="border-top: 4px solid #fbbf24;">
+        <h4 style="margin: 0 0 10px 0; color: #fbbf24;">🏆 درجات المخدومين</h4>
+        <input type="text" id="searchInput" onkeyup="searchMakhdoum()" placeholder="🔍 ابحث عن اسم..." style="margin-bottom:10px; background:#334155;">
+        <div id="addArea" class="add-area">
+            <input type="text" id="nameInp" placeholder="اسم مخدوم جديد..." style="flex:1;">
+            <button onclick="addNewMakhdoum()" style="background:#22c55e; padding:0 15px;">إضافة</button>
+        </div>
+        <div id="leaderboard" class="grid"></div>
+    </div>
+
+    <div class="section" style="border-right: 4px solid #22c55e;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h4 style="margin:0;">💬 دردشة المخدومين</h4>
+            <div style="display:flex; gap:5px;">
+                <button id="chatStatusBtn" onclick="toggleChat()" style="font-size:10px; padding:6px 10px; font-weight:bold;"></button>
+                <button onclick="clearChatMessages()" style="background:#ef4444; font-size:10px; padding:6px 10px;">محو الشات 🗑️</button>
+            </div>
+        </div>
+        <div id="adminChat" class="chat-area"></div>
+        <div style="display:flex; gap:5px; margin-top:10px;">
+            <input type="text" id="adminReplyInp" placeholder="اكتب ردك كخادم هنا...">
+            <button onclick="sendAdminReply()" style="background:#22c55e; padding:0 20px; font-weight:bold;">رد</button>
+        </div>
+    </div>
+
+    <div class="psy-section-red">
+        <h4 style="margin:0; color:#ffedd5; border-bottom: 1px solid #ef4444; padding-bottom: 5px;">🚨 ركن المساندة النفسية</h4>
+        <div id="psyList" style="margin-top:10px;"></div>
+    </div>
+
+    <div class="section" style="border-right: 4px solid #6366f1;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+            <h4 style="margin:0;">📜 سجل الحركات</h4>
+            <button onclick="clearLog()" style="background:#ef4444; font-size:10px; padding:2px 8px;">مسح السجل 🗑️</button>
+        </div>
+        <div class="log-box" id="actionLog"></div>
+    </div>
+
+    <div class="normal-alert-box section">
+        <h4 style="margin:0 0 10px 0; color:#818cf8;">📢 تنبيه المخدومين</h4>
+        <textarea id="alertContent" placeholder="اكتب التنبيه هنا..." style="height:60px; margin-bottom:10px;"></textarea>
+        <div style="display:flex; gap:5px;">
+            <button onclick="sendAlert()" style="background:#6366f1; flex:2; padding:10px; font-weight:bold;">نشر التنبيه</button>
+            <button onclick="clearAlert()" style="background:#475569; flex:1; padding:10px;">حذف</button>
+        </div>
+    </div>
+
+    <div class="section lib-admin" style="border: 2px solid #10b981;">
+        <h4 style="margin:0 0 10px 0; color:#10b981;">🎥 إدارة مكتبة الميديا</h4>
+        
+        <div class="status-toggle">
+            <span style="font-size:13px; color:#10b981; font-weight:bold;">حالة المكتبة للمخدومين:</span>
+            <button id="libStatusBtn" onclick="toggleLibVisibility()" style="padding:5px 12px; font-size:11px; font-weight:bold;"></button>
+        </div>
+
+        <div style="background: rgba(0,0,0,0.1); padding: 10px; border-radius: 8px;">
+            <label style="font-size:12px; color:#94a3b8;">رابط لحن الأسبوع:</label>
+            <input type="text" id="hymnUrl" placeholder="ضع رابط اليوتيوب هنا">
+            
+            <label style="font-size:12px; color:#94a3b8;">رابط المنهج (PDF):</label>
+            <input type="text" id="pdfUrl" placeholder="رابط جوجل درايف">
+            
+            <label style="font-size:12px; color:#94a3b8;">رابط فيديو الدرس:</label>
+            <input type="text" id="videoUrl" placeholder="رابط فيديو الدرس">
+            
+            <button onclick="updateMediaLinks()" style="background:#10b981; width:100%; padding:12px; font-weight:bold; margin-top:5px; border-radius:8px;">💾 حفظ وتحديث الروابط</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const config = { databaseURL: "https://mariam-b85f5-default-rtdb.firebaseio.com/" };
+    firebase.initializeApp(config);
+    const db = firebase.database();
+    
+    const users = { "jesus": "أمين الخدمة", "mikel": "أ/ ميكائيل", "john": "أ/ يوحنا", "servant": "خادم عام" };
+    let localData = []; let isEditMode = false; let currentServant = "";
+
+    function checkPass() {
+        const input = document.getElementById('passInput').value.trim().toLowerCase();
+        if(users[input]) {
+            currentServant = users[input];
+            document.getElementById('login').style.display = 'none';
+            document.getElementById('admin').style.display = 'block';
+            document.getElementById('welcomeServant').innerText = "أهلاً يا " + currentServant;
+            startListening();
+        } else { alert("كلمة السر خطأ!"); }
+    }
+
+    function startListening() {
+        db.ref("points_data").on("value", snap => {
+            const data = snap.val();
+            localData = data ? Object.keys(data).map(k => ({id:k, ...data[k]})) : [];
+            renderUI();
+        });
+
+        db.ref("media_library").on("value", snap => {
+            const d = snap.val();
+            if(d) {
+                document.getElementById('hymnUrl').value = d.hymn || "";
+                document.getElementById('pdfUrl').value = d.pdf || "";
+                document.getElementById('videoUrl').value = d.video || "";
+            }
+        });
+
+        // متابعة حالة إخفاء/إظهار المكتبة
+        db.ref("settings/libVisible").on("value", snap => {
+            const isVisible = snap.val() !== false;
+            const btn = document.getElementById('libStatusBtn');
+            btn.innerText = isVisible ? "ظاهرة الآن ✅" : "مخفية الآن ❌";
+            btn.style.background = isVisible ? "#22c55e" : "#ef4444";
+        });
+
+        db.ref("activity_logs").limitToLast(20).on("value", snap => {
+            const box = document.getElementById('actionLog'); box.innerHTML = "";
+            snap.forEach(l => { box.innerHTML = `<div>${l.val()}</div>` + box.innerHTML; });
+        });
+
+        db.ref("settings/chatEnabled").on("value", snap => {
+            const status = snap.val() !== false;
+            const btn = document.getElementById('chatStatusBtn');
+            btn.innerText = status ? "إيقاف الدردشة 🔴" : "فتح الدردشة 🟢";
+            btn.style.background = status ? "#ef4444" : "#22c55e";
+        });
+
+        db.ref("chat").limitToLast(15).on("value", snap => {
+            const box = document.getElementById('adminChat'); box.innerHTML = "";
+            snap.forEach(m => { 
+                const sender = m.val().sender;
+                const isServant = sender.includes("أ/") || sender.includes("أمين");
+                const color = isServant ? "#fbbf24" : "#818cf8";
+                box.innerHTML += `<div><b style="color:${color};">${sender}:</b> ${m.val().text}</div>`; 
+            });
+            box.scrollTop = box.scrollHeight;
+        });
+
+        db.ref("psychology/confessions").on("value", snap => {
+            const box = document.getElementById('psyList'); box.innerHTML = "";
+            snap.forEach(c => {
+                const val = c.val(); const key = c.key;
+                box.innerHTML += `<div class="psy-card ${val.responded ? 'responded-msg' : ''}">
+                    <div class="psy-header"><b style="color:#f472b6;">${val.sender} [${val.mood || ''}]</b>
+                    <label class="check-area"><input type="checkbox" ${val.responded ? 'checked' : ''} onchange="togglePsyResponse('${key}', this.checked)"> تم المتابعة</label></div>
+                    <p style="margin:2px 0; font-size:12px; color:#fbbf24;">الاحتياج: ${val.need || 'غير محدد'}</p>
+                    <p style="margin:5px 0; font-size:14px;">${val.text}</p>
+                    <div style="text-align: left; margin-top:5px;"><button onclick="deletePsyMsg('${key}')" style="background:none; color:#f87171; font-size:10px;">حذف 🗑️</button></div></div>`;
+            });
+        });
+    }
+
+    function renderUI() {
+        const list = document.getElementById('leaderboard'); list.innerHTML = "";
+        localData.sort((a,b) => b.score - a.score).forEach((p) => {
+            list.innerHTML += `<div class="card"><div style="font-size:11px; font-weight:bold; height:28px; overflow:hidden;">${p.name}</div>
+                <div style="font-size:22px; font-weight:bold; color:#fbbf24;">${p.score}</div>
+                <div class="edit-tools" style="display: ${isEditMode ? 'block' : 'none'}"><div class="plus-minus">
+                <button onclick="updateScore('${p.id}', 1)" style="background:#475569">+1</button>
+                <button onclick="updateScore('${p.id}', 5)" style="background:#6366f1">+5</button>
+                <button onclick="updateScore('${p.id}', -1)" style="background:#ef4444">-1</button></div>
+                <button onclick="deleteMakhdoum('${p.id}', '${p.name}')" style="color:#f87171; background:none; font-size:9px; margin-top:5px;">حذف آمن 🔒</button></div></div>`;
+        });
+    }
+
+    function updateScore(id, val) { 
+        const makhdoum = localData.find(m => m.id === id);
+        db.ref(`points_data/${id}/score`).transaction(c => (c || 0) + val);
+        const time = new Date().toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'});
+        db.ref("activity_logs").push(`[${time}] ${currentServant}: عدل ${makhdoum.name} (${val>0?'+':''}${val})`);
+    }
+
+    function addNewMakhdoum() {
+        const inp = document.getElementById('nameInp'); const name = inp.value.trim();
+        if(name) { db.ref("points_data").push({ name: name, score: 0 }); db.ref("activity_logs").push(`${currentServant} أضاف مخدوم: ${name}`); inp.value = ""; }
+    }
+
+    function sendAdminReply() {
+        const inp = document.getElementById('adminReplyInp'); const text = inp.value.trim();
+        if(text) { db.ref("chat").push({ sender: currentServant, text: text }); inp.value = ""; }
+    }
+
+    function toggleLibVisibility() {
+        const currentBtnText = document.getElementById('libStatusBtn').innerText;
+        const isNowVisible = currentBtnText.includes("مخفية");
+        db.ref("settings").update({ libVisible: isNowVisible });
+        db.ref("activity_logs").push(`${currentServant} قام بـ ${isNowVisible ? 'إظهار' : 'إخفاء'} المكتبة`);
+    }
+
+    function updateMediaLinks() {
+        const links = { hymn: document.getElementById('hymnUrl').value, pdf: document.getElementById('pdfUrl').value, video: document.getElementById('videoUrl').value };
+        db.ref("media_library").set(links).then(() => { alert("تم التحديث ✅"); });
+    }
+
+    function deleteMakhdoum(id, name) {
+        if (prompt(`⚠️ باسوورد الحذف لـ (${name}):`) === "jesus 777") {
+            db.ref(`points_data/${id}`).remove();
+            db.ref("activity_logs").push(`❌ ${currentServant} حذف: ${name}`);
+        }
+    }
+
+    function togglePsyResponse(key, status) { db.ref(`psychology/confessions/${key}`).update({ responded: status }); }
+    function deletePsyMsg(key) { if (prompt("⚠️ باسوورد الحذف:") === "jesus 777") db.ref(`psychology/confessions/${key}`).remove(); }
+    function resetAllScores() { if (prompt("⚠️ كلمة السر:") === "jesus 777" && confirm("تصفير الجميع؟")) { let up = {}; localData.forEach(p => up[`points_data/${p.id}/score`] = 0); db.ref().update(up); } }
+
+    function toggleEditMode() {
+        isEditMode = !isEditMode;
+        document.getElementById('modeBtn').innerText = isEditMode ? "✅ إنهاء" : "📝 تعديل";
+        document.getElementById('addArea').style.display = isEditMode ? "flex" : "none";
+        document.getElementById('resetBtn').style.display = isEditMode ? "block" : "none";
+        renderUI();
+    }
+
+    function searchMakhdoum() {
+        let f = document.getElementById('searchInput').value.toLowerCase();
+        document.querySelectorAll('#leaderboard .card').forEach(c => {
+            c.style.display = c.querySelector('div').innerText.toLowerCase().includes(f) ? "" : "none";
+        });
+    }
+
+    function clearLog() { if(confirm("مسح السجل؟")) db.ref("activity_logs").remove(); }
+    function toggleChat() { db.ref("settings").update({ chatEnabled: !document.getElementById('chatStatusBtn').innerText.includes("إيقاف") }); }
+    function clearChatMessages() { if(confirm("مسح؟")) db.ref("chat").remove(); }
+    function sendAlert() { db.ref("admin_announcement").set(document.getElementById('alertContent').value); }
+    function clearAlert() { db.ref("admin_announcement").set(""); document.getElementById('alertContent').value = ""; }
+</script>
+</body>
+</html>
