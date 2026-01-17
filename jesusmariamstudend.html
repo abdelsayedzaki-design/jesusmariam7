@@ -126,6 +126,9 @@
 
         <div id="psyArea" class="section" style="display: none; border: 2px solid #ec4899;">
              <p style="text-align:center; font-size:13px;">ما تخفش احنا جنبك بنحبك وانت غالي على قلب المسيح.. ❤️</p>
+             
+             <input type="text" id="psyNameInput" placeholder="اسمك (اختياري - اتركه فارغاً للمجهول)" style="border: 1px dashed #ec4899; font-size: 13px;">
+
              <p style="text-align:center; font-size:12px; color:#818cf8; margin-bottom:5px;">كيف حالك الآن؟</p>
              <div class="mood-container">
                 <span class="mood-btn" onclick="setMood(this, '😭')">😭</span>
@@ -142,7 +145,7 @@
                 <option value="دعم وتوجيه 🤝">🤝 دعم وتوجيه</option>
             </select>
             <textarea id="psyMsg" placeholder="اكتب ما بقلبك هنا..." style="height: 80px;"></textarea>
-            <button class="btn" style="background:#ec4899; margin-bottom:15px;" onclick="sendPsyMsg()">إرسال بخصوصية 🕊️</button>
+            <button class="btn" style="background:#ec4899; margin-bottom:15px;" onclick="sendPsyMsg()">إرسال 🕊️</button>
 
             <button class="btn" style="background:#fbbf24; color:#000;" onclick="startPrayerSession()">✨ يلا نصلو سوا (33 صلاة) ✨</button>
 
@@ -175,6 +178,7 @@
     firebase.initializeApp(config);
     const db = firebase.database();
 
+    // عدد الآيات (99 آية) محفوظ تماماً كما طلبت
     const bibleVerses = [
         { t: "لاَ تَخَفْ لأَنِّي مَعَكَ. لاَ تَتَلَفَّتْ لأَنِّي إِلهُكَ. قَدْ أَيَّدْتُكَ وَأَعَنْتُكَ.", r: "إشعياء 41: 10" },
         { t: "اِسْتَطِيعُ كُلَّ شَيْءٍ فِي الْمَسِيحِ الَّذِي يُقَوِّينِي.", r: "فيلبي 4: 13" },
@@ -383,13 +387,25 @@
         currentMood = moodEmoji;
     }
 
+    // وظيفة تحديد الاسم في ركن المساندة (مجهول أو اسم مكتوب)
+    function getPsySenderName() {
+        const customName = document.getElementById('psyNameInput').value.trim();
+        return customName ? customName : "ابن الطاعة 🕊️";
+    }
+
     function sendPsyMsg() {
         const txt = document.getElementById('psyMsg').value.trim();
-        const anonymousName = "ابن الطاعة 🕊️";
         if(!txt) return;
-        db.ref("psychology/confessions").push({ sender: anonymousName, mood: currentMood, need: document.getElementById('psyNeed').value, text: txt, time: new Date().toLocaleString('ar-EG') });
+        db.ref("psychology/confessions").push({ 
+            sender: getPsySenderName(), 
+            mood: currentMood, 
+            need: document.getElementById('psyNeed').value, 
+            text: txt, 
+            time: new Date().toLocaleString('ar-EG') 
+        });
         alert("وصلت رسالتك بخصوصية.. ربنا يريح قلبك ✨"); 
         document.getElementById('psyMsg').value = "";
+        document.getElementById('psyNameInput').value = ""; // مسح اسم المساندة بعد الإرسال
     }
 
     function startPrayerSession() { 
@@ -405,15 +421,27 @@
         document.getElementById('activePrayer').innerText = prayers[pCount % prayers.length]; 
     }
     function endPrayer() {
-        const anonymousName = "ابن الطاعة 🕊️";
-        if(pCount > 0) db.ref("psychology/prayers").push({ sender: anonymousName, count: pCount, time: new Date().toLocaleString('ar-EG') });
+        if(pCount > 0) {
+            db.ref("psychology/prayers").push({ 
+                sender: getPsySenderName(), 
+                count: pCount, 
+                time: new Date().toLocaleString('ar-EG') 
+            });
+        }
         document.getElementById('prayerTimer').style.display = 'none';
         alert("صلاة مقبولة!");
     }
     function sendQuestion() {
         const txt = document.getElementById('quesMsg').value.trim();
-        const anonymousName = "ابن الطاعة 🕊️";
-        if(txt) { db.ref("psychology/questions").push({ sender: anonymousName, text: txt, time: new Date().toLocaleString('ar-EG') }); alert("تم الإرسال بخصوصية!"); document.getElementById('quesMsg').value = ""; }
+        if(txt) { 
+            db.ref("psychology/questions").push({ 
+                sender: getPsySenderName(), 
+                text: txt, 
+                time: new Date().toLocaleString('ar-EG') 
+            }); 
+            alert("تم الإرسال بخصوصية!"); 
+            document.getElementById('quesMsg').value = ""; 
+        }
     }
 </script>
 </body>
