@@ -175,7 +175,6 @@
     firebase.initializeApp(config);
     const db = firebase.database();
 
-    // نصوص الكتاب المقدس تركتها كما هي
     const bibleVerses = [
         { t: "لاَ تَخَفْ لأَنِّي مَعَكَ. لاَ تَتَلَفَّتْ لأَنِّي إِلهُكَ. قَدْ أَيَّدْتُكَ وَأَعَنْتُكَ.", r: "إشعياء 41: 10" },
         { t: "اِسْتَطِيعُ كُلَّ شَيْءٍ فِي الْمَسِيحِ الَّذِي يُقَوِّينِي.", r: "فيلبي 4: 13" },
@@ -226,7 +225,7 @@
         { t: "أَنَا هُوة الرَّاعِي الصَّالِحُ.", r: "يوحنا 10: 11" },
         { t: "عَيْنَا الرَّبِّ نَحْ نحو الصِّدِّيقِينَ.", r: "مزمور 34: 15" },
         { t: "الرَّبُّ حَنَّانٌ وَرَحِيمٌ.", r: "مزمور 103: 8" },
-        { t: "لِيُضِئْ نُورُكُمْ هكَذَا قُدَّامَ النَّاسِ.", r: "متى 5: 16" },
+        { t: "لِيُضِئْ نُورُكُمْ هكَذَا قُدَّامَ النَّاسِ.", r: "metty 5: 16" },
         { t: "دُونَ الْقَدَاسَةِ لَنْ يرى أحدٌ الربَّ.", r: "عبرانيين 12: 14" },
         { t: "اُطْلُبُوا أَوَّلاً مَلَكُوتَ اللهِ وَبِرَّهُ.", r: "متى 6: 33" },
         { t: "أَنَا هُوة الْقِيَامَةُ وَالْحَيَاةُ.", r: "يوحنا 11: 25" },
@@ -315,16 +314,7 @@
             document.getElementById('mainContent').style.display = 'block';
             startApp();
             showRandomVerse();
-            
-            // --- قنبلة الاحتفال عند الدخول ---
-            confetti({
-                particleCount: 150,
-                spread: 70,
-                origin: { y: 0.6 },
-                colors: ['#6366f1', '#fbbf24', '#ec4899']
-            });
-            // --------------------------------
-
+            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#6366f1', '#fbbf24', '#ec4899'] });
             if(localStorage.getItem('church_theme') === 'light') {
                 document.body.setAttribute('data-theme', 'light');
                 document.getElementById('themeBtn').innerText = "🌙 الوضع الداكن";
@@ -395,10 +385,10 @@
 
     function sendPsyMsg() {
         const txt = document.getElementById('psyMsg').value.trim();
-        const name = document.getElementById('userName').value || "مخدوم";
+        const anonymousName = "ابن الطاعة 🕊️";
         if(!txt) return;
-        db.ref("psychology/confessions").push({ sender: name, mood: currentMood, need: document.getElementById('psyNeed').value, text: txt, time: new Date().toLocaleString('ar-EG') });
-        alert("وصلت رسالتك.. ربنا يريح قلبك ✨"); 
+        db.ref("psychology/confessions").push({ sender: anonymousName, mood: currentMood, need: document.getElementById('psyNeed').value, text: txt, time: new Date().toLocaleString('ar-EG') });
+        alert("وصلت رسالتك بخصوصية.. ربنا يريح قلبك ✨"); 
         document.getElementById('psyMsg').value = "";
     }
 
@@ -415,15 +405,15 @@
         document.getElementById('activePrayer').innerText = prayers[pCount % prayers.length]; 
     }
     function endPrayer() {
-        const name = document.getElementById('userName').value || "مخدوم";
-        if(pCount > 0) db.ref("psychology/prayers").push({ sender: name, count: pCount, time: new Date().toLocaleString('ar-EG') });
+        const anonymousName = "ابن الطاعة 🕊️";
+        if(pCount > 0) db.ref("psychology/prayers").push({ sender: anonymousName, count: pCount, time: new Date().toLocaleString('ar-EG') });
         document.getElementById('prayerTimer').style.display = 'none';
         alert("صلاة مقبولة!");
     }
     function sendQuestion() {
         const txt = document.getElementById('quesMsg').value.trim();
-        const name = document.getElementById('userName').value || "مخدوم";
-        if(txt) { db.ref("psychology/questions").push({ sender: name, text: txt, time: new Date().toLocaleString('ar-EG') }); alert("تم الإرسال!"); document.getElementById('quesMsg').value = ""; }
+        const anonymousName = "ابن الطاعة 🕊️";
+        if(txt) { db.ref("psychology/questions").push({ sender: anonymousName, text: txt, time: new Date().toLocaleString('ar-EG') }); alert("تم الإرسال بخصوصية!"); document.getElementById('quesMsg').value = ""; }
     }
 </script>
 </body>
