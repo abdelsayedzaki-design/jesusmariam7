@@ -101,6 +101,9 @@
     <div class="psy-section-red">
         <h4 style="margin:0; color:#ffedd5; border-bottom: 1px solid #ef4444; padding-bottom: 5px;">🚨 ركن المساندة النفسية</h4>
         <div id="psyList" style="margin-top:10px;"></div>
+        
+        <h5 style="color: #fbbf24; margin: 15px 0 5px 0; border-bottom: 1px solid #334155; font-size: 14px;">💬 محادثات مباشرة مجهولة</h5>
+        <div id="adminPsyChats" style="max-height: 250px; overflow-y: auto;"></div>
     </div>
 
     <div class="section" style="border-right: 4px solid #6366f1;">
@@ -178,7 +181,6 @@
             }
         });
 
-        // متابعة حالة إخفاء/إظهار المكتبة
         db.ref("settings/libVisible").on("value", snap => {
             const isVisible = snap.val() !== false;
             const btn = document.getElementById('libStatusBtn');
@@ -221,7 +223,37 @@
                     <div style="text-align: left; margin-top:5px;"><button onclick="deletePsyMsg('${key}')" style="background:none; color:#f87171; font-size:10px;">حذف 🗑️</button></div></div>`;
             });
         });
+
+        // مراقبة المحادثات المجهولة
+        db.ref("psychology/private_chats").on("value", snap => {
+            const box = document.getElementById('adminPsyChats');
+            box.innerHTML = "";
+            snap.forEach(session => {
+                const sid = session.key;
+                let sHtml = `<div style="background:#1e293b; padding:10px; border-radius:10px; margin-bottom:10px; border:1px solid #ef4444;">
+                    <small style="color:#94a3b8; display:block; margin-bottom:5px;">الجلسة: ${sid}</small><div>`;
+                session.forEach(msg => {
+                    const m = msg.val();
+                    sHtml += `<div style="font-size:12px; margin-bottom:3px;"><b>${m.sender}:</b> ${m.text}</div>`;
+                });
+                sHtml += `</div><div style="display:flex; gap:5px; margin-top:8px;">
+                    <input type="text" id="rep_${sid}" placeholder="رد..." style="font-size:12px; padding:5px; height:30px;">
+                    <button onclick="replyPsy('${sid}')" style="background:#22c55e; padding:0 10px;">رد</button>
+                    <button onclick="delPsyChat('${sid}')" style="background:#ef4444; padding:0 10px;">🗑️</button>
+                </div></div>`;
+                box.innerHTML += sHtml;
+            });
+        });
     }
+
+    function replyPsy(sid) {
+        const inp = document.getElementById('rep_' + sid);
+        if(inp.value.trim()) {
+            db.ref("psychology/private_chats/" + sid).push({ sender: "الخادم (" + currentServant + ")", text: inp.value.trim() });
+            inp.value = "";
+        }
+    }
+    function delPsyChat(sid) { if(confirm("حذف المحادثة؟")) db.ref("psychology/private_chats/" + sid).remove(); }
 
     function renderUI() {
         const list = document.getElementById('leaderboard'); list.innerHTML = "";
