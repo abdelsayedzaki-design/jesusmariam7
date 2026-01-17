@@ -74,7 +74,7 @@
     <div id="loginScreen">
         <div class="login-box">
             <h3 style="margin:0 0 10px 0; color:#818cf8;">† دخول المخدومين †</h3>
-            <input type="password" id="passInput" placeholder="كلمة السر">
+            <input type="password" id="passInputUser" placeholder="كلمة السر">
             <button class="btn" onclick="checkAccess()">دخول</button>
         </div>
     </div>
@@ -147,6 +147,15 @@
             <textarea id="psyMsg" placeholder="اكتب ما بقلبك هنا..." style="height: 80px;"></textarea>
             <button class="btn" style="background:#ec4899; margin-bottom:15px;" onclick="sendPsyMsg()">إرسال 🕊️</button>
 
+            <div id="psyChatContainer" style="margin-top: 5px; border-top: 1px dashed #ec4899; padding-top: 10px; margin-bottom: 15px;">
+                <small style="color: #94a3b8; display: block; margin-bottom: 5px;">محادثة مجهولة مع الخادم (تختفي بمجرد التحديث):</small>
+                <div id="psyLocalChat" style="height: 100px; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 8px; padding: 8px; font-size: 12px; margin-bottom: 8px;"></div>
+                <div style="display: flex; gap: 5px;">
+                    <input type="text" id="psyChatInput" placeholder="اكتب رسالة سرية..." style="margin-bottom:0; font-size:12px; height: 35px;">
+                    <button onclick="sendPsyChat()" style="background:#ec4899; border:none; padding:0 15px; border-radius:8px; color:white; font-size: 12px;">إرسال</button>
+                </div>
+            </div>
+
             <button class="btn" style="background:#fbbf24; color:#000;" onclick="startPrayerSession()">✨ يلا نصلو سوا (33 صلاة) ✨</button>
 
             <div id="prayerTimer">
@@ -178,7 +187,6 @@
     firebase.initializeApp(config);
     const db = firebase.database();
 
-    // عدد الآيات (99 آية) محفوظ تماماً كما طلبت
     const bibleVerses = [
         { t: "لاَ تَخَفْ لأَنِّي مَعَكَ. لاَ تَتَلَفَّتْ لأَنِّي إِلهُكَ. قَدْ أَيَّدْتُكَ وَأَعَنْتُكَ.", r: "إشعياء 41: 10" },
         { t: "اِسْتَطِيعُ كُلَّ شَيْءٍ فِي الْمَسِيحِ الَّذِي يُقَوِّينِي.", r: "فيلبي 4: 13" },
@@ -297,6 +305,7 @@
 
     let currentMood = "غير محدد";
     let pCount = 0;
+    let psySessionID = Date.now(); // معرف فريد للجلسة الحالية فقط
 
     function toggleTheme() {
         const body = document.body;
@@ -313,7 +322,7 @@
     }
 
     function checkAccess() {
-        if(document.getElementById('passInput').value === "jesus") {
+        if(document.getElementById('passInputUser').value === "jesus") {
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('mainContent').style.display = 'block';
             startApp();
@@ -374,6 +383,19 @@
             });
             box.scrollTop = box.scrollHeight;
         });
+
+        // مراقبة ردود الخادم في المحادثة المجهولة
+        db.ref("psychology/private_chats/" + psySessionID).on("value", snap => {
+            const box = document.getElementById('psyLocalChat');
+            box.innerHTML = "";
+            snap.forEach(m => {
+                const msg = m.val();
+                const isMe = msg.sender === "أنا";
+                const color = isMe ? "#ec4899" : "#fbbf24";
+                box.innerHTML += `<div style="margin-bottom:4px; color:${color};"><b>${msg.sender}:</b> ${msg.text}</div>`;
+            });
+            box.scrollTop = box.scrollHeight;
+        });
     }
 
     function sendChat() {
@@ -387,7 +409,6 @@
         currentMood = moodEmoji;
     }
 
-    // وظيفة تحديد الاسم في ركن المساندة (مجهول أو اسم مكتوب)
     function getPsySenderName() {
         const customName = document.getElementById('psyNameInput').value.trim();
         return customName ? customName : "ابن الطاعة 🕊️";
@@ -405,7 +426,19 @@
         });
         alert("وصلت رسالتك بخصوصية.. ربنا يريح قلبك ✨"); 
         document.getElementById('psyMsg').value = "";
-        document.getElementById('psyNameInput').value = ""; // مسح اسم المساندة بعد الإرسال
+        document.getElementById('psyNameInput').value = "";
+    }
+
+    // وظيفة إرسال الدردشة المجهولة
+    function sendPsyChat() {
+        const inp = document.getElementById('psyChatInput');
+        if(inp.value.trim()) {
+            db.ref("psychology/private_chats/" + psySessionID).push({
+                sender: "أنا",
+                text: inp.value.trim()
+            });
+            inp.value = "";
+        }
     }
 
     function startPrayerSession() { 
