@@ -148,7 +148,10 @@
             <button class="btn" style="background:#ec4899; margin-bottom:15px;" onclick="sendPsyMsg()">إرسال 🕊️</button>
 
             <div id="psyChatContainer" style="margin-top: 5px; border-top: 1px dashed #ec4899; padding-top: 10px; margin-bottom: 15px;">
-                <small style="color: #94a3b8; display: block; margin-bottom: 5px;">محادثة مجهولة مع الخادم (تختفي بمجرد التحديث):</small>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                    <small style="color: #94a3b8;">محادثة مجهولة مع الخادم:</small>
+                    <button onclick="clearMyPrivateChat()" style="background: none; border: none; color: #ef4444; font-size: 11px; cursor: pointer;">🗑️ حذف المحادثة</button>
+                </div>
                 <div id="psyLocalChat" style="height: 100px; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 8px; padding: 8px; font-size: 12px; margin-bottom: 8px;"></div>
                 <div style="display: flex; gap: 5px;">
                     <input type="text" id="psyChatInput" placeholder="اكتب رسالة سرية..." style="margin-bottom:0; font-size:12px; height: 35px;">
@@ -186,6 +189,14 @@
     const config = { databaseURL: "https://mariam-b85f5-default-rtdb.firebaseio.com/" };
     firebase.initializeApp(config);
     const db = firebase.database();
+
+    // --- الجزء المعدل 1: المعرف الثابت ---
+    let psySessionID = localStorage.getItem('psy_session_id');
+    if (!psySessionID) {
+        psySessionID = "User_" + Date.now() + Math.floor(Math.random() * 1000);
+        localStorage.setItem('psy_session_id', psySessionID);
+    }
+    // ----------------------------------
 
     const bibleVerses = [
         { t: "لاَ تَخَفْ لأَنِّي مَعَكَ. لاَ تَتَلَفَّتْ لأَنِّي إِلهُكَ. قَدْ أَيَّدْتُكَ وَأَعَنْتُكَ.", r: "إشعياء 41: 10" },
@@ -305,7 +316,6 @@
 
     let currentMood = "غير محدد";
     let pCount = 0;
-    let psySessionID = Date.now(); // معرف فريد للجلسة الحالية فقط
 
     function toggleTheme() {
         const body = document.body;
@@ -384,7 +394,7 @@
             box.scrollTop = box.scrollHeight;
         });
 
-        // مراقبة ردود الخادم في المحادثة المجهولة
+        // مراقبة ردود الخادم في المحادثة المجهولة (بالمعرف الثابت)
         db.ref("psychology/private_chats/" + psySessionID).on("value", snap => {
             const box = document.getElementById('psyLocalChat');
             box.innerHTML = "";
@@ -440,6 +450,15 @@
             inp.value = "";
         }
     }
+
+    // --- الجزء المعدل 3: دالة حذف الشات ---
+    function clearMyPrivateChat() {
+        if(confirm("هل أنت متأكد من حذف محادثتك الخاصة نهائياً من قاعدة البيانات؟")) {
+            db.ref("psychology/private_chats/" + psySessionID).remove();
+            alert("تم حذف المحادثة.");
+        }
+    }
+    // -----------------------------------
 
     function startPrayerSession() { 
         document.getElementById('prayerTimer').style.display = 'block'; 
