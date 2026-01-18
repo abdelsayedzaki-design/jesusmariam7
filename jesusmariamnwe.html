@@ -224,24 +224,40 @@
             });
         });
 
-        // مراقبة المحادثات المجهولة
+        // مراقبة المحادثات المجهولة المحدثة لتعمل مع الكود الجديد
         db.ref("psychology/private_chats").on("value", snap => {
             const box = document.getElementById('adminPsyChats');
             box.innerHTML = "";
-            snap.forEach(session => {
-                const sid = session.key;
+            const data = snap.val();
+            if(!data) {
+                box.innerHTML = "<p style='text-align:center; color:gray; font-size:12px;'>لا يوجد محادثات نشطة</p>";
+                return;
+            }
+
+            Object.keys(data).forEach(sid => {
+                const messages = data[sid];
                 let sHtml = `<div style="background:#1e293b; padding:10px; border-radius:10px; margin-bottom:10px; border:1px solid #ef4444;">
-                    <small style="color:#94a3b8; display:block; margin-bottom:5px;">الجلسة: ${sid}</small><div>`;
-                session.forEach(msg => {
-                    const m = msg.val();
-                    sHtml += `<div style="font-size:12px; margin-bottom:3px;"><b>${m.sender}:</b> ${m.text}</div>`;
+                    <small style="color:#94a3b8; display:block; margin-bottom:5px;">الجلسة: ${sid}</small>
+                    <div id="chatbox_${sid}" style="max-height:100px; overflow-y:auto; margin-bottom:8px; background:rgba(0,0,0,0.2); padding:5px; border-radius:5px;">`;
+                
+                Object.values(messages).forEach(m => {
+                    const isServant = m.sender && m.sender.includes("الخادم");
+                    sHtml += `<div style="font-size:12px; margin-bottom:3px; color:${isServant ? '#fbbf24' : '#fff'}">
+                        <b>${m.sender}:</b> ${m.text}
+                    </div>`;
                 });
+
                 sHtml += `</div><div style="display:flex; gap:5px; margin-top:8px;">
-                    <input type="text" id="rep_${sid}" placeholder="رد..." style="font-size:12px; padding:5px; height:30px;">
-                    <button onclick="replyPsy('${sid}')" style="background:#22c55e; padding:0 10px;">رد</button>
+                    <input type="text" id="rep_${sid}" placeholder="رد..." style="font-size:12px; padding:5px; height:35px; background:#0f172a; border:1px solid #334155; color:white; flex-grow:1;">
+                    <button onclick="replyPsy('${sid}')" style="background:#22c55e; padding:0 15px;">رد</button>
                     <button onclick="delPsyChat('${sid}')" style="background:#ef4444; padding:0 10px;">🗑️</button>
                 </div></div>`;
                 box.innerHTML += sHtml;
+                
+                setTimeout(() => {
+                    const b = document.getElementById('chatbox_' + sid);
+                    if(b) b.scrollTop = b.scrollHeight;
+                }, 100);
             });
         });
     }
@@ -249,10 +265,14 @@
     function replyPsy(sid) {
         const inp = document.getElementById('rep_' + sid);
         if(inp.value.trim()) {
-            db.ref("psychology/private_chats/" + sid).push({ sender: "الخادم (" + currentServant + ")", text: inp.value.trim() });
+            db.ref("psychology/private_chats/" + sid).push({ 
+                sender: "الخادم (" + currentServant + ")", 
+                text: inp.value.trim() 
+            });
             inp.value = "";
         }
     }
+    
     function delPsyChat(sid) { if(confirm("حذف المحادثة؟")) db.ref("psychology/private_chats/" + sid).remove(); }
 
     function renderUI() {
