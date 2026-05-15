@@ -38,6 +38,7 @@
         
         input, textarea, select { padding: 10px; border-radius: 8px; border: none; outline: none; background: #0f172a; color: white; width: 100%; box-sizing: border-box; font-size: 16px; margin-bottom: 5px; }
         .add-area { display: none; background: #334155; padding: 10px; border-radius: 10px; margin-bottom: 15px; gap: 10px; }
+        .add-area-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 8px; margin-bottom: 8px; }
         
         .log-box { height: 110px; overflow-y: auto; font-size: 11px; background: #020617; padding: 8px; border-radius: 8px; color: #94a3b8; border: 1px dashed #334155; line-height: 1.6; }
         .chat-area { height: 120px; overflow-y: auto; background: #0f172a; padding: 8px; border-radius: 8px; font-size: 12px; margin-top: 10px; border: 1px solid #334155; }
@@ -51,7 +52,6 @@
         .lib-admin input { margin-bottom: 8px; border: 1px solid #334155; }
         .status-toggle { display: flex; justify-content: space-between; align-items: center; background: rgba(16, 185, 129, 0.1); padding: 8px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #10b981; }
 
-        /* Quiz Specific Styles */
         .quiz-card { border: 2px solid #fbbf24; border-right: 8px solid #fbbf24; display: none; }
         .tab-container { display: flex; gap: 5px; margin-bottom: 15px; }
         .tab-btn { flex: 1; padding: 12px; border-radius: 8px; border: none; cursor: pointer; background: #334155; color: white; font-weight: bold; font-size: 13px; }
@@ -59,9 +59,150 @@
         .opt-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; background: rgba(255,255,255,0.05); padding: 8px; border-radius: 8px; }
         button.main-btn { width: 100%; padding: 15px; border-radius: 10px; border: none; font-weight: bold; font-size: 16px; cursor: pointer; color: white; }
 
-        /* تسيق قسم تقارير الصلاة الجديد */
         .prayer-report-card { background: #0f172a; padding: 12px; border-radius: 10px; margin-bottom: 10px; border-right: 5px solid #fbbf24; font-size: 13px; }
         .duration-badge { background: #fbbf24; color: #0f172a; padding: 2px 8px; border-radius: 5px; font-weight: bold; float: left; }
+        
+        /* تنسيق إضافي لعرض الإجابات التفصيلية */
+        .ans-detail-box { font-size: 11px; background: rgba(0,0,0,0.3); padding: 5px; border-radius: 5px; margin-top: 5px; border: 1px solid #334155; }
+        
+        /* تنسيق قسم التشجيع */
+        .encouragement-section { background: linear-gradient(135deg, #450a0a 0%, #7f1d1d 100%); padding: 20px; border-radius: 15px; margin-bottom: 20px; border: 3px solid #ef4444; }
+        .inactive-card { background: #1e293b; padding: 15px; border-radius: 12px; margin-bottom: 12px; border-right: 5px solid #fbbf24; transition: 0.3s; }
+        .inactive-card:hover { background: #334155; transform: translateX(-5px); }
+        .inactive-badge { background: #ef4444; color: white; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; display: inline-block; margin-bottom: 8px; }
+        .contact-btn { background: #22c55e; color: white; padding: 8px 15px; border-radius: 8px; font-size: 12px; font-weight: bold; margin-top: 8px; cursor: pointer; }
+        .contact-btn:hover { background: #16a34a; }
+        
+        /* تنسيق مربع تفاصيل النقاط */
+        .breakdown-box { background: rgba(0,0,0,0.3); padding: 8px; border-radius: 8px; font-size: 11px; margin-top: 10px; border: 1px solid rgba(251,191,36,0.3); }
+        .breakdown-row { display: flex; justify-content: space-between; margin-bottom: 4px; padding: 3px 0; }
+        .breakdown-label { color: #94a3b8; }
+        .breakdown-value { color: #fbbf24; font-weight: bold; }
+        
+        /* تنسيق نافذة تعديل التفاصيل */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 9999; justify-content: center; align-items: center; }
+        .modal-content-breakdown { background: #1e293b; padding: 25px; border-radius: 20px; width: 90%; max-width: 400px; border: 2px solid #6366f1; }
+        .modal-input-group { margin-bottom: 15px; }
+        .modal-label { display: block; color: #94a3b8; margin-bottom: 5px; font-size: 13px; }
+        .modal-input { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: white; font-size: 16px; box-sizing: border-box; }
+        .modal-total-box { background: rgba(251,191,36,0.1); padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #fbbf24; display: flex; justify-content: space-between; align-items: center; }
+        .modal-buttons { display: flex; gap: 10px; }
+        .modal-btn-save { flex: 1; background: #22c55e; color: white; padding: 12px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; font-size: 15px; }
+        .modal-btn-cancel { flex: 1; background: #ef4444; color: white; padding: 12px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; font-size: 15px; }
+        
+        /* تنسيق سجل التأكيدات */
+        .confirmation-card { background: #1e293b; padding: 12px; border-radius: 10px; margin-bottom: 10px; }
+        .confirmation-header { display: flex; justify-content: space-between; align-items: center; }
+        .confirmation-status { font-size: 11px; font-weight: bold; }
+
+        /* ═══════════════════════════════════════ */
+        /* 📖 تنسيق اليوميات */
+        /* ═══════════════════════════════════════ */
+        .diary-section-personal {
+            background: linear-gradient(135deg, #0c1a2e 0%, #1a1035 100%);
+            padding: 20px; border-radius: 18px; margin-bottom: 20px;
+            border: 2px solid #818cf8;
+            box-shadow: 0 4px 20px rgba(129, 140, 248, 0.2);
+        }
+        .diary-section-community {
+            background: linear-gradient(135deg, #0f2318 0%, #0c1a12 100%);
+            padding: 20px; border-radius: 18px; margin-bottom: 20px;
+            border: 2px solid #4ade80;
+            box-shadow: 0 4px 20px rgba(74, 222, 128, 0.15);
+        }
+        .diary-entry {
+            background: rgba(0,0,0,0.3);
+            padding: 14px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            border-right: 4px solid #818cf8;
+            position: relative;
+            animation: fadeInEntry 0.3s ease;
+        }
+        .diary-entry-community {
+            border-right-color: #4ade80;
+        }
+        .diary-entry-hidden {
+            opacity: 0.4;
+            border-right-style: dashed;
+        }
+        @keyframes fadeInEntry {
+            from { opacity: 0; transform: translateY(-8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .diary-entry-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+        .diary-servant-name {
+            font-size: 12px;
+            font-weight: bold;
+            color: #a5b4fc;
+            background: rgba(99,102,241,0.15);
+            padding: 3px 8px;
+            border-radius: 6px;
+        }
+        .diary-servant-name-green {
+            color: #86efac;
+            background: rgba(74,222,128,0.1);
+        }
+        .diary-date-badge {
+            font-size: 10px;
+            color: #64748b;
+            direction: ltr;
+        }
+        .diary-text {
+            font-size: 14px;
+            line-height: 1.8;
+            color: #e2e8f0;
+        }
+        .diary-delete-btn {
+            background: none;
+            color: #f87171;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-top: 6px;
+            cursor: pointer;
+            border: 1px solid rgba(248,113,113,0.3);
+            transition: 0.2s;
+        }
+        .diary-delete-btn:hover { background: rgba(248,113,113,0.15); }
+        .diary-visibility-toggle {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: #94a3b8;
+            cursor: pointer;
+            user-select: none;
+            margin-top: 6px;
+        }
+        .toggle-pill {
+            width: 34px; height: 18px;
+            background: #ef4444;
+            border-radius: 9px;
+            position: relative;
+            transition: background 0.3s;
+            flex-shrink: 0;
+        }
+        .toggle-pill::after {
+            content: '';
+            position: absolute;
+            width: 14px; height: 14px;
+            background: white;
+            border-radius: 50%;
+            top: 2px; right: 2px;
+            transition: right 0.3s;
+        }
+        .toggle-pill.on {
+            background: #22c55e;
+        }
+        .toggle-pill.on::after {
+            right: 18px;
+        }
     </style>
 </head>
 <body>
@@ -69,8 +210,9 @@
 <div id="login">
     <div class="login-box">
         <h3 style="margin-top:0;">† دخول الخدام †</h3>
-        <input type="password" id="passInput" placeholder="أدخل كلمة السر">
+        <input type="password" id="passInput" placeholder="أدخل كلمة السر" onkeydown="if(event.key==='Enter') checkPass()">
         <button onclick="checkPass()" style="background: #22c55e; width: 100%; padding: 12px; margin-top: 15px; font-weight: bold; border-radius: 8px;">دخول</button>
+        <p id="loginError" style="color:#ef4444; font-size:12px; margin-top:10px; display:none;"></p>
     </div>
 </div>
 
@@ -80,9 +222,99 @@
         <small id="welcomeServant" style="color: #fbbf24; font-weight: bold;"></small>
     </div>
 
+    <!-- ═════════════════════════════════════════════ -->
+    <!-- 📖 يوميات بركات ربنا معايا (خاص بالأمين)   -->
+    <!-- ═════════════════════════════════════════════ -->
+    <div class="diary-section-personal" id="personalDiarySection" style="display:none;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h3 style="margin:0; color:#818cf8;">✨ يوميات بركات ربنا معايا</h3>
+            <small style="color:#475569; font-size:11px;">خاص بك أنت فقط</small>
+        </div>
+
+        <div style="background:rgba(99,102,241,0.08); padding:12px; border-radius:12px; border:1px solid #334155; margin-bottom:15px;">
+            <textarea id="personalDiaryInput" rows="3"
+                placeholder="سجّل بركة أو لحظة مع الرب النهارده..."
+                style="resize:vertical; margin-bottom:8px; border:1px solid #4f46e5; background:#0f172a; font-size:15px;"></textarea>
+            <button onclick="addPersonalDiary()"
+                style="width:100%; padding:11px; background:linear-gradient(135deg,#6366f1,#4f46e5); color:white; font-weight:bold; border-radius:10px; border:none; cursor:pointer; font-size:14px;">
+                📝 سجّل البركة
+            </button>
+        </div>
+
+        <div id="personalDiaryList" style="max-height:350px; overflow-y:auto;">
+            <p style="text-align:center; color:#475569; font-size:12px;">جاري التحميل...</p>
+        </div>
+    </div>
+
+    <!-- ═════════════════════════════════════════════ -->
+    <!-- 🫂 يوميات مجتمع الخدام (مع تحكم الإظهار)    -->
+    <!-- ═════════════════════════════════════════════ -->
+    <div class="diary-section-community" id="communityDiarySection" style="display:none;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h3 style="margin:0; color:#4ade80;">🫂 يوميات مجتمع الخدام</h3>
+            <small style="color:#475569; font-size:11px;">يمكنك التحكم في الإظهار</small>
+        </div>
+
+        <div style="background:rgba(74,222,128,0.06); padding:12px; border-radius:12px; border:1px solid #1e3a2a; margin-bottom:15px;">
+            <textarea id="communityDiaryInput" rows="3"
+                placeholder="سجّل لحظة أو تجربة من خدمتكم معاً..."
+                style="resize:vertical; margin-bottom:8px; border:1px solid #16a34a; background:#0f172a; font-size:15px;"></textarea>
+            <button onclick="addCommunityDiary()"
+                style="width:100%; padding:11px; background:linear-gradient(135deg,#22c55e,#16a34a); color:white; font-weight:bold; border-radius:10px; border:none; cursor:pointer; font-size:14px;">
+                📝 سجّل لحظة الخدمة
+            </button>
+        </div>
+
+        <div id="communityDiaryList" style="max-height:400px; overflow-y:auto;">
+            <p style="text-align:center; color:#475569; font-size:12px;">جاري التحميل...</p>
+        </div>
+    </div>
+
+    <!-- زر فتح اليوميات -->
+    <div style="display:flex; gap:10px; margin-bottom:20px;">
+        <button onclick="toggleDiarySection('personal')"
+            style="flex:1; padding:13px; background:rgba(99,102,241,0.15); color:#818cf8; font-weight:bold; border-radius:12px; border:2px solid #6366f1; cursor:pointer; font-size:14px;" id="personalDiaryBtn">
+            ✨ يومياتي مع الرب
+        </button>
+        <button onclick="toggleDiarySection('community')"
+            style="flex:1; padding:13px; background:rgba(74,222,128,0.1); color:#4ade80; font-weight:bold; border-radius:12px; border:2px solid #22c55e; cursor:pointer; font-size:14px;" id="communityDiaryBtn">
+            🫂 يوميات الخدام
+        </button>
+    </div>
+
     <div class="section" style="border: 2px solid #fbbf24; display: flex; justify-content: space-between; align-items: center; background: rgba(251, 191, 36, 0.1);">
         <span style="font-weight: bold; color: #fbbf24;">ظهور المسابقة للمخدومين:</span>
         <button id="quizVisibilityBtn" onclick="toggleQuizVisibility()" style="padding: 10px 20px; font-weight: bold; background: #ef4444; border-radius: 8px; color: white;">مخفية الآن ❌</button>
+    </div>
+
+    <!-- ═════════════════════════════════════════════════ -->
+    <!-- 💬 زر التحكم في ظهور ركن الدردشة (الإضافة الجديدة) -->
+    <!-- ═════════════════════════════════════════════════ -->
+    <div class="section" style="border: 2px solid #ef4444; display: flex; justify-content: space-between; align-items: center; background: rgba(239, 68, 68, 0.1);">
+        <span style="font-weight: bold; color: #ef4444;">ظهور ركن الدردشة للمخدومين:</span>
+        <button id="chatVisibilityBtn" onclick="toggleChatVisibility()" style="padding: 10px 20px; font-weight: bold; background: #22c55e; border-radius: 8px; color: white;">ظاهر الآن ✅</button>
+    </div>
+
+    <!-- ═════════════════════════════════════════════════ -->
+    <!-- 📖 زر التحكم في ظهور قسم اليوميات عند المخدومين -->
+    <!-- ═════════════════════════════════════════════════ -->
+    <div class="section" style="border: 2px solid #818cf8; display: flex; justify-content: space-between; align-items: center; background: rgba(129, 140, 248, 0.08);">
+        <span style="font-weight: bold; color: #818cf8;">📖 يوميات بركات ربنا عند المخدومين:</span>
+        <button id="journalVisibilityBtn" onclick="toggleJournalVisibility()" style="padding: 10px 20px; font-weight: bold; border-radius: 8px; color: white; background: #ef4444;">مخفي الآن ❌</button>
+    </div>
+
+    <!-- ═════════════════════════════════════════════════ -->
+    <!-- 💬 زر التحكم في ظهور يوميات المجتمع             -->
+    <!-- ═════════════════════════════════════════════════ -->
+    <div class="section" style="border: 2px solid #f472b6; display: flex; justify-content: space-between; align-items: center; background: rgba(244, 114, 182, 0.08);">
+        <span style="font-weight: bold; color: #f472b6;">💬 يوميات المجتمع عند المخدومين:</span>
+        <button id="communityDiaryVisibilityBtn" onclick="toggleCommunityDiaryVisibility()" style="padding: 10px 20px; font-weight: bold; border-radius: 8px; color: white; background: #ef4444;">مخفي الآن ❌</button>
+    </div>
+
+    <!-- زر التحكم في ظهور يوميات المجتمع عند المخدومين -->
+    <div class="section" style="border: 2px solid #4ade80; display: flex; justify-content: space-between; align-items: center; background: rgba(74, 222, 128, 0.07);">
+        <span style="font-weight: bold; color: #4ade80;">🫂 يوميات المجتمع للمخدومين:</span>
+        <button id="communityDiaryVisibilityBtn" onclick="toggleCommunityDiaryVisibility()" style="padding: 10px 20px; font-weight: bold; background: #22c55e; border-radius: 8px; color: white;">ظاهرة الآن ✅</button>
     </div>
 
     <button onclick="toggleQuizSection()" style="width: 100%; padding: 12px; margin-bottom: 15px; background: #334155; color: #fbbf24; font-weight: bold; border-radius: 10px; border: 1px solid #fbbf24; cursor: pointer;">⚙️ إعدادات الأسئلة والنتائج</button>
@@ -108,7 +340,8 @@
             <select id="qType" onchange="toggleManualFields()">
                 <option value="choice">اختيار من متعدد</option>
                 <option value="truefalse">صح أم خطأ</option>
-                <option value="text">أكمل</option>
+                <option value="text">أكمل (نص قصير)</option>
+                <option value="essay">سؤال مقالي (شرح)</option>
             </select>
             <input type="text" id="mQuestion" placeholder="نص السؤال">
             
@@ -127,7 +360,7 @@
             </div>
 
             <div id="textOnlyArea" style="display:none;">
-                <input type="text" id="manualAns" placeholder="الإجابة الصحيحة">
+                <input type="text" id="manualAns" placeholder="الإجابة الصحيحة (اترك فارغاً للمقالي)">
             </div>
 
             <button onclick="saveManualQuestion()" class="main-btn" style="background: #22c55e;">حفظ السؤال ✅</button>
@@ -139,10 +372,38 @@
         </div>
 
         <div id="viewRes" style="display: none;">
-            <div id="resList" style="max-height: 200px; overflow-y: auto; background: #020617; padding: 10px; border-radius: 8px; margin-bottom: 10px;"></div>
-            <button onclick="confirmClearQuiz()" style="background:#ef4444;" class="main-btn">تصفير المسابقة لبدء واحدة جديدة 🗑️</button>
+            <div id="resList" style="max-height: 250px; overflow-y: auto; background: #020617; padding: 10px; border-radius: 8px; margin-bottom: 10px;"></div>
+            <div style="background: rgba(239, 68, 68, 0.1); padding: 12px; border-radius: 8px; margin-bottom: 10px; border: 1px dashed #ef4444;">
+                <p style="font-size: 12px; color: #fca5a5; margin: 0 0 8px 0; line-height: 1.6;">
+                    ⚠️ التصفير الشامل يمسح:<br>
+                    ✅ كل إجابات المسابقة (النظام القديم والجديد)<br>
+                    ✅ يسمح لكل المخدومين بالحل مرة أخرى
+                </p>
+            </div>
+            <button onclick="confirmClearQuiz()" style="background:#ef4444;" class="main-btn">🗑️ تصفير المسابقة بالكامل (شامل)</button>
         </div>
     </div>
+
+    <div class="encouragement-section">
+        <h3 style="margin: 0 0 15px 0; color: #fbbf24; text-align: center;">💙 محتاجينك معانا - المخدومين الغير نشطين</h3>
+        <p style="text-align: center; font-size: 13px; color: #fcd34d; margin-bottom: 15px;">
+            المخدومين دول محتاجين تشجيع منك! 🌟
+        </p>
+        
+        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+            <button onclick="sendEncouragementToAll()" style="flex: 1; background: #22c55e; padding: 12px; font-weight: bold; border-radius: 10px; font-size: 14px;">
+                📨 أرسل رسائل تشجيعية للكل
+            </button>
+            <button onclick="toggleInactiveList()" style="flex: 1; background: #6366f1; padding: 12px; font-weight: bold; border-radius: 10px; font-size: 14px;">
+                👀 شوف القائمة
+            </button>
+        </div>
+        
+        <div id="inactiveList" style="display: none; max-height: 350px; overflow-y: auto; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 10px;">
+            <p style="text-align: center; color: #94a3b8; font-size: 12px;">جاري التحميل...</p>
+        </div>
+    </div>
+
     <div class="top-control">
         <button id="modeBtn" onclick="toggleEditMode()" class="btn-edit-mode">📝 وضع التعديل</button>
         <button id="resetBtn" onclick="resetAllScores()" class="btn-reset">🔄 تصفير الكل</button>
@@ -152,10 +413,18 @@
         <h4 style="margin: 0 0 10px 0; color: #fbbf24;">🏆 درجات المخدومين</h4>
         <input type="text" id="searchInput" onkeyup="searchMakhdoum()" placeholder="🔍 ابحث عن اسم..." style="margin-bottom:10px; background:#334155;">
         <div id="addArea" class="add-area">
-            <input type="text" id="nameInp" placeholder="اسم مخدوم جديد..." style="flex:1;">
-            <button onclick="addNewMakhdoum()" style="background:#22c55e; padding:0 15px;">إضافة</button>
+            <div class="add-area-grid">
+                <input type="text" id="nameInp" placeholder="اسم مخدوم جديد..." style="flex:1;">
+                <input type="tel" id="phoneInp" placeholder="رقم التليفون" style="flex:1;">
+            </div>
+            <button onclick="addNewMakhdoum()" style="background:#22c55e; padding:10px 15px; font-weight:bold;">إضافة</button>
         </div>
         <div id="leaderboard" class="grid"></div>
+    </div>
+
+    <div class="section" style="border: 2px solid #10b981; background: rgba(16, 185, 129, 0.05);">
+        <h4 style="margin: 0 0 15px 0; color: #10b981;">📊 تفاصيل النقاط لكل مخدوم</h4>
+        <div id="pointsBreakdownList" style="max-height: 400px; overflow-y: auto;"></div>
     </div>
 
     <div class="section" style="border-right: 4px solid #22c55e;">
@@ -189,6 +458,19 @@
         <div id="prayerReportsList" style="max-height: 300px; overflow-y: auto; background: #020617; padding: 10px; border-radius: 10px;">
             <p style="text-align:center; color:gray; font-size:12px;">جاري تحميل التقارير...</p>
         </div>
+    </div>
+
+    <!-- قسم سجل تأكيدات القداس -->
+    <div class="section" style="border: 2px solid #22c55e;">
+        <h3 style="color: #22c55e; text-align: center; margin-top: 0;">📋 سجل تأكيدات حضور القداس</h3>
+        <p style="font-size: 12px; color: #94a3b8; text-align: center; margin-bottom: 15px;">
+            عرض آخر 50 طلب تأكيد للقداس • تحديث تلقائي كل دقيقة
+        </p>
+        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+            <button onclick="loadConfirmationHistory()" style="flex: 2; padding: 12px; background: #22c55e; border-radius: 10px; font-weight: bold;">🔄 تحديث السجل</button>
+            <button onclick="generateConfirmationReport()" style="flex: 1; padding: 12px; background: #6366f1; border-radius: 10px; font-weight: bold;">📊 تقرير</button>
+        </div>
+        <div id="confirmationHistory" style="max-height: 400px; overflow-y: auto;"></div>
     </div>
 
     <div class="section" style="border-right: 4px solid #6366f1;">
@@ -235,41 +517,99 @@
         <p style="text-align: center; font-size: 13px; color: #cbd5e1;">النصوص التي ستكتبها هنا ستظهر للمخدومين تحت كل بند لتوجيههم في الصلاة.</p>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-            <div>
-                <label style="display:block; margin-bottom:5px; color:#fbbf24;">📖 إرشاد الأجبية:</label>
-                <input type="text" id="adm_agpeya" placeholder="مثلاً: صلوا مزمور 50..." style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:white;">
+            <div><label style="display:block; margin-bottom:5px; color:#fbbf24;">📖 إرشاد الأجبية:</label><input type="text" id="adm_agpeya" style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:white;"></div>
+            <div><label style="display:block; margin-bottom:5px; color:#fbbf24;">🕊️ إرشاد الشكر:</label><input type="text" id="adm_thanks" style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:white;"></div>
+            <div><label style="display:block; margin-bottom:5px; color:#fbbf24;">🙏 إرشاد المغفرة:</label><input type="text" id="adm_forgive" style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:white;"></div>
+            <div><label style="display:block; margin-bottom:5px; color:#fbbf24;">❤️ إرشاد القلب الملتهب:</label><input type="text" id="adm_heart" style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:white;"></div>
+            <div><label style="display:block; margin-bottom:5px; color:#fbbf24;">🔗 إرشاد الاتحاد بالرب:</label><input type="text" id="adm_union" style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:white;"></div>
+            <div><label style="display:block; margin-bottom:5px; color:#fbbf24;">📜 إرشاد آية اليوم:</label><input type="text" id="adm_verse" style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:white;"></div>
+        </div>
+        <button onclick="updatePrayerHints()" style="width: 100%; margin-top: 20px; padding: 15px; background: #4ade80; color: #0f172a; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px;">تحديث الإرشادات عند المخدومين الآن 🚀</button>
+    </div>
+    <div class="section" style="border: 2px solid #fbbf24; background: rgba(251,191,36,0.05);">
+        <h4 style="margin:0 0 15px 0; color:#fbbf24; text-align:center;">📋 إدارة خطة المهام والتنبيهات</h4>
+        <p style="font-size:12px; color:#94a3b8; text-align:center; margin-bottom:15px;">ما تكتبه هنا هيظهر للمخدومين فوراً في قسم "خطة المهام"</p>
+
+        <div style="background:#0f172a; padding:15px; border-radius:12px; margin-bottom:15px; border:1px solid #334155;">
+            <label style="font-size:12px; color:#fbbf24; display:block; margin-bottom:5px;">📌 عنوان المهمة / التنبيه:</label>
+            <input type="text" id="taskTitle" placeholder="مثال: مراجعة سفر المزامير" style="margin-bottom:10px;">
+
+            <label style="font-size:12px; color:#fbbf24; display:block; margin-bottom:5px;">📝 التفاصيل (اختياري):</label>
+            <textarea id="taskDetails" rows="3" placeholder="اكتب أي تفاصيل أو توضيحات إضافية هنا..." style="margin-bottom:10px;"></textarea>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
+                <div>
+                    <label style="font-size:12px; color:#fbbf24; display:block; margin-bottom:5px;">⚡ الأولوية:</label>
+                    <select id="taskPriority" style="margin-bottom:0;">
+                        <option value="عالي">🔴 عالي</option>
+                        <option value="متوسط" selected>🟡 متوسط</option>
+                        <option value="عادي">🔵 عادي</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size:12px; color:#fbbf24; display:block; margin-bottom:5px;">📅 تاريخ التسليم:</label>
+                    <input type="date" id="taskDueDate" style="margin-bottom:0;">
+                </div>
             </div>
 
-            <div>
-                <label style="display:block; margin-bottom:5px; color:#fbbf24;">🕊️ إرشاد الشكر:</label>
-                <input type="text" id="adm_thanks" placeholder="مثلاً: نشكر الله على ستره..." style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:white;">
-            </div>
-
-            <div>
-                <label style="display:block; margin-bottom:5px; color:#fbbf24;">🙏 إرشاد المغفرة:</label>
-                <input type="text" id="adm_forgive" placeholder="مثلاً: نطلب توبة عن خطايانا..." style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:white;">
-            </div>
-
-            <div>
-                <label style="display:block; margin-bottom:5px; color:#fbbf24;">❤️ إرشاد القلب الملتهب:</label>
-                <input type="text" id="adm_heart" placeholder="مثلاً: اطلب نار الحب الإلهي..." style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:white;">
-            </div>
-
-            <div>
-                <label style="display:block; margin-bottom:5px; color:#fbbf24;">🔗 إرشاد الاتحاد بالرب:</label>
-                <input type="text" id="adm_union" placeholder="مثلاً: يارب ثبتنا فيك..." style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:white;">
-            </div>
-
-            <div>
-                <label style="display:block; margin-bottom:5px; color:#fbbf24;">📜 إرشاد آية اليوم:</label>
-                <input type="text" id="adm_verse" placeholder="مثلاً: شاركنا آية تعزيتك..." style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:white;">
-            </div>
+            <button onclick="addTask()" style="width:100%; padding:12px; background:linear-gradient(135deg,#fbbf24,#f59e0b); color:#0f172a; font-weight:bold; border-radius:10px; font-size:15px;">➕ إضافة المهمة</button>
         </div>
 
-        <button onclick="updatePrayerHints()" style="width: 100%; margin-top: 20px; padding: 15px; background: #4ade80; color: #0f172a; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px;">
-            تحديث الإرشادات عند المخدومين الآن 🚀
-        </button>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <span style="font-weight:bold; color:#94a3b8; font-size:13px;">المهام الحالية:</span>
+            <button onclick="clearAllTasks()" style="background:#ef4444; padding:5px 12px; font-size:11px; font-weight:bold; border-radius:8px;">مسح الكل 🗑️</button>
+        </div>
+        <div id="adminTasksList" style="max-height:350px; overflow-y:auto;"></div>
     </div>
+
+    <!-- ========== قسم تعاليم الأحد ========== -->
+    <div class="section" style="border: 2px solid #10b981; background: rgba(16,185,129,0.05);">
+        <h4 style="margin:0 0 15px 0; color:#10b981; text-align:center;">📚 إدارة تعاليم الأحد</h4>
+        <p style="font-size:12px; color:#94a3b8; text-align:center; margin-bottom:15px;">ملخص الدرس هيظهر للمخدومين فوراً في قسم "تعاليم الأحد"</p>
+
+        <div style="background:#0f172a; padding:15px; border-radius:12px; margin-bottom:15px; border:1px solid #334155; display:flex; flex-direction:column; gap:10px;">
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <div>
+                    <label style="font-size:12px; color:#10b981; display:block; margin-bottom:5px;">📅 التاريخ:</label>
+                    <input type="date" id="lessonDate" style="margin-bottom:0;">
+                </div>
+                <div>
+                    <label style="font-size:12px; color:#10b981; display:block; margin-bottom:5px;">📌 اسم الأسبوع / الوحدة:</label>
+                    <input type="text" id="lessonWeek" placeholder="مثال: الأسبوع الثالث - محبة الله" style="margin-bottom:0;">
+                </div>
+            </div>
+
+            <div>
+                <label style="font-size:12px; color:#10b981; display:block; margin-bottom:5px;">✝️ عنوان الدرس:</label>
+                <input type="text" id="lessonTitle" placeholder="مثال: أنا هو الطريق والحق والحياة">
+            </div>
+
+            <div>
+                <label style="font-size:12px; color:#10b981; display:block; margin-bottom:5px;">💡 الفكرة الرئيسية:</label>
+                <textarea id="lessonMainIdea" rows="2" placeholder="اكتب الفكرة الأساسية للدرس هنا..." style="resize:vertical;"></textarea>
+            </div>
+
+            <div>
+                <label style="font-size:12px; color:#10b981; display:block; margin-bottom:5px;">📝 نقاط الدرس (كل نقطة في سطر):</label>
+                <textarea id="lessonPoints" rows="4" placeholder="النقطة الأولى&#10;النقطة الثانية&#10;النقطة الثالثة" style="resize:vertical;"></textarea>
+            </div>
+
+            <div>
+                <label style="font-size:12px; color:#10b981; display:block; margin-bottom:5px;">🔑 آية تحفظها:</label>
+                <input type="text" id="lessonVerse" placeholder="مثال: أنا هو الطريق والحق والحياة - يوحنا 14: 6">
+            </div>
+
+            <button onclick="addLesson()" style="width:100%; padding:12px; background:linear-gradient(135deg,#10b981,#059669); color:white; font-weight:bold; border-radius:10px; font-size:15px; border:none; cursor:pointer;">➕ نشر الدرس للمخدومين</button>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <span style="font-weight:bold; color:#94a3b8; font-size:13px;">الدروس المنشورة:</span>
+            <button onclick="clearAllLessons()" style="background:#ef4444; padding:5px 12px; font-size:11px; font-weight:bold; border-radius:8px; color:white; border:none; cursor:pointer;">مسح الكل 🗑️</button>
+        </div>
+        <div id="adminLessonsList" style="max-height:300px; overflow-y:auto;"></div>
+    </div>
+
 </div>
 
 <script>
@@ -282,30 +622,37 @@
 
     function checkPass() {
         const input = document.getElementById('passInput').value.trim().toLowerCase();
+        const errEl = document.getElementById('loginError');
         if(users[input]) {
             currentServant = users[input];
             document.getElementById('login').style.display = 'none';
             document.getElementById('admin').style.display = 'block';
             document.getElementById('welcomeServant').innerText = "أهلاً يا " + currentServant;
-            startListening();
-            loadCurrentHints(); 
-            listenToPrayerReports(); // وظيفة استماع لتقارير الصلاة الجديدة
-        } else { alert("كلمة السر خطأ!"); }
+            try { startListening(); } catch(e) { console.warn("startListening error:", e); }
+            try { loadCurrentHints(); } catch(e) { console.warn("loadCurrentHints error:", e); }
+            try { listenToPrayerReports(); } catch(e) { console.warn("listenToPrayerReports error:", e); }
+        } else { 
+            if(errEl) { errEl.style.display = 'block'; errEl.innerText = '❌ كلمة السر خطأ!'; }
+            else { alert("كلمة السر خطأ!"); }
+            document.getElementById('passInput').value = '';
+            document.getElementById('passInput').focus();
+        }
     }
 
     function startListening() {
         listenQuizStatus(); 
-        
-        db.ref("settings/quizTimer").on("value", snap => {
-            if(snap.exists()) document.getElementById('quizTimerInp').value = snap.val();
-        });
-
+        loadChatVisibility();
+        loadJournalVisibility();
+        loadCommunityDiaryVisibility();
+        loadCommunityDiaryVisibility(); // تحميل حالة يوميات المجتمع
+        loadPointsBreakdown();
+        db.ref("settings/quizTimer").on("value", snap => { if(snap.exists()) document.getElementById('quizTimerInp').value = snap.val(); });
         db.ref("points_data").on("value", snap => {
             const data = snap.val();
             localData = data ? Object.keys(data).map(k => ({id:k, ...data[k]})) : [];
             renderUI();
+            loadPointsBreakdown(); // تحديث تفاصيل النقاط عند تغيير الدرجات
         });
-
         db.ref("media_library").on("value", snap => {
             const d = snap.val();
             if(d) {
@@ -314,26 +661,22 @@
                 document.getElementById('videoUrl').value = d.video || "";
             }
         });
-
         db.ref("settings/libVisible").on("value", snap => {
             const isVisible = snap.val() !== false;
             const btn = document.getElementById('libStatusBtn');
             btn.innerText = isVisible ? "ظاهرة الآن ✅" : "مخفية الآن ❌";
             btn.style.background = isVisible ? "#22c55e" : "#ef4444";
         });
-
         db.ref("activity_logs").limitToLast(20).on("value", snap => {
             const box = document.getElementById('actionLog'); box.innerHTML = "";
             snap.forEach(l => { box.innerHTML = `<div>${l.val()}</div>` + box.innerHTML; });
         });
-
         db.ref("settings/chatEnabled").on("value", snap => {
             const status = snap.val() !== false;
             const btn = document.getElementById('chatStatusBtn');
             btn.innerText = status ? "إيقاف الدردشة 🔴" : "فتح الدردشة 🟢";
             btn.style.background = status ? "#ef4444" : "#22c55e";
         });
-
         db.ref("chat").limitToLast(15).on("value", snap => {
             const box = document.getElementById('adminChat'); box.innerHTML = "";
             snap.forEach(m => { 
@@ -344,7 +687,6 @@
             });
             box.scrollTop = box.scrollHeight;
         });
-
         db.ref("psychology/confessions").on("value", snap => {
             const box = document.getElementById('psyList'); box.innerHTML = "";
             snap.forEach(c => {
@@ -357,117 +699,208 @@
                     <div style="text-align: left; margin-top:5px;"><button onclick="deletePsyMsg('${key}')" style="background:none; color:#f87171; font-size:10px;">حذف 🗑️</button></div></div>`;
             });
         });
-
         db.ref("psychology/private_chats").on("value", snap => {
-            const box = document.getElementById('adminPsyChats');
-            box.innerHTML = "";
+            const box = document.getElementById('adminPsyChats'); box.innerHTML = "";
             const data = snap.val();
-            if(!data) {
-                box.innerHTML = "<p style='text-align:center; color:gray; font-size:12px;'>لا يوجد محادثات نشطة</p>";
-                return;
-            }
-
+            if(!data) { box.innerHTML = "<p style='text-align:center; color:gray; font-size:12px;'>لا يوجد محادثات نشطة</p>"; return; }
             Object.keys(data).forEach(sid => {
                 const messages = data[sid];
                 let sHtml = `<div style="background:#1e293b; padding:10px; border-radius:10px; margin-bottom:10px; border:1px solid #ef4444;">
                     <small style="color:#94a3b8; display:block; margin-bottom:5px;">الجلسة: ${sid}</small>
                     <div id="chatbox_${sid}" style="max-height:100px; overflow-y:auto; margin-bottom:8px; background:rgba(0,0,0,0.2); padding:5px; border-radius:5px;">`;
-                
                 Object.values(messages).forEach(m => {
                     const isServant = m.sender && m.sender.includes("الخادم");
-                    sHtml += `<div style="font-size:12px; margin-bottom:3px; color:${isServant ? '#fbbf24' : '#fff'}">
-                        <b>${m.sender}:</b> ${m.text}
-                    </div>`;
+                    sHtml += `<div style="font-size:12px; margin-bottom:3px; color:${isServant ? '#fbbf24' : '#fff'}"><b>${m.sender}:</b> ${m.text}</div>`;
                 });
-
                 sHtml += `</div><div style="display:flex; gap:5px; margin-top:8px;">
                     <input type="text" id="rep_${sid}" placeholder="رد..." style="font-size:12px; padding:5px; height:35px; background:#0f172a; border:1px solid #334155; color:white; flex-grow:1;">
                     <button onclick="replyPsy('${sid}')" style="background:#22c55e; padding:0 15px;">رد</button>
                     <button onclick="delPsyChat('${sid}')" style="background:#ef4444; padding:0 10px;">🗑️</button>
                 </div></div>`;
                 box.innerHTML += sHtml;
-                
-                setTimeout(() => {
-                    const b = document.getElementById('chatbox_' + sid);
-                    if(b) b.scrollTop = b.scrollHeight;
-                }, 100);
             });
         });
     }
 
-    // --- وظائف استلام تقارير الصلاة الجديدة ---
     function listenToPrayerReports() {
         db.ref("prayer_reports").on("value", snap => {
-            const box = document.getElementById('prayerReportsList');
-            box.innerHTML = "";
-            if(!snap.exists()) {
-                box.innerHTML = "<p style='text-align:center; color:gray; font-size:12px;'>لا توجد تقارير صلاة حتى الآن</p>";
-                return;
-            }
+            const box = document.getElementById('prayerReportsList'); box.innerHTML = "";
+            if(!snap.exists()) { box.innerHTML = "<p style='text-align:center; color:gray; font-size:12px;'>لا توجد تقارير صلاة</p>"; return; }
             snap.forEach(child => {
                 const r = child.val();
-                box.innerHTML = `<div class="prayer-report-card">
-                    <span class="duration-badge">⏱️ ${r.duration || '0 د'}</span>
-                    <b style="color:#fbbf24; font-size:14px;">👤 ${r.makhdom}</b><br>
-                    <small style="color:#94a3b8;">📅 ${r.time}</small>
-                    <div style="margin-top:8px; border-top: 1px solid #334155; padding-top:5px;">
-                        <div style="margin-bottom:3px;">📖 <b>الأجبية:</b> ${r.agpeya || '---'}</div>
-                        <div style="margin-bottom:3px;">🕊️ <b>شكر:</b> ${r.thanks || '---'}</div>
-                        <div style="margin-bottom:3px;">🙏 <b>توبة:</b> ${r.forgive || '---'}</div>
-                        <div style="margin-bottom:3px;">❤️ <b>حب:</b> ${r.heart || '---'}</div>
-                        <div style="margin-bottom:3px;">🔗 <b>ثبات:</b> ${r.union || '---'}</div>
-                        <div style="color:#4ade80;">📜 <b>الآية:</b> ${r.verse || '---'}</div>
-                    </div>
-                </div>` + box.innerHTML;
+                box.innerHTML = `<div class="prayer-report-card"><span class="duration-badge">⏱️ ${r.duration || '0 د'}</span><b style="color:#fbbf24; font-size:14px;">👤 ${r.makhdom}</b><br><small style="color:#94a3b8;">📅 ${r.time}</small>
+                    <div style="margin-top:8px; border-top: 1px solid #334155; padding-top:5px;"><div>📖 <b>الأجبية:</b> ${r.agpeya || '---'}</div><div>🕊️ <b>شكر:</b> ${r.thanks || '---'}</div><div>🙏 <b>توبة:</b> ${r.forgive || '---'}</div><div>❤️ <b>حب:</b> ${r.heart || '---'}</div><div>🔗 <b>ثبات:</b> ${r.union || '---'}</div><div style="color:#4ade80;">📜 <b>الآية:</b> ${r.verse || '---'}</div></div></div>` + box.innerHTML;
             });
         });
     }
 
-    function clearPrayerReports() {
-        if(prompt("اكتب كلمة السر لمسح كافة تقارير الصلاة:") === "jesus 777") {
-            db.ref("prayer_reports").remove().then(() => alert("تم مسح السجل بنجاح ✅"));
-        }
+    function clearPrayerReports() { if(prompt("باسوورد مسح التقارير:") === "jesus 777") db.ref("prayer_reports").remove(); }
+
+    function loadPointsBreakdown() {
+        const box = document.getElementById('pointsBreakdownList');
+        box.innerHTML = "<p style='text-align:center; color:gray; font-size:12px;'>جاري تحميل البيانات...</p>";
+
+        // جمع كل البيانات
+        Promise.all([
+            db.ref("points_data").once("value"),
+            db.ref("bible_quiz/submissions").once("value"),
+            db.ref("prayer_reports").once("value"),
+            db.ref("attendance_logs").once("value")
+        ]).then(([pointsSnap, quizSnap, prayerSnap, attendanceSnap]) => {
+            const pointsData = pointsSnap.val() || {};
+            
+            // تجميع نقاط المسابقة مع التواريخ
+            const quizDetails = {};
+            if (quizSnap.exists()) {
+                quizSnap.forEach(child => {
+                    const data = child.val();
+                    if (!quizDetails[data.userName]) quizDetails[data.userName] = [];
+                    quizDetails[data.userName].push({
+                        points: data.finalPoints || data.score || 0,
+                        time: data.time || "غير محدد"
+                    });
+                });
+            }
+
+            // تجميع نقاط الصلاة مع التواريخ
+            const prayerDetails = {};
+            if (prayerSnap.exists()) {
+                prayerSnap.forEach(child => {
+                    const data = child.val();
+                    if (!prayerDetails[data.makhdom]) prayerDetails[data.makhdom] = [];
+                    prayerDetails[data.makhdom].push({
+                        points: 5,
+                        time: data.time || "غير محدد"
+                    });
+                });
+            }
+
+            // تجميع نقاط الحضور مع التواريخ
+            const attendanceDetails = {};
+            if (attendanceSnap.exists()) {
+                attendanceSnap.forEach(child => {
+                    const data = child.val();
+                    const name = data.makhdom;
+                    if (!attendanceDetails[name]) attendanceDetails[name] = [];
+                    attendanceDetails[name].push({
+                        type: data.type,
+                        points: 5,
+                        time: data.submittedAt || "غير محدد"
+                    });
+                });
+            }
+
+            // عرض النتائج
+            box.innerHTML = "";
+            const sortedNames = Object.keys(pointsData).map(k => ({id: k, ...pointsData[k]})).sort((a,b) => b.score - a.score);
+            
+            if (sortedNames.length === 0) {
+                box.innerHTML = "<p style='text-align:center; color:gray; font-size:12px;'>لا يوجد مخدومين</p>";
+                return;
+            }
+
+            sortedNames.forEach(p => {
+                const name = p.name;
+                const phone = p.phone || "غير محدد";
+                const total = p.score || 0;
+                
+                const quizList = quizDetails[name] || [];
+                const prayerList = prayerDetails[name] || [];
+                const attendanceList = attendanceDetails[name] || [];
+                
+                const quizTotal = quizList.reduce((sum, item) => sum + item.points, 0);
+                const prayerTotal = prayerList.reduce((sum, item) => sum + item.points, 0);
+                const attendanceTotal = attendanceList.reduce((sum, item) => sum + item.points, 0);
+                const other = total - quizTotal - prayerTotal - attendanceTotal;
+
+                let detailsHTML = '';
+                
+                // تفاصيل المسابقات
+                if (quizList.length > 0) {
+                    detailsHTML += '<div style="margin-top:10px; padding:8px; background:rgba(99,102,241,0.05); border-radius:8px; border:1px solid #6366f1;">';
+                    detailsHTML += '<div style="color:#a5b4fc; font-size:11px; font-weight:bold; margin-bottom:5px;">📖 تفاصيل مسابقات الكتاب المقدس:</div>';
+                    quizList.forEach(item => {
+                        detailsHTML += `<div style="font-size:10px; color:#cbd5e1; padding:3px 0; border-bottom:1px dashed rgba(99,102,241,0.2);">• ${item.points} نقطة - ${item.time}</div>`;
+                    });
+                    detailsHTML += '</div>';
+                }
+                
+                // تفاصيل الصلاة
+                if (prayerList.length > 0) {
+                    detailsHTML += '<div style="margin-top:10px; padding:8px; background:rgba(251,191,36,0.05); border-radius:8px; border:1px solid #fbbf24;">';
+                    detailsHTML += '<div style="color:#fde68a; font-size:11px; font-weight:bold; margin-bottom:5px;">🙏 تفاصيل الصلاة:</div>';
+                    prayerList.forEach(item => {
+                        detailsHTML += `<div style="font-size:10px; color:#cbd5e1; padding:3px 0; border-bottom:1px dashed rgba(251,191,36,0.2);">• ${item.points} نقاط - ${item.time}</div>`;
+                    });
+                    detailsHTML += '</div>';
+                }
+                
+                // تفاصيل الحضور
+                if (attendanceList.length > 0) {
+                    detailsHTML += '<div style="margin-top:10px; padding:8px; background:rgba(34,197,94,0.05); border-radius:8px; border:1px solid #22c55e;">';
+                    detailsHTML += '<div style="color:#86efac; font-size:11px; font-weight:bold; margin-bottom:5px;">⛪ تفاصيل الحضور:</div>';
+                    attendanceList.forEach(item => {
+                        detailsHTML += `<div style="font-size:10px; color:#cbd5e1; padding:3px 0; border-bottom:1px dashed rgba(34,197,94,0.2);">• ${item.type} - ${item.points} نقاط - ${item.time}</div>`;
+                    });
+                    detailsHTML += '</div>';
+                }
+
+                box.innerHTML += `
+                <div style="background: #1e293b; padding: 12px; border-radius: 10px; margin-bottom: 10px; border-right: 4px solid #10b981;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #334155; padding-bottom: 8px;">
+                        <div>
+                            <b style="color: #fbbf24; font-size: 16px;">👤 ${name}</b>
+                            <div style="background: rgba(148,163,184,0.2); display: inline-block; padding: 3px 8px; border-radius: 5px; margin-right: 8px;">
+                                <span style="color: #94a3b8; font-size: 11px;">📱 ${phone}</span>
+                            </div>
+                        </div>
+                        <span style="background: #fbbf24; color: #0f172a; padding: 4px 12px; border-radius: 8px; font-weight: bold; font-size: 16px;">المجموع: ${total}</span>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 13px;">
+                        <div style="background: rgba(99, 102, 241, 0.1); padding: 8px; border-radius: 8px; border: 1px solid #6366f1;">
+                            <span style="color: #a5b4fc;">📖 الكتاب المقدس:</span>
+                            <b style="color: #6366f1; float: left;">${quizTotal}</b>
+                        </div>
+                        <div style="background: rgba(251, 191, 36, 0.1); padding: 8px; border-radius: 8px; border: 1px solid #fbbf24;">
+                            <span style="color: #fde68a;">🙏 الصلاة:</span>
+                            <b style="color: #fbbf24; float: left;">${prayerTotal}</b>
+                        </div>
+                        <div style="background: rgba(34, 197, 94, 0.1); padding: 8px; border-radius: 8px; border: 1px solid #22c55e;">
+                            <span style="color: #86efac;">⛪ الحضور:</span>
+                            <b style="color: #22c55e; float: left;">${attendanceTotal}</b>
+                        </div>
+                        ${other > 0 ? `<div style="background: rgba(148, 163, 184, 0.1); padding: 8px; border-radius: 8px; border: 1px solid #94a3b8;">
+                            <span style="color: #cbd5e1;">✨ أخرى:</span>
+                            <b style="color: #94a3b8; float: left;">${other}</b>
+                        </div>` : ''}
+                    </div>
+                    ${detailsHTML}
+                    <button onclick="sendWelcomeMessage('${p.id}', '${name}')" style="width:100%; margin-top:10px; padding:8px; background:#6366f1; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer; font-size:11px;">💙 إرسال رسالة ترحيب للشارة</button>
+                    <button onclick="clearMakhdoumPointsDetails('${name}')" style="width:100%; margin-top:6px; padding:8px; background:#dc2626; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer; font-size:11px;">🗑️ تصفير تفاصيل النقاط (حذف السجل)</button>
+                </div>`;
+            });
+        });
     }
 
-    // --- وظائف المسابقة (لم يتم تغييرها) ---
     function saveQuizTimer() {
         const val = document.getElementById('quizTimerInp').value;
-        if(val && val > 0) {
-            db.ref("settings/quizTimer").set(parseInt(val)).then(() => alert("تم حفظ الوقت: " + val + " دقائق ⏱️"));
-        } else {
-            alert("يرجى إدخال وقت صحيح");
-        }
+        if(val && val > 0) db.ref("settings/quizTimer").set(parseInt(val)).then(() => alert("تم الحفظ ✅"));
     }
 
-    function toggleQuizVisibility() {
-        db.ref("settings/quizEnabled").once("value", snap => {
-            const current = snap.val() || false;
-            db.ref("settings/quizEnabled").set(!current);
-        });
-    }
+    function toggleQuizVisibility() { db.ref("settings/quizEnabled").once("value", snap => { db.ref("settings/quizEnabled").set(!(snap.val() || false)); }); }
+    function listenQuizStatus() { db.ref("settings/quizEnabled").on("value", snap => {
+        const isVisible = snap.val() === true;
+        const btn = document.getElementById('quizVisibilityBtn');
+        btn.innerText = isVisible ? "ظاهرة للمخدومين ✅" : "مخفية الآن ❌";
+        btn.style.background = isVisible ? "#22c55e" : "#ef4444";
+    }); }
 
-    function listenQuizStatus() {
-        db.ref("settings/quizEnabled").on("value", snap => {
-            const isVisible = snap.val() === true;
-            const btn = document.getElementById('quizVisibilityBtn');
-            if(btn) {
-                btn.innerText = isVisible ? "ظاهرة للمخدومين ✅" : "مخفية الآن ❌";
-                btn.style.background = isVisible ? "#22c55e" : "#ef4444";
-            }
-        });
-    }
-
-    function toggleQuizSection() {
-        const q = document.getElementById('quizSection');
-        q.style.display = (q.style.display === 'block') ? 'none' : 'block';
-    }
+    function toggleQuizSection() { const q = document.getElementById('quizSection'); q.style.display = (q.style.display === 'block') ? 'none' : 'block'; }
 
     function switchTab(tab) {
         ['manual', 'net', 'res'].forEach(t => {
-            const view = document.getElementById('view' + t.charAt(0).toUpperCase() + t.slice(1));
-            const btn = document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1));
-            if(view) view.style.display = (tab === t) ? 'block' : 'none';
-            if(btn) btn.classList.toggle('active-tab', tab === t);
+            document.getElementById('view' + t.charAt(0).toUpperCase() + t.slice(1)).style.display = (tab === t) ? 'block' : 'none';
+            document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle('active-tab', tab === t);
         });
         if(tab === 'res') loadResults();
     }
@@ -476,45 +909,26 @@
         const type = document.getElementById('qType').value;
         document.getElementById('choiceArea').style.display = (type === 'choice') ? 'block' : 'none';
         document.getElementById('tfArea').style.display = (type === 'truefalse') ? 'block' : 'none';
-        document.getElementById('textOnlyArea').style.display = (type === 'text') ? 'block' : 'none';
+        document.getElementById('textOnlyArea').style.display = (type === 'text' || type === 'essay') ? 'block' : 'none';
     }
 
     function saveManualQuestion() {
         const type = document.getElementById('qType').value;
         const qText = document.getElementById('mQuestion').value.trim();
         const qPoints = document.getElementById('mPoints').value.trim() || 1;
-        
-        if(!qText) return alert("اكتب السؤال أولاً");
-        
-        let data = { 
-            text: qText, 
-            type: type, 
-            points: parseInt(qPoints),
-            options: [] 
-        };
-        
+        if(!qText) return alert("اكتب السؤال");
+        let data = { text: qText, type: type, points: parseInt(qPoints), options: [] };
         if(type === 'choice') {
-            const opts = [
-                document.getElementById('opt0').value.trim(), 
-                document.getElementById('opt1').value.trim(), 
-                document.getElementById('opt2').value.trim(), 
-                document.getElementById('opt3').value.trim()
-            ];
-            data.options = opts;
-            data.correctAnswer = opts[document.querySelector('input[name="correctRadio"]:checked').value];
+            const opts = [document.getElementById('opt0').value.trim(), document.getElementById('opt1').value.trim(), document.getElementById('opt2').value.trim(), document.getElementById('opt3').value.trim()];
+            data.options = opts; data.correctAnswer = opts[document.querySelector('input[name="correctRadio"]:checked').value];
         } else if(type === 'truefalse') {
-            data.options = ["صح", "خطأ"];
-            data.correctAnswer = document.querySelector('input[name="tfRadio"]:checked').value;
+            data.options = ["صح", "خطأ"]; data.correctAnswer = document.querySelector('input[name="tfRadio"]:checked').value;
+        } else if(type === 'essay') {
+            data.options = [""]; data.correctAnswer = "مراجعة خادم"; 
         } else {
-            data.options = [""]; 
-            data.correctAnswer = document.getElementById('manualAns').value.trim();
+            data.options = [""]; data.correctAnswer = document.getElementById('manualAns').value.trim();
         }
-        
-        db.ref("bible_quiz/questions").push(data).then(() => {
-            alert(`تم حفظ السؤال بنجاح ✅`);
-            document.getElementById('mQuestion').value = "";
-            document.getElementById('mPoints').value = "";
-        });
+        db.ref("bible_quiz/questions").push(data).then(() => { alert("تم الحفظ ✅"); document.getElementById('mQuestion').value = ""; });
     }
 
     function saveBulkNet() {
@@ -523,160 +937,1218 @@
         input.split('\n').forEach(line => {
             if(line.includes('|')) {
                 const parts = line.split('|');
-                db.ref("bible_quiz/questions").push({ 
-                    text: parts[0].trim(), 
-                    correctAnswer: parts[1].trim(), 
-                    type: "text", 
-                    options: [""],
-                    points: parts[2] ? parseInt(parts[2].trim()) : 1 
-                });
+                db.ref("bible_quiz/questions").push({ text: parts[0].trim(), correctAnswer: parts[1].trim(), type: "text", options: [""], points: parts[2] ? parseInt(parts[2].trim()) : 1 });
             }
         });
-        alert("تمت إضافة الأسئلة بنجاح 🚀");
-        document.getElementById('bulkInput').value = "";
+        alert("تم ✅"); document.getElementById('bulkInput').value = "";
     }
 
+    /* وظيفة عرض النتائج مع الإجابات التفصيلية */
     function loadResults() {
         db.ref("bible_quiz/submissions").once("value", snap => {
             const list = document.getElementById('resList'); list.innerHTML = "";
-            if(!snap.exists()) { list.innerHTML = "لا توجد نتائج بعد"; return; }
-            snap.forEach(c => {
-                list.innerHTML += `<div style="padding: 5px; border-bottom: 1px solid #334155;">👤 ${c.val().userName}: <span style="color:#fbbf24">${c.val().score} درجة</span></div>`;
+            if(!snap.exists()) { list.innerHTML = "لا توجد نتائج"; return; }
+            snap.forEach(c => { 
+                const data = c.val();
+                let ansHtml = "";
+                if(data.answers) {
+                    data.answers.forEach((a, idx) => {
+                        let color = (a.type === 'essay') ? '#fbbf24' : '#22c55e';
+                        ansHtml += `<div style="margin-bottom:3px; border-bottom:1px solid rgba(255,255,255,0.05);">س${idx+1}: <span style="color:${color}">${a.userAnswer || "لا توجد"}</span></div>`;
+                    });
+                }
+                list.innerHTML += `
+                <div style="padding: 10px; border-bottom: 1px solid #334155; background: rgba(255,255,255,0.02); border-radius: 8px; margin-bottom: 5px;">
+                    <div style="display:flex; justify-content:space-between;">
+                        <b>👤 ${data.userName}</b>
+                        <span style="color:#fbbf24; font-weight:bold;">${data.score}/${data.max}</span>
+                    </div>
+                    <div class="ans-detail-box">${ansHtml}</div>
+                </div>`; 
             });
         });
     }
 
-    function confirmClearQuiz() {
-        if (prompt("⚠️ لتصفير المسابقة بالكامل (الأسئلة والنتائج)، اكتب باسوورد الحذف:") === "jesus 777") {
-            if(confirm("هل أنت متأكد؟ هذا سيحذف كل الأسئلة الحالية ونتائج المخدومين لبدء مسابقة جديدة.")) {
-                db.ref("bible_quiz").remove().then(() => {
-                    alert("تم تصفير المسابقة بنجاح 🗑️");
-                    db.ref("activity_logs").push(`🗑️ ${currentServant} قام بتصفير مسابقة الكتاب المقدس`);
-                    loadResults(); 
-                });
-            }
-        } else {
-            alert("باسوورد خطأ!");
+    function confirmClearQuiz() { 
+        const password = prompt("باسوورد تصفير المسابقة:");
+        
+        if (password !== "jesus 777") {
+            alert("كلمة السر خاطئة ❌");
+            return;
         }
+        
+        const doubleCheck = confirm("⚠️ تحذير!\n\nهل أنت متأكد من تصفير المسابقة لجميع المخدومين؟\n\nسيتم:\n✅ مسح جميع الإجابات من Firebase\n✅ مسح النظام القديم والجديد\n✅ السماح للجميع بالحل مرة أخرى\n\nهذا الإجراء لا يمكن التراجع عنه!");
+        
+        if (!doubleCheck) {
+            alert("تم الإلغاء ❌");
+            return;
+        }
+        
+        // مسح النظام القديم (bible_quiz)
+        db.ref("bible_quiz").remove()
+            .then(() => {
+                console.log("✅ تم مسح bible_quiz");
+                
+                // مسح النظام الجديد (quiz_submissions)
+                const currentQuizId = 'current_quiz_2026';
+                return db.ref(`quiz_submissions/${currentQuizId}`).remove();
+            })
+            .then(() => {
+                console.log("✅ تم مسح quiz_submissions");
+                
+                // تسجيل في السجل
+                db.ref("activity_logs").push(`${currentServant}: صفّر المسابقة بالكامل (النظام القديم + الجديد)`);
+                
+                alert("✅ تم تصفير المسابقة بنجاح!\n\n🎉 جميع المخدومين يمكنهم الآن حل المسابقة من جديد!\n\n⚠️ ملحوظة: المخدومين يحتاجون لتحديث الصفحة (F5) إذا كانت مفتوحة.");
+            })
+            .catch((error) => {
+                console.error("خطأ في التصفير:", error);
+                alert("❌ حدث خطأ أثناء التصفير:\n" + error.message);
+            });
     }
 
-    // --- وظائف إرشادات الصلاة ---
     function updatePrayerHints() {
-        const hints = {
-            agpeya: document.getElementById('adm_agpeya').value,
-            thanks: document.getElementById('adm_thanks').value,
-            forgive: document.getElementById('adm_forgive').value,
-            heart: document.getElementById('adm_heart').value,
-            union: document.getElementById('adm_union').value,
-            verse: document.getElementById('adm_verse').value
-        };
-
-        db.ref("admin_prayer_hints").set(hints)
-        .then(() => {
-            alert("تم تحديث إرشادات الصلاة بنجاح! ستظهر الآن لكل المخدومين ❤️");
-        })
-        .catch((error) => {
-            alert("حدث خطأ أثناء التحديث");
-            console.error(error);
-        });
+        const hints = { agpeya: document.getElementById('adm_agpeya').value, thanks: document.getElementById('adm_thanks').value, forgive: document.getElementById('adm_forgive').value, heart: document.getElementById('adm_heart').value, union: document.getElementById('adm_union').value, verse: document.getElementById('adm_verse').value };
+        db.ref("admin_prayer_hints").set(hints).then(() => alert("تم التحديث ✅"));
     }
 
     function loadCurrentHints() {
-        db.ref("admin_prayer_hints").once("value", (snapshot) => {
-            const data = snapshot.val();
-            if(data) {
-                document.getElementById('adm_agpeya').value = data.agpeya || "";
-                document.getElementById('adm_thanks').value = data.thanks || "";
-                document.getElementById('adm_forgive').value = data.forgive || "";
-                document.getElementById('adm_heart').value = data.heart || "";
-                document.getElementById('adm_union').value = data.union || "";
-                document.getElementById('adm_verse').value = data.verse || "";
+        db.ref("admin_prayer_hints").once("value", snap => {
+            const d = snap.val(); if(d) {
+                document.getElementById('adm_agpeya').value = d.agpeya || ""; document.getElementById('adm_thanks').value = d.thanks || ""; document.getElementById('adm_forgive').value = d.forgive || ""; document.getElementById('adm_heart').value = d.heart || ""; document.getElementById('adm_union').value = d.union || ""; document.getElementById('adm_verse').value = d.verse || "";
             }
         });
     }
-
-    // --- وظائف عامة ---
-    function replyPsy(sid) {
-        const inp = document.getElementById('rep_' + sid);
-        if(inp.value.trim()) {
-            db.ref("psychology/private_chats/" + sid).push({ sender: "الخادم (" + currentServant + ")", text: inp.value.trim() });
-            inp.value = "";
-        }
-    }
-    
-    function delPsyChat(sid) { if(confirm("حذف المحادثة؟")) db.ref("psychology/private_chats/" + sid).remove(); }
 
     function renderUI() {
         const list = document.getElementById('leaderboard'); list.innerHTML = "";
         localData.sort((a,b) => b.score - a.score).forEach((p) => {
-            list.innerHTML += `<div class="card"><div style="font-size:11px; font-weight:bold; height:28px; overflow:hidden;">${p.name}</div>
+            const phoneDisplay = p.phone ? `<div style="font-size:10px; color:#94a3b8; margin-top:2px;">📱 ${p.phone}</div>` : '';
+            const breakdown = p.breakdown || { quiz: 0, prayer: 0, attendance: 0 };
+            
+            list.innerHTML += `<div class="card">
+                <div style="font-size:11px; font-weight:bold; height:28px; overflow:hidden;">${p.name}</div>
+                ${phoneDisplay}
                 <div style="font-size:22px; font-weight:bold; color:#fbbf24;">${p.score}</div>
-                <div class="edit-tools" style="display: ${isEditMode ? 'block' : 'none'}"><div class="plus-minus">
-                <button onclick="updateScore('${p.id}', 1)" style="background:#475569">+1</button>
-                <button onclick="updateScore('${p.id}', 5)" style="background:#6366f1">+5</button>
-                <button onclick="updateScore('${p.id}', -1)" style="background:#ef4444">-1</button></div>
-                <button onclick="deleteMakhdoum('${p.id}', '${p.name}')" style="color:#f87171; background:none; font-size:9px; margin-top:5px;">حذف آمن 🔒</button></div></div>`;
+                
+                <div class="breakdown-box">
+                    <div class="breakdown-row">
+                        <span class="breakdown-label">🙏 صلاة:</span>
+                        <span class="breakdown-value">${breakdown.prayer || 0}</span>
+                    </div>
+                    <div class="breakdown-row">
+                        <span class="breakdown-label">📖 مسابقة:</span>
+                        <span class="breakdown-value">${breakdown.quiz || 0}</span>
+                    </div>
+                    <div class="breakdown-row">
+                        <span class="breakdown-label">⛪ حضور:</span>
+                        <span class="breakdown-value">${breakdown.attendance || 0}</span>
+                    </div>
+                </div>
+                
+                <div class="edit-tools" style="display: ${isEditMode ? 'block' : 'none'}">
+                    <div class="plus-minus">
+                        <button onclick="updateScore('${p.id}', 1)" style="background:#475569">+1</button>
+                        <button onclick="updateScore('${p.id}', 5)" style="background:#6366f1">+5</button>
+                        <button onclick="updateScore('${p.id}', -1)" style="background:#ef4444">-1</button>
+                    </div>
+                    <button onclick="openEditBreakdownModal('${p.id}', '${p.name}')" style="background: #6366f1; width: 100%; padding: 8px; font-size: 11px; margin-top: 5px; font-weight: bold;">⚙️ تعديل التفاصيل</button>
+                    <button onclick="sendWelcomeMessage('${p.id}', '${p.name}')" style="background: #7c3aed; width: 100%; padding: 8px; font-size: 11px; margin-top: 5px; font-weight: bold;">💌 رسالة ترحيب شخصية</button>
+                    <button onclick="resetSingleScore('${p.id}', '${p.name}')" style="background:#fb923c; width:100%; padding:8px; font-size:10px; margin-top:5px; font-weight:bold;">🔄 تصفير</button>
+                    <button onclick="deleteMakhdoum('${p.id}', '${p.name}')" style="color:#f87171; background:none; font-size:9px; margin-top:5px;">حذف آمن 🔒</button>
+                </div>
+            </div>`;
         });
     }
 
     function updateScore(id, val) { 
-        const makhdoum = localData.find(m => m.id === id);
-        db.ref(`points_data/${id}/score`).transaction(c => (c || 0) + val);
-        const time = new Date().toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'});
-        db.ref("activity_logs").push(`[${time}] ${currentServant}: عدل ${makhdoum.name} (${val>0?'+':''}${val})`);
-    }
-
-    function addNewMakhdoum() {
-        const inp = document.getElementById('nameInp'); const name = inp.value.trim();
-        if(name) { db.ref("points_data").push({ name: name, score: 0 }); db.ref("activity_logs").push(`${currentServant} أضاف مخدوم: ${name}`); inp.value = ""; }
-    }
-
-    function sendAdminReply() {
-        const inp = document.getElementById('adminReplyInp'); const text = inp.value.trim();
-        if(text) { db.ref("chat").push({ sender: currentServant, text: text }); inp.value = ""; }
-    }
-
-    function toggleLibVisibility() {
-        const currentBtnText = document.getElementById('libStatusBtn').innerText;
-        const isNowVisible = currentBtnText.includes("مخفية");
-        db.ref("settings").update({ libVisible: isNowVisible });
-    }
-
-    function updateMediaLinks() {
-        const links = { hymn: document.getElementById('hymnUrl').value, pdf: document.getElementById('pdfUrl').value, video: document.getElementById('videoUrl').value };
-        db.ref("media_library").set(links).then(() => { alert("تم التحديث ✅"); });
-    }
-
-    function deleteMakhdoum(id, name) {
-        if (prompt(`⚠️ باسوورد الحذف لـ (${name}):`) === "jesus 777") {
-            db.ref(`points_data/${id}`).remove();
-        }
-    }
-
-    function togglePsyResponse(key, status) { db.ref(`psychology/confessions/${key}`).update({ responded: status }); }
-    function deletePsyMsg(key) { if (prompt("⚠️ باسوورد الحذف:") === "jesus 777") db.ref(`psychology/confessions/${key}`).remove(); }
-    function resetAllScores() { if (prompt("⚠️ كلمة السر:") === "jesus 777" && confirm("تصفير الجميع؟")) { let up = {}; localData.forEach(p => up[`points_data/${p.id}/score`] = 0); db.ref().update(up); } }
-
-    function toggleEditMode() {
-        isEditMode = !isEditMode;
-        document.getElementById('modeBtn').innerText = isEditMode ? "✅ إنهاء" : "📝 تعديل";
-        document.getElementById('addArea').style.display = isEditMode ? "flex" : "none";
-        document.getElementById('resetBtn').style.display = isEditMode ? "block" : "none";
-        renderUI();
-    }
-
-    function searchMakhdoum() {
-        let f = document.getElementById('searchInput').value.toLowerCase();
-        document.querySelectorAll('#leaderboard .card').forEach(c => {
-            c.style.display = c.querySelector('div').innerText.toLowerCase().includes(f) ? "" : "none";
+        const m = localData.find(x => x.id === id);
+        db.ref(`points_data/${id}`).transaction(current => {
+            if (!current) return { score: val, lastUpdate: Date.now() };
+            return { 
+                ...current, 
+                score: (current.score || 0) + val,
+                lastUpdate: Date.now()
+            };
         });
+        db.ref("activity_logs").push(`${currentServant}: عدل ${m.name} (${val>0?'+':''}${val})`);
     }
 
-    function clearLog() { if(confirm("مسح السجل؟")) db.ref("activity_logs").remove(); }
-    function toggleChat() { db.ref("settings").update({ chatEnabled: !document.getElementById('chatStatusBtn').innerText.includes("إيقاف") }); }
+    function addNewMakhdoum() { 
+        const nameInp = document.getElementById('nameInp'); 
+        const phoneInp = document.getElementById('phoneInp');
+        if(nameInp.value.trim()) { 
+            db.ref("points_data").push({ 
+                name: nameInp.value.trim(), 
+                phone: phoneInp.value.trim() || "",
+                score: 0 
+            }); 
+            nameInp.value = ""; 
+            phoneInp.value = "";
+        } 
+    }
+    function sendAdminReply() { const inp = document.getElementById('adminReplyInp'); if(inp.value.trim()) { db.ref("chat").push({ sender: currentServant, text: inp.value.trim() }); inp.value = ""; } }
+    function toggleLibVisibility() { db.ref("settings/libVisible").once("value", snap => db.ref("settings").update({ libVisible: !(snap.val() !== false) })); }
+    function updateMediaLinks() { db.ref("media_library").set({ hymn: document.getElementById('hymnUrl').value, pdf: document.getElementById('pdfUrl').value, video: document.getElementById('videoUrl').value }).then(() => alert("تم ✅")); }
+    function resetSingleScore(id, name) { 
+        if (prompt(`كلمة السر لتصفير نقاط ${name}:`) === "jesus 777") { 
+            db.ref(`points_data/${id}/score`).set(0);
+            db.ref("activity_logs").push(`${currentServant}: صفّر نقاط ${name}`);
+        } 
+    }
+    function deleteMakhdoum(id, name) { if (prompt(`باسوورد حذف (${name}):`) === "jesus 777") db.ref(`points_data/${id}`).remove(); }
+    function togglePsyResponse(k, s) { db.ref(`psychology/confessions/${k}`).update({ responded: s }); }
+    function deletePsyMsg(k) { if (prompt("باسوورد الحذف:") === "jesus 777") db.ref(`psychology/confessions/${k}`).remove(); }
+    function resetAllScores() { if (prompt("كلمة السر:") === "jesus 777" && confirm("تصفير الجميع؟")) { let up = {}; localData.forEach(p => up[`points_data/${p.id}/score`] = 0); db.ref().update(up); } }
+    function toggleEditMode() { isEditMode = !isEditMode; document.getElementById('modeBtn').innerText = isEditMode ? "✅ إنهاء" : "📝 تعديل"; document.getElementById('addArea').style.display = isEditMode ? "flex" : "none"; document.getElementById('resetBtn').style.display = isEditMode ? "block" : "none"; renderUI(); }
+    function searchMakhdoum() { let f = document.getElementById('searchInput').value.toLowerCase(); document.querySelectorAll('#leaderboard .card').forEach(c => c.style.display = c.querySelector('div').innerText.toLowerCase().includes(f) ? "" : "none"); }
+    function clearLog() { if(confirm("مسح؟")) db.ref("activity_logs").remove(); }
+    function toggleChat() { db.ref("settings/chatEnabled").once("value", snap => db.ref("settings").update({ chatEnabled: !(snap.val() !== false) })); }
     function clearChatMessages() { if(confirm("مسح؟")) db.ref("chat").remove(); }
     function sendAlert() { db.ref("admin_announcement").set(document.getElementById('alertContent').value); }
     function clearAlert() { db.ref("admin_announcement").set(""); document.getElementById('alertContent').value = ""; }
+    function replyPsy(sid) { const inp = document.getElementById('rep_' + sid); if(inp.value.trim()) { db.ref("psychology/private_chats/" + sid).push({ sender: "الخادم (" + currentServant + ")", text: inp.value.trim() }); inp.value = ""; } }
+    function delPsyChat(sid) { if(confirm("حذف؟")) db.ref("psychology/private_chats/" + sid).remove(); }
+    
+    function clearMakhdoumPointsDetails(makhdoumName) {
+        if (!confirm(`هل أنت متأكد من حذف كل سجلات النقاط لـ "${makhdoumName}"؟\n\nسيتم حذف:\n• سجلات المسابقات\n• سجلات الصلاة\n• سجلات الحضور\n\nملحوظة: النقاط في الترتيب لن تتأثر!`)) return;
+        
+        const password = prompt("أدخل كلمة السر للتأكيد:");
+        if (password !== "jesus 777") {
+            alert("كلمة السر خاطئة!");
+            return;
+        }
+        
+        // حذف سجلات المسابقات
+        db.ref("bible_quiz/submissions").once("value", snap => {
+            const updates = {};
+            snap.forEach(child => {
+                if (child.val().userName === makhdoumName) {
+                    updates[`bible_quiz/submissions/${child.key}`] = null;
+                }
+            });
+            
+            // حذف سجلات الصلاة
+            db.ref("prayer_reports").once("value", snap2 => {
+                snap2.forEach(child => {
+                    if (child.val().makhdom === makhdoumName) {
+                        updates[`prayer_reports/${child.key}`] = null;
+                    }
+                });
+                
+                // حذف سجلات الحضور
+                db.ref("attendance_logs").once("value", snap3 => {
+                    snap3.forEach(child => {
+                        if (child.val().makhdom === makhdoumName) {
+                            updates[`attendance_logs/${child.key}`] = null;
+                        }
+                    });
+                    
+                    // تنفيذ كل الحذف دفعة واحدة
+                    db.ref().update(updates).then(() => {
+                        alert(`تم حذف كل سجلات "${makhdoumName}" بنجاح!\nالنقاط في الترتيب لم تتأثر.`);
+                        loadPointsBreakdown(); // إعادة تحميل البيانات
+                    });
+                });
+            });
+        });
+    }
+
+    // ===== نظام التشجيع للمخدومين الغير نشطين =====
+    
+    function getInactiveMakhdoumeen() {
+        const now = Date.now();
+        const threeDaysAgo = now - (3 * 24 * 60 * 60 * 1000); // 3 أيام
+        
+        const inactive = localData.filter(person => {
+            const lastUpdate = person.lastUpdate || 0;
+            const hasLowScore = person.score < 15;
+            const isInactive = lastUpdate < threeDaysAgo || lastUpdate === 0;
+            
+            return hasLowScore || isInactive;
+        });
+        
+        return inactive.sort((a, b) => {
+            const aLastUpdate = a.lastUpdate || 0;
+            const bLastUpdate = b.lastUpdate || 0;
+            return aLastUpdate - bLastUpdate; // الأقدم الأول
+        });
+    }
+    
+    function displayInactiveList() {
+        const inactive = getInactiveMakhdoumeen();
+        const listDiv = document.getElementById('inactiveList');
+        
+        if (inactive.length === 0) {
+            listDiv.innerHTML = `<div style="text-align:center; padding:20px; color:#22c55e;">
+                <div style="font-size:40px; margin-bottom:10px;">🎉</div>
+                <div style="font-weight:bold; font-size:16px;">مبروك!</div>
+                <div style="font-size:13px; margin-top:5px;">كل المخدومين نشطين ومتفاعلين! 💪</div>
+            </div>`;
+            return;
+        }
+        
+        let html = `<div style="color:#fbbf24; font-weight:bold; margin-bottom:10px; font-size:13px;">
+            عدد المخدومين المحتاجين تشجيع: ${inactive.length}
+        </div>`;
+        
+        inactive.forEach(person => {
+            const lastUpdate = person.lastUpdate || 0;
+            const daysSinceUpdate = lastUpdate > 0 ? Math.floor((Date.now() - lastUpdate) / (24 * 60 * 60 * 1000)) : '∞';
+            const phoneNumber = person.phone || 'لا يوجد رقم';
+            
+            let statusText = '';
+            let statusColor = '';
+            
+            if (lastUpdate === 0) {
+                statusText = 'لم يشارك أبداً';
+                statusColor = '#ef4444';
+            } else if (daysSinceUpdate > 7) {
+                statusText = `آخر نشاط: قبل ${daysSinceUpdate} يوم`;
+                statusColor = '#f97316';
+            } else if (daysSinceUpdate >= 3) {
+                statusText = `آخر نشاط: قبل ${daysSinceUpdate} أيام`;
+                statusColor = '#eab308';
+            } else {
+                statusText = 'نقاط قليلة';
+                statusColor = '#fbbf24';
+            }
+            
+            html += `<div class="inactive-card">
+                <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:8px;">
+                    <div>
+                        <div style="font-weight:bold; font-size:15px; color:#fff; margin-bottom:5px;">${person.name}</div>
+                        <div class="inactive-badge" style="background:${statusColor};">${statusText}</div>
+                    </div>
+                    <div style="font-size:24px; font-weight:bold; color:#fbbf24;">${person.score}</div>
+                </div>
+                
+                <div style="font-size:12px; color:#94a3b8; margin-bottom:8px;">
+                    📱 ${phoneNumber}
+                </div>
+                
+                <div style="display:flex; gap:5px;">
+                    <button class="contact-btn" onclick="callMakhdoum('${phoneNumber}')" style="flex:1;">
+                        📞 اتصل
+                    </button>
+                    <button class="contact-btn" onclick="whatsappMakhdoum('${phoneNumber}', '${person.name}')" style="flex:1; background:#25d366;">
+                        💬 واتساب
+                    </button>
+                    <button class="contact-btn" onclick="sendDigitalEncouragement('${person.id}', '${person.name}')" style="flex:1; background:#6366f1;">
+                        📨 رسالة
+                    </button>
+                </div>
+            </div>`;
+        });
+        
+        listDiv.innerHTML = html;
+    }
+    
+    function toggleInactiveList() {
+        const listDiv = document.getElementById('inactiveList');
+        if (listDiv.style.display === 'none') {
+            listDiv.style.display = 'block';
+            displayInactiveList();
+        } else {
+            listDiv.style.display = 'none';
+        }
+    }
+    
+    function sendEncouragementToAll() {
+        const inactive = getInactiveMakhdoumeen();
+        
+        if (inactive.length === 0) {
+            alert('كل المخدومين نشطين! 🎉 مفيش حد محتاج تشجيع دلوقتي.');
+            return;
+        }
+        
+        if (!confirm(`هل تريد إرسال رسائل تشجيعية لـ ${inactive.length} مخدوم؟\n\nسيتم إرسال رسالة داخل التطبيق لكل واحد فيهم.`)) {
+            return;
+        }
+        
+        const timestamp = Date.now();
+        const updates = {};
+        
+        inactive.forEach(person => {
+            const messageId = `${person.id}_${timestamp}`;
+            updates[`encouragement_messages/${messageId}`] = {
+                to: person.name,
+                toId: person.id,
+                from: currentServant,
+                message: `وحشتنا يا ${person.name}! 💙\nاحنا محتاجينك معانا في الخدمة.\nربنا يفرح قلبك ويقويك! 🙏`,
+                timestamp: timestamp,
+                read: false
+            };
+        });
+        
+        db.ref().update(updates).then(() => {
+            alert(`تم إرسال ${inactive.length} رسالة تشجيعية بنجاح! ✅\n\nالرسائل هتظهر للمخدومين لما يفتحوا التطبيق.`);
+            db.ref("activity_logs").push(`${currentServant}: أرسل رسائل تشجيعية لـ ${inactive.length} مخدوم`);
+        });
+    }
+    
+    // ===== رسالة الترحيب الشخصية =====
+    // نفس منطق getUserId في تطبيق المخدومين
+    function getUserIdFromName(userName) {
+        return userName.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_\u0600-\u06FF]/g, '');
+    }
+
+    function sendWelcomeMessage(personId, personName) {
+        // استخدام نفس الـ key اللي بيستخدمه تطبيق المخدومين (مبني على الاسم مش الـ Firebase ID)
+        const nameBasedId = getUserIdFromName(personName);
+
+        db.ref(`welcome_messages/${nameBasedId}`).once('value', snap => {
+            const existing = snap.val();
+            const currentMsg = existing ? existing.message : '';
+            const msg = prompt(
+                `اكتب رسالة ترحيب شخصية لـ ${personName}:\n(هتظهرله لما يضغط على شارة "مرحباً بك")`,
+                currentMsg || `أهلاً يا ${personName}! 💙\nمبسوطين بيك معانا في خدمة إعدادي.\nربنا يقويك ويباركك! 🙏`
+            );
+            if (msg === null || msg.trim() === '') return;
+
+            db.ref(`welcome_messages/${nameBasedId}`).set({
+                message: msg.trim(),
+                from: currentServant,
+                timestamp: Date.now(),
+                to: personName,
+                toId: nameBasedId
+            }).then(() => {
+                alert(`تم حفظ رسالة الترحيب لـ ${personName} ✅\nهتظهرله لما يضغط على شارة "مرحباً بك" في التطبيق.`);
+                db.ref("activity_logs").push(`${currentServant}: كتب رسالة ترحيب شخصية لـ ${personName}`);
+            }).catch(err => alert('حدث خطأ: ' + err.message));
+        });
+    }
+
+    function sendDigitalEncouragement(personId, personName) {
+        const message = prompt(`اكتب رسالة تشجيعية لـ ${personName}:`, `وحشتنا يا ${personName}! 💙 عايزين نشوفك معانا في الخدمة.`);
+        
+        if (!message || message.trim() === '') return;
+        
+        const messageId = `${personId}_${Date.now()}`;
+        db.ref(`encouragement_messages/${messageId}`).set({
+            to: personName,
+            toId: personId,
+            from: currentServant,
+            message: message.trim(),
+            timestamp: Date.now(),
+            read: false
+        }).then(() => {
+            alert(`تم إرسال الرسالة لـ ${personName} بنجاح! ✅`);
+            db.ref("activity_logs").push(`${currentServant}: أرسل رسالة تشجيعية لـ ${personName}`);
+        });
+    }
+    
+    function callMakhdoum(phone) {
+        if (phone === 'لا يوجد رقم') {
+            alert('لا يوجد رقم تليفون مسجل لهذا المخدوم.');
+            return;
+        }
+        window.location.href = `tel:${phone}`;
+    }
+    
+    function whatsappMakhdoum(phone, name) {
+        if (phone === 'لا يوجد رقم') {
+            alert('لا يوجد رقم واتساب مسجل لهذا المخدوم.');
+            return;
+        }
+        
+        const message = `السلام عليكم يا ${name}! 💙\n\nوحشتنا في خدمة إعدادي وعايزين نشوفك معانا.\nربنا يفرح قلبك! 🙏`;
+        const encodedMessage = encodeURIComponent(message);
+        
+        // إزالة أي مسافات أو أحرف خاصة من رقم التليفون
+        const cleanPhone = phone.replace(/[^0-9+]/g, '');
+        
+        window.open(`https://wa.me/${cleanPhone}?text=${encodedMessage}`, '_blank');
+    }
+    
+    // تحديث قائمة الغير نشطين كل دقيقة
+    setInterval(() => {
+        const listDiv = document.getElementById('inactiveList');
+        if (listDiv.style.display !== 'none') {
+            displayInactiveList();
+        }
+    }, 60000); // كل دقيقة
+
+    // ===== نظام تعديل تفاصيل النقاط =====
+    
+    let currentEditingPersonId = null;
+    
+    function openEditBreakdownModal(personId, personName) {
+        currentEditingPersonId = personId;
+        
+        db.ref(`points_data/${personId}`).once('value', snap => {
+            const person = snap.val();
+            const breakdown = person.breakdown || { quiz: 0, prayer: 0, attendance: 0 };
+            
+            document.getElementById('editPersonName').textContent = personName;
+            document.getElementById('editPrayer').value = breakdown.prayer || 0;
+            document.getElementById('editQuiz').value = breakdown.quiz || 0;
+            document.getElementById('editAttendance').value = breakdown.attendance || 0;
+            
+            updateEditTotal();
+            
+            document.getElementById('editBreakdownModal').style.display = 'flex';
+        });
+    }
+    
+    function updateEditTotal() {
+        const prayer = parseInt(document.getElementById('editPrayer').value) || 0;
+        const quiz = parseInt(document.getElementById('editQuiz').value) || 0;
+        const attendance = parseInt(document.getElementById('editAttendance').value) || 0;
+        
+        document.getElementById('editTotal').textContent = prayer + quiz + attendance;
+    }
+    
+    function saveBreakdownChanges() {
+        const prayer = parseInt(document.getElementById('editPrayer').value) || 0;
+        const quiz = parseInt(document.getElementById('editQuiz').value) || 0;
+        const attendance = parseInt(document.getElementById('editAttendance').value) || 0;
+        const total = prayer + quiz + attendance;
+        
+        db.ref(`points_data/${currentEditingPersonId}`).once('value', snap => {
+            const person = snap.val();
+            
+            db.ref(`points_data/${currentEditingPersonId}`).update({
+                breakdown: {
+                    prayer: prayer,
+                    quiz: quiz,
+                    attendance: attendance
+                },
+                score: total,
+                lastUpdate: Date.now()
+            }).then(() => {
+                alert('✅ تم التحديث بنجاح!');
+                closeBreakdownModal();
+                
+                // تسجيل في السجل
+                db.ref("activity_logs").push(
+                    `${currentServant}: عدل ${person.name} → 🙏${prayer} 📖${quiz} ⛪${attendance} = ${total}`
+                );
+            });
+        });
+    }
+    
+    function closeBreakdownModal() {
+        document.getElementById('editBreakdownModal').style.display = 'none';
+        currentEditingPersonId = null;
+    }
+    
+    // تحديث المجموع تلقائياً عند تغيير أي حقل
+    document.addEventListener('DOMContentLoaded', () => {
+        ['editPrayer', 'editQuiz', 'editAttendance'].forEach(id => {
+            const input = document.getElementById(id);
+            if (input) {
+                input.addEventListener('input', updateEditTotal);
+            }
+        });
+    });
+    
+    // ===== نظام عرض سجل التأكيدات =====
+    
+    function loadConfirmationHistory() {
+        const historyDiv = document.getElementById('confirmationHistory');
+        historyDiv.innerHTML = '<p style="text-align:center; color:#94a3b8;">جاري التحميل...</p>';
+        
+        db.ref("confirmation_requests").orderByChild('timestamp').limitToLast(50).once('value', snap => {
+            if (!snap.exists()) {
+                historyDiv.innerHTML = '<p style="text-align:center; color:#94a3b8; font-size:12px;">لا يوجد سجل تأكيدات حتى الآن</p>';
+                return;
+            }
+            
+            const confirmations = [];
+            snap.forEach(child => {
+                confirmations.push({ key: child.key, ...child.val() });
+            });
+            
+            // ترتيب من الأحدث للأقدم
+            confirmations.reverse();
+            
+            let html = '';
+            
+            confirmations.forEach(req => {
+                const date = new Date(req.timestamp);
+                const dateStr = date.toLocaleDateString('ar-EG', { 
+                    weekday: 'short', 
+                    year: 'numeric', 
+                    month: 'short', 
+                    day: 'numeric' 
+                });
+                const timeStr = date.toLocaleTimeString('ar-EG', { 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                });
+                
+                let statusIcon = '';
+                let statusColor = '';
+                let statusText = '';
+                
+                if (req.status === 'confirmed') {
+                    statusIcon = '✅';
+                    statusColor = '#22c55e';
+                    statusText = 'تم التأكيد';
+                } else if (req.status === 'pending') {
+                    statusIcon = '⏳';
+                    statusColor = '#fbbf24';
+                    statusText = 'في الانتظار';
+                } else {
+                    statusIcon = '❌';
+                    statusColor = '#ef4444';
+                    statusText = 'مرفوض';
+                }
+                
+                html += `
+                    <div class="confirmation-card" style="border-right: 4px solid ${statusColor};">
+                        <div class="confirmation-header">
+                            <div>
+                                <div style="font-weight: bold; color: white; margin-bottom: 5px;">
+                                    ${statusIcon} ${req.requester}
+                                </div>
+                                <div style="font-size: 12px; color: #94a3b8;">
+                                    طلب تأكيد من: <span style="color: #fbbf24;">${req.confirmer}</span>
+                                </div>
+                            </div>
+                            <div style="text-align: left;">
+                                <div style="font-size: 11px; color: #64748b;">
+                                    ${dateStr}
+                                </div>
+                                <div style="font-size: 11px; color: #64748b;">
+                                    ${timeStr}
+                                </div>
+                                <div class="confirmation-status" style="color: ${statusColor}; margin-top: 5px;">
+                                    ${statusText}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            historyDiv.innerHTML = html;
+        });
+    }
+    
+    // تحديث تلقائي للسجل كل دقيقة
+    setInterval(() => {
+        const historyDiv = document.getElementById('confirmationHistory');
+        if (historyDiv && historyDiv.innerHTML && !historyDiv.innerHTML.includes('جاري التحميل')) {
+            loadConfirmationHistory();
+        }
+    }, 60000);
+    
+    // ===== تقرير شامل للتأكيدات =====
+    
+    function generateConfirmationReport() {
+        db.ref("confirmation_requests").once('value', snap => {
+            if (!snap.exists()) {
+                alert('لا يوجد بيانات تأكيدات حتى الآن.');
+                return;
+            }
+            
+            const stats = {
+                total: 0,
+                confirmed: 0,
+                pending: 0,
+                rejected: 0,
+                byPerson: {}
+            };
+            
+            snap.forEach(child => {
+                const req = child.val();
+                stats.total++;
+                
+                if (req.status === 'confirmed') stats.confirmed++;
+                else if (req.status === 'pending') stats.pending++;
+                else if (req.status === 'rejected') stats.rejected++;
+                
+                // إحصائيات لكل شخص
+                if (!stats.byPerson[req.requester]) {
+                    stats.byPerson[req.requester] = {
+                        requested: 0,
+                        confirmed: 0,
+                        confirmedForOthers: 0
+                    };
+                }
+                
+                stats.byPerson[req.requester].requested++;
+                if (req.status === 'confirmed') {
+                    stats.byPerson[req.requester].confirmed++;
+                }
+                
+                // عدد المرات اللي أكد فيها للآخرين
+                if (!stats.byPerson[req.confirmer]) {
+                    stats.byPerson[req.confirmer] = {
+                        requested: 0,
+                        confirmed: 0,
+                        confirmedForOthers: 0
+                    };
+                }
+                if (req.status === 'confirmed') {
+                    stats.byPerson[req.confirmer].confirmedForOthers++;
+                }
+            });
+            
+            let report = `📊 تقرير التأكيدات الشامل\n${'='.repeat(40)}\n\n`;
+            report += `📌 إجمالي الطلبات: ${stats.total}\n`;
+            report += `✅ تم التأكيد: ${stats.confirmed}\n`;
+            report += `⏳ في الانتظار: ${stats.pending}\n`;
+            report += `❌ مرفوض: ${stats.rejected}\n\n`;
+            report += `${'='.repeat(40)}\n\n`;
+            report += `👥 تفاصيل الأشخاص:\n\n`;
+            
+            Object.keys(stats.byPerson).forEach(person => {
+                const data = stats.byPerson[person];
+                report += `${person}:\n`;
+                report += `  • طلب تأكيد: ${data.requested} مرة\n`;
+                report += `  • تم التأكيد له: ${data.confirmed} مرة\n`;
+                report += `  • أكد للآخرين: ${data.confirmedForOthers} مرة\n\n`;
+            });
+            
+            console.log(report);
+            alert(report);
+        });
+    }
+
+// ═════════════════════════════════════════════════
+// 💬 دالة التحكم في ظهور ركن الدردشة (الإضافة الجديدة)
+// ═════════════════════════════════════════════════
+
+function toggleChatVisibility() {
+    const btn = document.getElementById('chatVisibilityBtn');
+    
+    // قراءة الحالة الحالية
+    db.ref('settings/chatSectionVisible').once('value').then(snap => {
+        const currentState = snap.val() !== false; // default true
+        const newState = !currentState;
+        
+        // حفظ الحالة الجديدة
+        db.ref('settings/chatSectionVisible').set(newState).then(() => {
+            // تحديث الزر
+            if (newState) {
+                btn.textContent = 'ظاهر الآن ✅';
+                btn.style.background = '#22c55e';
+            } else {
+                btn.textContent = 'مخفي الآن ❌';
+                btn.style.background = '#ef4444';
+            }
+            
+            alert(newState ? '✅ ركن الدردشة أصبح ظاهر للمخدومين' : '❌ ركن الدردشة أصبح مخفي عن المخدومين');
+        });
+    });
+}
+
+// تحميل حالة ركن الدردشة عند فتح الصفحة
+function toggleCommunityDiaryVisibility() {
+    db.ref('settings/communityDiaryVisible').once('value').then(snap => {
+        const newState = snap.val() === false ? true : false; // default true
+        db.ref('settings/communityDiaryVisible').set(newState);
+    });
+}
+
+function loadCommunityDiaryVisibility() {
+    db.ref('settings/communityDiaryVisible').on('value', snap => {
+        const isVisible = snap.val() !== false;
+        const btn = document.getElementById('communityDiaryVisibilityBtn');
+        if (!btn) return;
+        btn.textContent = isVisible ? 'ظاهرة الآن ✅' : 'مخفية الآن ❌';
+        btn.style.background = isVisible ? '#22c55e' : '#ef4444';
+    });
+}
+
+function loadChatVisibility() {
+    db.ref('settings/chatSectionVisible').on('value', snap => {
+        const isVisible = snap.val() !== false; // default true
+        const btn = document.getElementById('chatVisibilityBtn');
+        if (btn) {
+            btn.textContent = isVisible ? 'ظاهر الآن ✅' : 'مخفي الآن ❌';
+            btn.style.background = isVisible ? '#22c55e' : '#ef4444';
+        }
+    });
+}
+
+// ═════════════════════════════════════════════════
+// 📖 التحكم في ظهور قسم اليوميات عند المخدومين
+// ═════════════════════════════════════════════════
+
+function toggleJournalVisibility() {
+    db.ref('settings/journalSectionVisible').once('value').then(snap => {
+        const current = snap.val() === true; // default false
+        const newState = !current;
+        db.ref('settings/journalSectionVisible').set(newState).then(() => {
+            updateJournalBtn(newState);
+            alert(newState
+                ? '✅ قسم اليوميات أصبح ظاهر للمخدومين'
+                : '❌ قسم اليوميات أصبح مخفي عن المخدومين');
+        });
+    });
+}
+
+function loadJournalVisibility() {
+    db.ref('settings/journalSectionVisible').on('value', snap => {
+        updateJournalBtn(snap.val() === true);
+    });
+}
+
+function updateJournalBtn(isVisible) {
+    const btn = document.getElementById('journalVisibilityBtn');
+    if (!btn) return;
+    btn.textContent = isVisible ? 'ظاهر الآن ✅' : 'مخفي الآن ❌';
+    btn.style.background = isVisible ? '#22c55e' : '#ef4444';
+}
+
+// ═════════════════════════════════════════════════
+// 💬 التحكم في ظهور يوميات المجتمع عند المخدومين
+// ═════════════════════════════════════════════════
+
+function toggleCommunityDiaryVisibility() {
+    db.ref('settings/communityDiarySectionVisible').once('value').then(snap => {
+        const current = snap.val() === true;
+        const newState = !current;
+        db.ref('settings/communityDiarySectionVisible').set(newState).then(() => {
+            updateCommunityDiaryBtn(newState);
+            alert(newState
+                ? '✅ يوميات المجتمع أصبحت ظاهرة للمخدومين'
+                : '❌ يوميات المجتمع أصبحت مخفية عن المخدومين');
+        });
+    });
+}
+
+function loadCommunityDiaryVisibility() {
+    db.ref('settings/communityDiarySectionVisible').on('value', snap => {
+        updateCommunityDiaryBtn(snap.val() === true);
+    });
+}
+
+function updateCommunityDiaryBtn(isVisible) {
+    const btn = document.getElementById('communityDiaryVisibilityBtn');
+    if (!btn) return;
+    btn.textContent = isVisible ? 'ظاهر الآن ✅' : 'مخفي الآن ❌';
+    btn.style.background = isVisible ? '#22c55e' : '#ef4444';
+}
+
 </script>
-</body>
-</html>
+<!-- نافذة تعديل تفاصيل النقاط -->
+<div id="editBreakdownModal" class="modal-overlay">
+    <div class="modal-content-breakdown">
+        <h3 style="color: #fbbf24; text-align: center; margin-top: 0;">⚙️ تعديل تفاصيل النقاط</h3>
+        <div id="editPersonName" style="text-align: center; color: #94a3b8; font-size: 14px; margin-bottom: 20px;"></div>
+        
+        <div class="modal-input-group">
+            <label class="modal-label">🙏 نقاط الصلاة:</label>
+            <input type="number" id="editPrayer" class="modal-input" min="0">
+        </div>
+        
+        <div class="modal-input-group">
+            <label class="modal-label">📖 نقاط المسابقة:</label>
+            <input type="number" id="editQuiz" class="modal-input" min="0">
+        </div>
+        
+        <div class="modal-input-group">
+            <label class="modal-label">⛪ نقاط الحضور:</label>
+            <input type="number" id="editAttendance" class="modal-input" min="0">
+        </div>
+        
+        <div class="modal-total-box">
+            <span style="color: #94a3b8; font-size: 14px;">📊 المجموع:</span>
+            <span id="editTotal" style="color: #fbbf24; font-size: 24px; font-weight: bold;">0</span>
+        </div>
+        
+        <div class="modal-buttons">
+            <button class="modal-btn-save" onclick="saveBreakdownChanges()">✅ حفظ</button>
+            <button class="modal-btn-cancel" onclick="closeBreakdownModal()">❌ إلغاء</button>
+        </div>
+    </div>
+</div>
+
+<!-- ═════════════════════════════════════════════════ -->
+<!-- 🔄 زر التحديث الإجباري لكل المخدومين -->
+<!-- ═════════════════════════════════════════════════ -->
+
+<button onclick="forceUpdateAllUsers()" style="
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+    border: none;
+    padding: 14px 24px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+    z-index: 9999;
+    transition: all 0.3s ease;
+    font-family: 'Segoe UI', sans-serif;
+" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 25px rgba(245, 158, 11, 0.6)'" 
+   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 6px 20px rgba(245, 158, 11, 0.4)'">
+    🔄 تحديث إجباري للكل
+</button>
+
+<script>
+// ═════════════════════════════════════════════════
+// 🔄 دالة التحديث الإجباري لكل المخدومين
+// ═════════════════════════════════════════════════
+
+function forceUpdateAllUsers() {
+    const confirmation = confirm(
+        '🔄 تحديث إجباري لكل المخدومين\n\n' +
+        'هل أنت متأكد؟\n\n' +
+        'سيتم إعادة تحميل الموقع تلقائياً لكل المخدومين اللي فاتحين الموقع دلوقتي!\n\n' +
+        '⚠️ استخدم هذا الزر فقط بعد رفع كود جديد.'
+    );
+    
+    if (!confirmation) return;
+    
+    // إرسال أمر التحديث لـ Firebase
+    const updateTrigger = {
+        timestamp: Date.now(),
+        triggered_by: 'admin',
+        triggered_at: new Date().toLocaleString('ar-EG')
+    };
+    
+    db.ref('force_update_trigger').set(updateTrigger).then(() => {
+        // رسالة نجاح
+        const successMsg = document.createElement('div');
+        successMsg.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 25px 35px;
+            border-radius: 15px;
+            text-align: center;
+            z-index: 99999;
+            box-shadow: 0 8px 30px rgba(16, 185, 129, 0.5);
+            font-size: 16px;
+            font-weight: 700;
+            animation: successPulse 0.5s ease;
+        `;
+        successMsg.innerHTML = `
+            ✅ تم إرسال أمر التحديث!<br>
+            <small style="font-size:13px; opacity:0.9; font-weight:500; margin-top:8px; display:block;">
+                كل المخدومين هيعملوا Refresh تلقائي خلال ثواني
+            </small>
+        `;
+        
+        document.body.appendChild(successMsg);
+        
+        // إخفاء الرسالة بعد 3 ثواني
+        setTimeout(() => {
+            successMsg.style.animation = 'fadeOut 0.3s ease';
+            setTimeout(() => successMsg.remove(), 300);
+        }, 3000);
+        
+    }).catch(error => {
+        alert('❌ حدث خطأ: ' + error.message);
+    });
+}
+
+// CSS Animations
+const forceUpdateStyle = document.createElement('style');
+forceUpdateStyle.textContent = `
+    @keyframes successPulse {
+        0% {
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.8);
+        }
+        50% {
+            transform: translate(-50%, -50%) scale(1.05);
+        }
+        100% {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+    }
+    
+    @keyframes fadeOut {
+        to {
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.9);
+        }
+    }
+`;
+document.head.appendChild(forceUpdateStyle);
+
+document.head.appendChild(forceUpdateStyle);
+
+// ===== TASKS PLAN ADMIN =====
+function addTask() {
+    const title = document.getElementById('taskTitle').value.trim();
+    if (!title) return alert('اكتب عنوان المهمة!');
+    const task = {
+        title,
+        details: document.getElementById('taskDetails').value.trim(),
+        priority: document.getElementById('taskPriority').value,
+        dueDate: document.getElementById('taskDueDate').value || '',
+        timestamp: Date.now(),
+        addedBy: currentServant || 'خادم'
+    };
+    db.ref('tasks_plan').push(task).then(() => {
+        alert('✅ تم إضافة المهمة!');
+        document.getElementById('taskTitle').value = '';
+        document.getElementById('taskDetails').value = '';
+        document.getElementById('taskDueDate').value = '';
+        loadAdminTasks();
+    });
+}
+
+function deleteTask(id) {
+    if (!confirm('تمسح المهمة دي؟')) return;
+    db.ref('tasks_plan/' + id).remove().then(loadAdminTasks);
+}
+
+function clearAllTasks() {
+    if (!confirm('تمسح كل المهام؟')) return;
+    db.ref('tasks_plan').remove().then(() => {
+        alert('تم مسح كل المهام ✅');
+        loadAdminTasks();
+    });
+}
+
+function loadAdminTasks() {
+    const box = document.getElementById('adminTasksList');
+    box.innerHTML = '<p style="color:#94a3b8; font-size:12px; text-align:center;">جاري التحميل...</p>';
+    db.ref('tasks_plan').orderByChild('timestamp').once('value', snap => {
+        box.innerHTML = '';
+        if (!snap.exists()) { box.innerHTML = '<p style="color:#94a3b8; font-size:12px; text-align:center;">لا توجد مهام حالياً</p>'; return; }
+        const tasks = [];
+        snap.forEach(c => tasks.unshift({ id: c.key, ...c.val() }));
+        const priorityColors = { 'عالي': '#ef4444', 'متوسط': '#fbbf24', 'عادي': '#667eea' };
+        tasks.forEach(t => {
+            const color = priorityColors[t.priority] || '#667eea';
+            box.innerHTML += `
+                <div style="background:#0f172a; padding:12px; border-radius:10px; margin-bottom:10px; border-right:5px solid ${color}; display:flex; justify-content:space-between; align-items:flex-start;">
+                    <div style="flex:1;">
+                        <div style="font-weight:bold; margin-bottom:4px;">${t.title}</div>
+                        ${t.details ? `<div style="font-size:12px; color:#94a3b8; margin-bottom:4px;">${t.details}</div>` : ''}
+                        <div style="font-size:11px; color:#475569;">
+                            ${t.dueDate ? `📅 ${t.dueDate} · ` : ''}أضافه: ${t.addedBy || ''}
+                        </div>
+                    </div>
+                    <button onclick="deleteTask('${t.id}')" style="background:#ef4444; padding:5px 10px; border-radius:8px; font-size:11px; margin-right:8px; flex-shrink:0;">حذف 🗑️</button>
+                </div>`;
+        });
+    });
+}
+
+// تحميل المهام عند بدء التشغيل
+setTimeout(() => { try { loadAdminTasks(); } catch(e) {} }, 1500);
+
+// ===== تعاليم الأحد =====
+function addLesson() {
+    const title = document.getElementById('lessonTitle').value.trim();
+    const mainIdea = document.getElementById('lessonMainIdea').value.trim();
+    const pointsRaw = document.getElementById('lessonPoints').value.trim();
+    const verse = document.getElementById('lessonVerse').value.trim();
+    const date = document.getElementById('lessonDate').value;
+    const week = document.getElementById('lessonWeek').value.trim();
+
+    if (!title) { alert('اكتب عنوان الدرس!'); return; }
+
+    const points = pointsRaw ? pointsRaw.split('\n').map(p => p.trim()).filter(p => p) : [];
+
+    const lesson = { title, mainIdea, points, verse, date, week, timestamp: Date.now() };
+
+    db.ref('sunday_lessons').push(lesson).then(() => {
+        alert('✅ تم نشر الدرس للمخدومين!');
+        document.getElementById('lessonTitle').value = '';
+        document.getElementById('lessonMainIdea').value = '';
+        document.getElementById('lessonPoints').value = '';
+        document.getElementById('lessonVerse').value = '';
+        document.getElementById('lessonDate').value = '';
+        document.getElementById('lessonWeek').value = '';
+        loadAdminLessons();
+    }).catch(() => alert('❌ حدث خطأ!'));
+}
+
+function loadAdminLessons() {
+    const box = document.getElementById('adminLessonsList');
+    if (!box) return;
+    box.innerHTML = '<div style="color:#94a3b8; font-size:13px; text-align:center; padding:10px;">⏳ جاري التحميل...</div>';
+
+    db.ref('sunday_lessons').orderByChild('timestamp').once('value', snap => {
+        if (!snap.exists()) { box.innerHTML = '<div style="color:#94a3b8; font-size:13px; text-align:center; padding:10px;">لا يوجد دروس منشورة</div>'; return; }
+        const lessons = [];
+        snap.forEach(child => lessons.unshift({ id: child.key, ...child.val() }));
+        box.innerHTML = lessons.map(l => `
+            <div style="background:#0f172a; padding:12px; border-radius:10px; margin-bottom:10px; border-right:5px solid #10b981; display:flex; justify-content:space-between; align-items:flex-start;">
+                <div style="flex:1;">
+                    <div style="font-weight:bold; margin-bottom:4px; color:white;">✝️ ${l.title}</div>
+                    ${l.date ? `<div style="font-size:11px; color:#94a3b8;">📅 ${l.date} ${l.week ? '· ' + l.week : ''}</div>` : ''}
+                    ${l.verse ? `<div style="font-size:11px; color:#fbbf24; margin-top:4px;">🔑 ${l.verse}</div>` : ''}
+                </div>
+                <button onclick="deleteLesson('${l.id}')" style="background:#ef4444; padding:5px 10px; border-radius:8px; font-size:11px; margin-right:8px; flex-shrink:0; color:white; border:none; cursor:pointer;">حذف 🗑️</button>
+            </div>`).join('');
+    });
+}
+
+function deleteLesson(id) {
+    if (!confirm('تحذف الدرس ده؟')) return;
+    db.ref('sunday_lessons/' + id).remove().then(loadAdminLessons);
+}
+
+function clearAllLessons() {
+    if (!confirm('تمسح كل الدروس؟')) return;
+    db.ref('sunday_lessons').remove().then(() => {
+        alert('✅ تم مسح كل الدروس');
+        loadAdminLessons();
+    });
+}
+
+setTimeout(() => { try { loadAdminLessons(); } catch(e) {} }, 1800);
+
+// ═══════════════════════════════════════════════════════
+// 📖 نظام اليوميات
+// ═══════════════════════════════════════════════════════
+
+function toggleDiarySection(type) {
+    if (type === 'personal') {
+        const sec = document.getElementById('personalDiarySection');
+        const open = sec.style.display !== 'none';
+        sec.style.display = open ? 'none' : 'block';
+        document.getElementById('personalDiaryBtn').style.background = open
+            ? 'rgba(99,102,241,0.15)' : 'rgba(99,102,241,0.35)';
+        if (!open) loadPersonalDiary();
+    } else {
+        const sec = document.getElementById('communityDiarySection');
+        const open = sec.style.display !== 'none';
+        sec.style.display = open ? 'none' : 'block';
+        document.getElementById('communityDiaryBtn').style.background = open
+            ? 'rgba(74,222,128,0.1)' : 'rgba(74,222,128,0.25)';
+        if (!open) loadCommunityDiary();
+    }
+}
+
+// ─── يوميات بركات ربنا معايا (خاصة بالأمين) ───
+function addPersonalDiary() {
+    const text = document.getElementById('personalDiaryInput').value.trim();
+    if (!text) return;
+    const now = new Date();
+    const entry = {
+        text,
+        servant: currentServant || 'أمين الخدمة',
+        timestamp: Date.now(),
+        dateStr: now.toLocaleDateString('ar-EG', { weekday:'long', year:'numeric', month:'long', day:'numeric' }),
+        timeStr: now.toLocaleTimeString('ar-EG', { hour:'2-digit', minute:'2-digit' })
+    };
+    db.ref('servant_diary/personal').push(entry).then(() => {
+        document.getElementById('personalDiaryInput').value = '';
+        loadPersonalDiary();
+    });
+}
+
+function loadPersonalDiary() {
+    const box = document.getElementById('personalDiaryList');
+    box.innerHTML = '<p style="text-align:center;color:#475569;font-size:12px;">جاري التحميل...</p>';
+    db.ref('servant_diary/personal').orderByChild('timestamp').once('value', snap => {
+        box.innerHTML = '';
+        if (!snap.exists()) {
+            box.innerHTML = '<p style="text-align:center;color:#475569;font-size:13px;">لم تسجّل شيئاً بعد... ابدأ اليوم 🌟</p>';
+            return;
+        }
+        const entries = [];
+        snap.forEach(c => entries.unshift({ id: c.key, ...c.val() }));
+        entries.forEach(e => {
+            box.innerHTML += `
+            <div class="diary-entry" id="pentry_${e.id}">
+                <div class="diary-entry-header">
+                    <span class="diary-servant-name">✨ ${e.servant}</span>
+                    <span class="diary-date-badge">${e.dateStr || ''} ${e.timeStr || ''}</span>
+                </div>
+                <div class="diary-text">${e.text}</div>
+                <button class="diary-delete-btn" onclick="deletePersonalEntry('${e.id}')">حذف 🗑️</button>
+            </div>`;
+        });
+    });
+}
+
+function deletePersonalEntry(id) {
+    if (!confirm('تحذف السجل ده؟')) return;
+    db.ref('servant_diary/personal/' + id).remove().then(loadPersonalDiary);
+}
+
+// ─── يوميات مجتمع الخدام (مع toggle الإظهار) ───
+function addCommunityDiary() {
+    const text = document.getElementById('communityDiaryInput').value.trim();
+    if (!text) return;
+    const now = new Date();
+    const entry = {
+        text,
+        servant: currentServant || 'خادم',
+        timestamp: Date.now(),
+        dateStr: now.toLocaleDateString('ar-EG', { weekday:'long', year:'numeric', month:'long', day:'numeric' }),
+        timeStr: now.toLocaleTimeString('ar-EG', { hour:'2-digit', minute:'2-digit' }),
+        visible: true
+    };
+    db.ref('servant_diary/community').push(entry).then(() => {
+        document.getElementById('communityDiaryInput').value = '';
+        loadCommunityDiary();
+    });
+}
+
+function loadCommunityDiary() {
+    const box = document.getElementById('communityDiaryList');
+    box.innerHTML = '<p style="text-align:center;color:#475569;font-size:12px;">جاري التحميل...</p>';
+    db.ref('servant_diary/community').orderByChild('timestamp').once('value', snap => {
+        box.innerHTML = '';
+        if (!snap.exists()) {
+            box.innerHTML = '<p style="text-align:center;color:#475569;font-size:13px;">لم يُسجَّل شيء بعد... ابدأ بأول لحظة 🌱</p>';
+            return;
+        }
+        const entries = [];
+        snap.forEach(c => entries.unshift({ id: c.key, ...c.val() }));
+
+        entries.forEach(e => {
+            const isVisible = e.visible !== false;
+            const pillClass = isVisible ? 'toggle-pill on' : 'toggle-pill';
+            const visLabel = isVisible ? 'ظاهر للخدام' : 'مخفي';
+            const hiddenClass = isVisible ? '' : 'diary-entry-hidden';
+
+            box.innerHTML += `
+            <div class="diary-entry diary-entry-community ${hiddenClass}" id="centry_${e.id}">
+                <div class="diary-entry-header">
+                    <span class="diary-servant-name diary-servant-name-green">🫂 ${e.servant}</span>
+                    <span class="diary-date-badge">${e.dateStr || ''} ${e.timeStr || ''}</span>
+                </div>
+                <div class="diary-text">${e.text}</div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+                    <label class="diary-visibility-toggle" onclick="toggleCommunityEntryVisibility('${e.id}', ${isVisible})">
+                        <div class="${pillClass}" id="pill_${e.id}"></div>
+                        <span id="pilllabel_${e.id}">${visLabel}</span>
+                    </label>
+                    <button class="diary-delete-btn" onclick="deleteCommunityEntry('${e.id}')">حذف 🗑️</button>
+                </div>
+            </div>`;
+        });
+    });
+}
+
+function toggleCommunityEntryVisibility(id, currentlyVisible) {
+    const newVal = !currentlyVisible;
+    db.ref('servant_diary/community/' + id + '/visible').set(newVal).then(() => {
+        // تحديث UI فوراً بدون reload
+        const entry = document.getElementById('centry_' + id);
+        const pill = document.getElementById('pill_' + id);
+        const label = document.getElementById('pilllabel_' + id);
+        if (newVal) {
+            entry.classList.remove('diary-entry-hidden');
+            pill.className = 'toggle-pill on';
+            label.textContent = 'ظاهر للخدام';
+        } else {
+            entry.classList.add('diary-entry-hidden');
+            pill.className = 'toggle-pill';
+            label.textContent = 'مخفي';
+        }
+        // تحديث الـ onclick بالقيمة الجديدة
+        entry.querySelector('.diary-visibility-toggle').setAttribute('onclick', `toggleCommunityEntryVisibility('${id}', ${newVal})`);
+    });
+}
+
+function deleteCommunityEntry(id) {
+    if (!confirm('تحذف السجل ده؟')) return;
+    db.ref('servant_diary/community/' + id).remove().then(loadCommunityDiary);
+}
+
+</script>
