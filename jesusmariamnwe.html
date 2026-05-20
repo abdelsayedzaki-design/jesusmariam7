@@ -15,7 +15,6 @@
     <title>لوحة إدارة إعدادي - الإصدار النهائي</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-messaging.js"></script>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: white; margin: 0; padding: 10px; -webkit-tap-highlight-color: transparent; }
         #login { position: fixed; inset: 0; background: #1e293b; display: flex; justify-content: center; align-items: center; z-index: 1000; }
@@ -217,10 +216,51 @@
     </div>
 </div>
 
+<!-- ═══════════════════════════════════════════ -->
+<!-- 🎛️ شاشة اختيار الوضع                       -->
+<!-- ═══════════════════════════════════════════ -->
+<div id="modeSelectScreen" style="display:none; position:fixed; inset:0; background:#0f172a; z-index:9999; display:none; justify-content:center; align-items:center; padding:20px;">
+    <div style="width:100%; max-width:400px; text-align:center;">
+        <div style="font-size:48px; margin-bottom:10px;">✝️</div>
+        <h2 style="color:#fbbf24; margin:0 0 6px 0; font-size:22px;">أهلاً <span id="modeWelcomeName"></span></h2>
+        <p style="color:#94a3b8; font-size:13px; margin-bottom:30px;">اختار الوضع المناسب</p>
+
+        <div style="display:flex; flex-direction:column; gap:16px;">
+            <!-- الوضع البسيط -->
+            <div onclick="enterMode('simple')" style="background:linear-gradient(135deg,#1e3a2f,#14532d); border:2px solid #22c55e; border-radius:20px; padding:24px 20px; cursor:pointer; transition:all 0.2s; text-align:right;" 
+                 onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                <div style="font-size:28px; margin-bottom:8px;">⚡</div>
+                <div style="font-size:18px; font-weight:bold; color:#22c55e; margin-bottom:6px;">الوضع البسيط</div>
+                <div style="font-size:12px; color:#86efac; line-height:1.8;">
+                    🏆 لوحة الشرف<br>
+                    📖 مسابقة الكتاب المقدس<br>
+                    🚨 رسائل المساندة النفسية<br>
+                    📢 إرسال تنبيه
+                </div>
+            </div>
+
+            <!-- الوضع التفصيلي -->
+            <div onclick="enterMode('full')" style="background:linear-gradient(135deg,#1e1b4b,#312e81); border:2px solid #818cf8; border-radius:20px; padding:24px 20px; cursor:pointer; transition:all 0.2s; text-align:right;"
+                 onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                <div style="font-size:28px; margin-bottom:8px;">🔧</div>
+                <div style="font-size:18px; font-weight:bold; color:#818cf8; margin-bottom:6px;">الوضع التفصيلي</div>
+                <div style="font-size:12px; color:#c7d2fe; line-height:1.8;">
+                    كل الإمكانيات والإعدادات الكاملة
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div id="admin">
     <div style="text-align: center; margin-bottom: 15px;">
         <h3 style="margin:0; color:#818cf8;">إدارة خدمة إعدادي</h3>
         <small id="welcomeServant" style="color: #fbbf24; font-weight: bold;"></small>
+        <div style="margin-top:10px;">
+            <button onclick="switchMode()" id="modeSwitchBtn" style="background:#334155; border:1px solid #818cf8; color:#c7d2fe; padding:7px 18px; border-radius:20px; font-size:12px; cursor:pointer; font-family:inherit;">
+                🔧 التفصيلي
+            </button>
+        </div>
     </div>
 
     <!-- ═════════════════════════════════════════════ -->
@@ -283,7 +323,7 @@
         </button>
     </div>
 
-    <div class="section" style="border: 2px solid #fbbf24; display: flex; justify-content: space-between; align-items: center; background: rgba(251, 191, 36, 0.1);">
+    <div id="sec-controls-quizvis" class="section" style="border: 2px solid #fbbf24; display: flex; justify-content: space-between; align-items: center; background: rgba(251, 191, 36, 0.1);">
         <span style="font-weight: bold; color: #fbbf24;">ظهور المسابقة للمخدومين:</span>
         <button id="quizVisibilityBtn" onclick="toggleQuizVisibility()" style="padding: 10px 20px; font-weight: bold; background: #ef4444; border-radius: 8px; color: white;">مخفية الآن ❌</button>
     </div>
@@ -291,7 +331,7 @@
     <!-- ═════════════════════════════════════════════════ -->
     <!-- 💬 زر التحكم في ظهور ركن الدردشة (الإضافة الجديدة) -->
     <!-- ═════════════════════════════════════════════════ -->
-    <div class="section" style="border: 2px solid #ef4444; display: flex; justify-content: space-between; align-items: center; background: rgba(239, 68, 68, 0.1);">
+    <div id="sec-controls-chat" class="section" style="border: 2px solid #ef4444; display: flex; justify-content: space-between; align-items: center; background: rgba(239, 68, 68, 0.1);">
         <span style="font-weight: bold; color: #ef4444;">ظهور ركن الدردشة للمخدومين:</span>
         <button id="chatVisibilityBtn" onclick="toggleChatVisibility()" style="padding: 10px 20px; font-weight: bold; background: #22c55e; border-radius: 8px; color: white;">ظاهر الآن ✅</button>
     </div>
@@ -299,7 +339,7 @@
     <!-- ═════════════════════════════════════════════════ -->
     <!-- 📖 زر التحكم في ظهور قسم اليوميات عند المخدومين -->
     <!-- ═════════════════════════════════════════════════ -->
-    <div class="section" style="border: 2px solid #818cf8; display: flex; justify-content: space-between; align-items: center; background: rgba(129, 140, 248, 0.08);">
+    <div id="sec-controls-journal" class="section" style="border: 2px solid #818cf8; display: flex; justify-content: space-between; align-items: center; background: rgba(129, 140, 248, 0.08);">
         <span style="font-weight: bold; color: #818cf8;">📖 يوميات بركات ربنا عند المخدومين:</span>
         <button id="journalVisibilityBtn" onclick="toggleJournalVisibility()" style="padding: 10px 20px; font-weight: bold; border-radius: 8px; color: white; background: #ef4444;">مخفي الآن ❌</button>
     </div>
@@ -307,21 +347,21 @@
     <!-- ═════════════════════════════════════════════════ -->
     <!-- 💬 زر التحكم في ظهور يوميات المجتمع             -->
     <!-- ═════════════════════════════════════════════════ -->
-    <div class="section" style="border: 2px solid #f472b6; display: flex; justify-content: space-between; align-items: center; background: rgba(244, 114, 182, 0.08);">
+    <div id="sec-controls-community" class="section" style="border: 2px solid #f472b6; display: flex; justify-content: space-between; align-items: center; background: rgba(244, 114, 182, 0.08);">
         <span style="font-weight: bold; color: #f472b6;">💬 يوميات المجتمع عند المخدومين:</span>
         <button id="communityDiaryVisibilityBtn" onclick="toggleCommunityDiaryVisibility()" style="padding: 10px 20px; font-weight: bold; border-radius: 8px; color: white; background: #ef4444;">مخفي الآن ❌</button>
     </div>
 
     <!-- زر التحكم في ظهور يوميات المجتمع عند المخدومين -->
-    <div class="section" style="border: 2px solid #4ade80; display: flex; justify-content: space-between; align-items: center; background: rgba(74, 222, 128, 0.07);">
+    <div id="sec-controls-community2" class="section" style="border: 2px solid #4ade80; display: flex; justify-content: space-between; align-items: center; background: rgba(74, 222, 128, 0.07);">
         <span style="font-weight: bold; color: #4ade80;">🫂 يوميات المجتمع للمخدومين:</span>
-        <button id="communityDiaryVisibilityBtn" onclick="toggleCommunityDiaryVisibility()" style="padding: 10px 20px; font-weight: bold; background: #22c55e; border-radius: 8px; color: white;">ظاهرة الآن ✅</button>
+        <button onclick="toggleCommunityDiaryVisibility()" style="padding: 10px 20px; font-weight: bold; background: #22c55e; border-radius: 8px; color: white;">ظاهرة الآن ✅</button>
     </div>
 
     <!-- ═════════════════════════════════════════════════════════ -->
     <!-- 🎯 التحكم في منح النقاط للصلاة والالتزام الكنسي          -->
     <!-- ═════════════════════════════════════════════════════════ -->
-    <div class="section" style="border: 2px solid #4ade80; background: rgba(74,222,128,0.05);">
+    <div id="sec-controls-points" class="section" style="border: 2px solid #4ade80; background: rgba(74,222,128,0.05);">
         <h4 style="margin: 0 0 14px 0; color: #4ade80; text-align: center; font-size: 17px;">
             🎯 التحكم في منح النقاط
         </h4>
@@ -352,7 +392,9 @@
         </div>
     </div>
 
+    <div id="sec-quiz-toggle">
     <button onclick="toggleQuizSection()" style="width: 100%; padding: 12px; margin-bottom: 15px; background: #334155; color: #fbbf24; font-weight: bold; border-radius: 10px; border: 1px solid #fbbf24; cursor: pointer;">⚙️ إعدادات الأسئلة والنتائج</button>
+    </div>
 
     <div id="quizSection" class="section quiz-card">
         <h3 style="text-align: center; color: #fbbf24; margin-top: 0;">📖 إدارة المسابقة</h3>
@@ -419,7 +461,7 @@
         </div>
     </div>
 
-    <div class="encouragement-section">
+    <div id="sec-encouragement" class="encouragement-section">
         <h3 style="margin: 0 0 15px 0; color: #fbbf24; text-align: center;">💙 محتاجينك معانا - المخدومين الغير نشطين</h3>
         <p style="text-align: center; font-size: 13px; color: #fcd34d; margin-bottom: 15px;">
             المخدومين دول محتاجين تشجيع منك! 🌟
@@ -439,12 +481,12 @@
         </div>
     </div>
 
-    <div class="top-control">
+    <div id="sec-top-control" class="top-control">
         <button id="modeBtn" onclick="toggleEditMode()" class="btn-edit-mode">📝 وضع التعديل</button>
         <button id="resetBtn" onclick="resetAllScores()" class="btn-reset">🔄 تصفير الكل</button>
     </div>
 
-    <div class="section" style="border-top: 4px solid #fbbf24;">
+    <div id="sec-leaderboard" class="section" style="border-top: 4px solid #fbbf24;">
         <h4 style="margin: 0 0 10px 0; color: #fbbf24;">🏆 درجات المخدومين</h4>
         <input type="text" id="searchInput" onkeyup="searchMakhdoum()" placeholder="🔍 ابحث عن اسم..." style="margin-bottom:10px; background:#334155;">
         <div id="addArea" class="add-area">
@@ -457,12 +499,12 @@
         <div id="leaderboard" class="grid"></div>
     </div>
 
-    <div class="section" style="border: 2px solid #10b981; background: rgba(16, 185, 129, 0.05);">
+    <div id="sec-breakdown" class="section" style="border: 2px solid #10b981; background: rgba(16, 185, 129, 0.05);">
         <h4 style="margin: 0 0 15px 0; color: #10b981;">📊 تفاصيل النقاط لكل مخدوم</h4>
         <div id="pointsBreakdownList" style="max-height: 400px; overflow-y: auto;"></div>
     </div>
 
-    <div class="section" style="border-right: 4px solid #22c55e;">
+    <div id="sec-chat" class="section" style="border-right: 4px solid #22c55e;">
         <div style="display:flex; justify-content:space-between; align-items:center;">
             <h4 style="margin:0;">💬 دردشة المخدومين</h4>
             <div style="display:flex; gap:5px;">
@@ -477,7 +519,7 @@
         </div>
     </div>
 
-    <div class="psy-section-red">
+    <div id="sec-psy" class="psy-section-red">
         <h4 style="margin:0; color:#ffedd5; border-bottom: 1px solid #ef4444; padding-bottom: 5px;">🚨 ركن المساندة النفسية</h4>
         <div id="psyList" style="margin-top:10px;"></div>
         
@@ -485,7 +527,7 @@
         <div id="adminPsyChats" style="max-height: 250px; overflow-y: auto;"></div>
     </div>
 
-    <div class="section" style="border: 2px solid #fbbf24; background: rgba(251, 191, 36, 0.05);">
+    <div id="sec-prayer-reports" class="section" style="border: 2px solid #fbbf24; background: rgba(251, 191, 36, 0.05);">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
             <h4 style="margin:0; color:#fbbf24;">📥 تقارير مذبح الصلاة اليومي</h4>
             <button onclick="clearPrayerReports()" style="background:#ef4444; font-size:10px; padding:5px 10px;">مسح التقارير 🗑️</button>
@@ -496,7 +538,7 @@
     </div>
 
     <!-- قسم سجل تأكيدات القداس -->
-    <div class="section" style="border: 2px solid #22c55e;">
+    <div id="sec-confirmation" class="section" style="border: 2px solid #22c55e;">
         <h3 style="color: #22c55e; text-align: center; margin-top: 0;">📋 سجل تأكيدات حضور القداس</h3>
         <p style="font-size: 12px; color: #94a3b8; text-align: center; margin-bottom: 15px;">
             عرض آخر 50 طلب تأكيد للقداس • تحديث تلقائي كل دقيقة
@@ -508,7 +550,7 @@
         <div id="confirmationHistory" style="max-height: 400px; overflow-y: auto;"></div>
     </div>
 
-    <div class="section" style="border-right: 4px solid #6366f1;">
+    <div id="sec-log" class="section" style="border-right: 4px solid #6366f1;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
             <h4 style="margin:0;">📜 سجل الحركات</h4>
             <button onclick="clearLog()" style="background:#ef4444; font-size:10px; padding:2px 8px;">مسح السجل 🗑️</button>
@@ -516,7 +558,7 @@
         <div class="log-box" id="actionLog"></div>
     </div>
 
-    <div class="normal-alert-box section">
+    <div id="sec-alert" class="normal-alert-box section">
         <h4 style="margin:0 0 10px 0; color:#818cf8;">📢 تنبيه المخدومين</h4>
         <textarea id="alertContent" placeholder="اكتب التنبيه هنا..." style="height:60px; margin-bottom:10px;"></textarea>
         <div style="display:flex; gap:5px;">
@@ -525,7 +567,7 @@
         </div>
     </div>
 
-    <div class="section" style="border: 2px solid #f59e0b; background: rgba(245,158,11,0.08);">
+    <div id="sec-push" class="section" style="border: 2px solid #f59e0b; background: rgba(245,158,11,0.08);">
         <h4 style="margin:0 0 12px 0; color:#f59e0b;">🔔 إشعار خارجي للمخدومين</h4>
         <p style="font-size:12px; color:#94a3b8; margin-bottom:10px;">هيوصل حتى لو التطبيق مش مفتوح 📲</p>
         <input type="text" id="pushTitle" placeholder="عنوان الإشعار..." style="width:100%; padding:10px; border-radius:8px; border:1px solid #f59e0b; background:#1e293b; color:white; margin-bottom:8px; font-family:inherit;">
@@ -534,7 +576,7 @@
         <div id="pushStatus" style="margin-top:8px; font-size:13px; text-align:center;"></div>
     </div>
 
-    <div class="section lib-admin" style="border: 2px solid #10b981;">
+    <div id="sec-media" class="section lib-admin" style="border: 2px solid #10b981;">
         <h4 style="margin:0 0 10px 0; color:#10b981;">🎥 إدارة مكتبة الميديا</h4>
         
         <div class="status-toggle">
@@ -570,7 +612,7 @@
         </div>
         <button onclick="updatePrayerHints()" style="width: 100%; margin-top: 20px; padding: 15px; background: #4ade80; color: #0f172a; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px;">تحديث الإرشادات عند المخدومين الآن 🚀</button>
     </div>
-    <div class="section" style="border: 2px solid #fbbf24; background: rgba(251,191,36,0.05);">
+    <div id="sec-tasks" class="section" style="border: 2px solid #fbbf24; background: rgba(251,191,36,0.05);">
         <h4 style="margin:0 0 15px 0; color:#fbbf24; text-align:center;">📋 إدارة خطة المهام والتنبيهات</h4>
         <p style="font-size:12px; color:#94a3b8; text-align:center; margin-bottom:15px;">ما تكتبه هنا هيظهر للمخدومين فوراً في قسم "خطة المهام"</p>
 
@@ -607,7 +649,7 @@
     </div>
 
     <!-- ========== قسم تعاليم الأحد ========== -->
-    <div class="section" style="border: 2px solid #10b981; background: rgba(16,185,129,0.05);">
+    <div id="sec-lessons" class="section" style="border: 2px solid #10b981; background: rgba(16,185,129,0.05);">
         <h4 style="margin:0 0 15px 0; color:#10b981; text-align:center;">📚 إدارة تعاليم الأحد</h4>
         <p style="font-size:12px; color:#94a3b8; text-align:center; margin-bottom:15px;">ملخص الدرس هيظهر للمخدومين فوراً في قسم "تعاليم الأحد"</p>
 
@@ -657,49 +699,29 @@
 </div>
 
 <script>
-    const config = {
-        apiKey: "AIzaSyBhGsBIFzm-aoSNycttr1djw-c5QuwBNwg",
-        authDomain: "mariam-b85f5.firebaseapp.com",
-        databaseURL: "https://mariam-b85f5-default-rtdb.firebaseio.com/",
-        projectId: "mariam-b85f5",
-        storageBucket: "mariam-b85f5.firebasestorage.app",
-        messagingSenderId: "199175505566",
-        appId: "1:199175505566:web:29aa95ae9e6397fe701d8f"
-    };
+    const config = { databaseURL: "https://mariam-b85f5-default-rtdb.firebaseio.com/" };
     firebase.initializeApp(config);
     const db = firebase.database();
-
-    // ═══════════════════════════════════════════════════════
-    // 🔔 نظام الإشعارات الخارجية - FCM للخدام
-    // ═══════════════════════════════════════════════════════
-    const VAPID_KEY = "BHIdOQo8DikXwQEE22-V8Ro94OdnrFY6OQ9lyrfpmt5Yx81tl3gx__CBS7gjrmQIVBM4zW1yJNLw-5yZp9qxoo4";
-    let fcmMessaging = null;
-
-    async function initServantFCM() {
-        try {
-            if (!('serviceWorker' in navigator)) return;
-            if (!firebase.messaging.isSupported()) return;
-            const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
-            fcmMessaging = firebase.messaging();
-            const permission = await Notification.requestPermission();
-            if (permission !== 'granted') return;
-            const token = await fcmMessaging.getToken({ vapidKey: VAPID_KEY, serviceWorkerRegistration: registration });
-            if (token) {
-                db.ref('fcm_tokens/servant_' + (currentServant || 'admin').replace(/\s/g,'_')).set({
-                    token, updatedAt: Date.now(), role: 'servant'
-                });
-            }
-            fcmMessaging.onMessage(payload => {
-                const t = payload.notification?.title || '';
-                const b = payload.notification?.body || '';
-                if (Notification.permission === 'granted') new Notification(t, { body: b, icon: 'https://cdn-icons-png.flaticon.com/512/4230/4230633.png', dir: 'rtl' });
-            });
-        } catch(e) { console.log('Servant FCM error:', e); }
-    }
-    setTimeout(initServantFCM, 2000);
     
     const users = { "jesus": "أمين الخدمة", "mikel": "أ/ ميكائيل", "john": "أ/ يوحنا", "servant": "خادم عام" };
     let localData = []; let isEditMode = false; let currentServant = "";
+
+    let currentMode = 'simple'; // simple | full
+
+    // السكشنز اللي بتظهر في الوضع البسيط بس
+    const SIMPLE_SECTIONS = ['sec-leaderboard', 'sec-quiz-toggle', 'quizSection', 'sec-psy', 'sec-alert'];
+    // السكشنز اللي بتتخفى في الوضع البسيط (كل اللي مش في القائمة فوق)
+    const FULL_ONLY_IDS = [
+        'personalDiarySection', 'communityDiarySection',
+        'sec-controls-chat', 'sec-controls-journal',
+        'sec-controls-community', 'sec-controls-community2',
+        'sec-controls-points', 'sec-controls-quizvis',
+        'sec-encouragement',
+        'sec-chat',
+        'sec-prayer-reports', 'sec-confirmation',
+        'sec-log', 'sec-push', 'sec-media',
+        'adminPrayerControl', 'sec-tasks', 'sec-lessons'
+    ];
 
     function checkPass() {
         const input = document.getElementById('passInput').value.trim().toLowerCase();
@@ -707,17 +729,50 @@
         if(users[input]) {
             currentServant = users[input];
             document.getElementById('login').style.display = 'none';
-            document.getElementById('admin').style.display = 'block';
-            document.getElementById('welcomeServant').innerText = "أهلاً يا " + currentServant;
-            try { startListening(); } catch(e) { console.warn("startListening error:", e); }
-            try { loadCurrentHints(); } catch(e) { console.warn("loadCurrentHints error:", e); }
-            try { listenToPrayerReports(); } catch(e) { console.warn("listenToPrayerReports error:", e); }
-        } else { 
+            // عرض شاشة اختيار الوضع
+            const modeScreen = document.getElementById('modeSelectScreen');
+            modeScreen.style.display = 'flex';
+            document.getElementById('modeWelcomeName').textContent = currentServant;
+        } else {
             if(errEl) { errEl.style.display = 'block'; errEl.innerText = '❌ كلمة السر خطأ!'; }
             else { alert("كلمة السر خطأ!"); }
             document.getElementById('passInput').value = '';
             document.getElementById('passInput').focus();
         }
+    }
+
+    function enterMode(mode) {
+        currentMode = mode;
+        document.getElementById('modeSelectScreen').style.display = 'none';
+        document.getElementById('admin').style.display = 'block';
+        document.getElementById('welcomeServant').innerText = "أهلاً يا " + currentServant;
+        applyMode(mode);
+        try { startListening(); } catch(e) { console.warn("startListening error:", e); }
+        try { loadCurrentHints(); } catch(e) { console.warn("loadCurrentHints error:", e); }
+        try { listenToPrayerReports(); } catch(e) { console.warn("listenToPrayerReports error:", e); }
+    }
+
+    function applyMode(mode) {
+        if (mode === 'simple') {
+            FULL_ONLY_IDS.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = 'none';
+            });
+            document.getElementById('modeSwitchBtn').textContent = '🔧 التفصيلي';
+            document.getElementById('modeSwitchBtn').style.borderColor = '#818cf8';
+        } else {
+            FULL_ONLY_IDS.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = '';
+            });
+            document.getElementById('modeSwitchBtn').textContent = '⚡ البسيط';
+            document.getElementById('modeSwitchBtn').style.borderColor = '#22c55e';
+        }
+    }
+
+    function switchMode() {
+        currentMode = currentMode === 'simple' ? 'full' : 'simple';
+        applyMode(currentMode);
     }
 
     function startListening() {
@@ -1201,24 +1256,17 @@
         }
         status.style.color = '#fbbf24';
         status.innerText = '⏳ جاري الإرسال...';
-
-        // حفظ الإشعار في Firebase - المخدومين بيستمعوا عليه
         db.ref('push_notifications').push({
             title: title,
             body: body,
             sentAt: Date.now(),
             sentBy: currentServant || 'الخادم'
         }).then(() => {
-            // إحصاء الأجهزة المسجلة
-            db.ref('fcm_tokens').once('value', snap => {
-                const count = snap.exists() ? Object.keys(snap.val()).length : 0;
-                status.style.color = '#4ade80';
-                status.innerText = `✅ تم إرسال الإشعار! (${count} جهاز مسجل)`;
-                document.getElementById('pushTitle').value = '';
-                document.getElementById('pushBody').value = '';
-                setTimeout(() => { status.innerText = ''; }, 4000);
-            });
-            db.ref("activity_logs").push(currentServant + ': أرسل إشعار: ' + title);
+            status.style.color = '#4ade80';
+            status.innerText = '✅ تم إرسال الإشعار!';
+            document.getElementById('pushTitle').value = '';
+            document.getElementById('pushBody').value = '';
+            setTimeout(() => { status.innerText = ''; }, 3000);
         }).catch(e => {
             status.style.color = '#f87171';
             status.innerText = '❌ خطأ: ' + e.message;
