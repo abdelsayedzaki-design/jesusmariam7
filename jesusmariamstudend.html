@@ -4443,14 +4443,23 @@ async function sendMutualPrayer() {
     const userId = getUserId(name);
 
     // ========== الحماية من الأجهزة المتعددة: التحقق من Firebase أولاً ==========
+    const deviceId = getDeviceFingerprintForAttendance();
     try {
-        // التحقق من آخر تاريخ إرسال في Firebase
+        // 1️⃣ التحقق بالاسم: هل أرسل اليوم من أي جهاز؟
         const userLastSubmitRef = db.ref(`users/${userId}/last_prayer_submit_date`);
         const lastSubmitSnapshot = await userLastSubmitRef.once('value');
         const lastSubmitDate = lastSubmitSnapshot.val();
         
         if (lastSubmitDate === todayDate) {
             return alert("لقد قمت بإرسال المذبح اليوم بالفعل من جهاز آخر! ننتظرك غداً بكل حب ❤️");
+        }
+
+        // 2️⃣ التحقق بالجهاز: هل هذا الجهاز أرسل اليوم بأي اسم؟
+        const devicePrayerRef = db.ref(`prayer_device_locks/${todayDate}/${deviceId}`);
+        const devicePrayerSnap = await devicePrayerRef.once('value');
+        if (devicePrayerSnap.exists()) {
+            const prevName = devicePrayerSnap.val().name || '';
+            return alert(`هذا الجهاز أرسل المذبح اليوم باسم "${prevName}"!\nمينفعش تسجل لشخص تاني من نفس الجهاز ❤️`);
         }
 
         // التحقق المزدوج: البحث في تقارير الصلاة اليوم
@@ -4494,6 +4503,9 @@ async function sendMutualPrayer() {
         
         // تحديث تاريخ آخر إرسال في Firebase (الحماية الأساسية)
         await userLastSubmitRef.set(todayDate);
+        
+        // 🔒 قفل الجهاز: منع أي اسم تاني من نفس الجهاز
+        await devicePrayerRef.set({ name: name, timestamp: Date.now() });
         
         // إضافة 5 نقاط للصلاة مخدع إذا كانت النقاط مفعّلة
         const prayerEnabled = await db.ref('settings/prayerPointsEnabled').once('value');
@@ -5910,39 +5922,85 @@ function showConfirmationRequestsModal(requests) {
 }
 
 // تأكيد حضور زميل
-function confirmPeerAttendance(requestKey, requesterName) {
-    // تحديث حالة الطلب
-    db.ref(`confirmation_requests/${requestKey}`).update({
-        status: 'confirmed',
-        confirmedAt: Date.now()
-    });
-    
-    // إضافة 6 نقاط للمخدوم اللي اتأكد حضوره (لو الإضافة مفعّلة)
-    db.ref('settings/attendancePointsEnabled').once('value', snap => {
-        if (snap.val() !== false) {
-            db.ref("points_data").orderByChild("name").equalTo(requesterName).once("value", pointsSnap => {
-                if (!pointsSnap.exists()) {
-                    console.warn("مش لاقي المخدوم في points_data:", requesterName);
-                    return;
-                }
-                pointsSnap.forEach(child => {
-                    const currentScore = child.val().score || 0;
-                    const currentBreakdown = child.val().breakdown || {};
-                    child.ref.update({
-                        score: currentScore + 6,
-                        breakdown: {
-                            quiz: currentBreakdown.quiz || 0,
-                            prayer: currentBreakdown.prayer || 0,
-                            attendance: (currentBreakdown.attendance || 0) + 6
-                        },
-                        lastUpdate: Date.now()
-                    });
-                });
-            });
-        }
-    });
-    
+async function confirmPeerAttendance(requestKey, requesterName) {
     const confirmerName = document.getElementById('attendanceNameSelect').value;
+    const today = new Date().toISOString().split('T')[0];
+    const deviceId = getDeviceFingerprintForAttendance();
+
+    // 🚫 حماية 1: المخدوم لا يأكد نفسه حتى من جهاز تاني
+    if (confirmerName === requesterName) {
+        return alert("❌ مينفعش تأكد حضورك بنفسك!\nلازم زميل تاني يأكد حضورك.");
+    }
+
+    // 🚫 حماية 2: التحقق من Firebase — هل هذا الطلب اتأكد قبل كده؟
+    const requestSnap = await db.ref(`confirmation_requests/${requestKey}`).once('value');
+    if (requestSnap.exists() && requestSnap.val().status === 'confirmed') {
+        return alert("❌ هذا الحضور اتأكد قبل كده بالفعل!");
+    }
+
+    // 🚫 حماية 3: الجهاز ده أكد لمخدوم تاني النهارده؟
+    const deviceConfirmRef = db.ref(`peer_confirm_device_locks/${today}/${deviceId}`);
+    const deviceConfirmSnap = await deviceConfirmRef.once('value');
+    if (deviceConfirmSnap.exists()) {
+        const prevConfirmer = deviceConfirmSnap.val().confirmerName || '';
+        const prevRequester = deviceConfirmSnap.val().requesterName || '';
+        if (prevRequester !== requesterName) {
+            return alert(`❌ هذا الجهاز أكد حضور "${prevRequester}" النهارده بالفعل!\nمينفعش تأكد لأكتر من واحد في اليوم الواحد.`);
+        }
+    }
+
+    // 🚫 حماية 4: هل هذا الـ confirmer أكد لنفس الشخص قبل كده النهارده؟
+    const confirmerUserId = getUserId(confirmerName);
+    const confirmerLockRef = db.ref(`peer_confirm_name_locks/${today}/${confirmerUserId}`);
+    const confirmerLockSnap = await confirmerLockRef.once('value');
+    if (confirmerLockSnap.exists()) {
+        const prevTarget = confirmerLockSnap.val().requesterName || '';
+        return alert(`❌ "${confirmerName}" أكد حضور "${prevTarget}" النهارده بالفعل!\nكل مخدوم يقدر يأكد حضور واحد بس في اليوم.`);
+    }
+
+    // ✅ كل التحققات عدت — نكمل التأكيد
+
+    // تحديث حالة الطلب
+    await db.ref(`confirmation_requests/${requestKey}`).update({
+        status: 'confirmed',
+        confirmedAt: Date.now(),
+        confirmerName: confirmerName,
+        confirmerDeviceId: deviceId
+    });
+
+    // قفل الجهاز من تأكيد حضور تاني النهارده
+    await deviceConfirmRef.set({ confirmerName, requesterName, timestamp: Date.now() });
+
+    // قفل الـ confirmer من تأكيد حضور تاني النهارده
+    await confirmerLockRef.set({ requesterName, confirmerName, timestamp: Date.now() });
+
+    // إضافة 6 نقاط للمخدوم اللي اتأكد حضوره (لو الإضافة مفعّلة)
+    const attendanceEnabled = await db.ref('settings/attendancePointsEnabled').once('value');
+    if (attendanceEnabled.val() !== false) {
+        // نجيب كل points_data ونلاقي الاسم بـ loop (أضمن من orderByChild)
+        const allPointsSnap = await db.ref("points_data").once("value");
+        let found = false;
+        allPointsSnap.forEach(child => {
+            const val = child.val();
+            if (val && val.name && val.name.trim() === requesterName.trim()) {
+                found = true;
+                const currentScore = val.score || 0;
+                const currentBreakdown = val.breakdown || {};
+                child.ref.update({
+                    score: currentScore + 6,
+                    breakdown: {
+                        quiz: currentBreakdown.quiz || 0,
+                        prayer: currentBreakdown.prayer || 0,
+                        attendance: (currentBreakdown.attendance || 0) + 6
+                    },
+                    lastUpdate: Date.now()
+                });
+            }
+        });
+        if (!found) {
+            console.warn("مش لاقي المخدوم في points_data:", requesterName);
+        }
+    }
     
     showNotification(`تم تأكيد حضور ${requesterName}! شكراً لمساعدتك 🙏`);
     confetti({ particleCount: 100, spread: 60, origin: { y: 0.7 } });
