@@ -1,5 +1,4 @@
 
-
 <!--
 {<form></form>}╔═══════════════════════════════════════════════════════════════════╗
 ║  🔒 نظام حماية محدّث ضد التكرار من أجهزة متعددة 🔒              ║
@@ -3049,9 +3048,23 @@ function checkAccessWithSound() {
 
         <!-- ========== شارات الإنجازات - صغيرة على جنب ========== -->
         <div id="badgesSection" style="display:none; margin-bottom: 15px;">
-            <div style="display: flex; flex-wrap: wrap; gap: 6px; padding: 8px; background: rgba(102,126,234,0.05); border-radius: 12px;" id="userBadgesContainer">
+            <div style="display: flex; flex-wrap: wrap; gap: 6px; padding: 8px; background: rgba(102,126,234,0.05); border-radius: 12px; align-items:center;" id="userBadgesContainer">
                 <!-- سيتم ملؤها ديناميكياً -->
             </div>
+            <button id="notifPermBtn2" onclick="requestNotifPermission()" style="
+                margin-top: 6px;
+                padding: 5px 14px;
+                background: linear-gradient(135deg,#f59e0b,#d97706);
+                color: #000;
+                border: none;
+                border-radius: 50px;
+                font-family: 'Cairo', sans-serif;
+                font-size: 12px;
+                font-weight: 700;
+                cursor: pointer;
+                box-shadow: 0 2px 8px rgba(245,158,11,0.4);
+                transition: all 0.3s ease;
+            ">🔔 فعّل الإشعارات</button>
         </div>
 
         <!-- ========== Modal رسالة الترحيب الشخصية ========== -->
@@ -3792,7 +3805,7 @@ async function initFCM() {
         // استقبال الإشعار لما التطبيق مفتوح (Foreground)
         // ====== زرار تفعيل الإشعارات ======
         async function requestNotifPermission() {
-            const btn = document.getElementById('notifPermBtn');
+            const btn = document.getElementById('notifPermBtn') || document.getElementById('notifPermBtn2');
             btn.textContent = '⏳ جاري التفعيل...';
             btn.disabled = true;
             try {
@@ -3836,12 +3849,14 @@ async function initFCM() {
         // تحقق عند الفتح لو مفعّل
         window.addEventListener('load', () => {
             const saved = localStorage.getItem('myFCMToken');
-            const btn = document.getElementById('notifPermBtn');
-            if (saved && btn) {
-                btn.textContent = '✅ مفعّل';
-                btn.style.background = 'linear-gradient(135deg,#10b981,#059669)';
-                btn.disabled = true;
-            }
+            ['notifPermBtn','notifPermBtn2'].forEach(id => {
+                const btn = document.getElementById(id);
+                if (saved && btn) {
+                    btn.textContent = '✅ مفعّل';
+                    btn.style.background = 'linear-gradient(135deg,#10b981,#059669)';
+                    btn.disabled = true;
+                }
+            });
         });
         // ====== نهاية زرار الإشعارات ======
 
