@@ -1,4 +1,5 @@
 
+
 <!--
 {<form></form>}╔═══════════════════════════════════════════════════════════════════╗
 ║  🔒 نظام حماية محدّث ضد التكرار من أجهزة متعددة 🔒              ║
@@ -3383,6 +3384,7 @@ function checkAccessWithSound() {
                 <textarea id="notifBody" placeholder="نص الإشعار..." style="height:70px; margin-bottom:8px;"></textarea>
                 <button class="btn btn-success" onclick="sendPushNotification()">إرسال إشعار 🔔</button>
                 <div id="notifStatus" style="margin-top:8px; font-size:13px;"></div>
+                <button onclick="showFCMToken()" style="margin-top:8px; background:transparent; color:#f59e0b; border:2px solid #f59e0b; border-radius:8px; padding:8px; width:100%; font-family:inherit; cursor:pointer; font-size:13px;">🔑 عرض رمز الإشعارات (للتجربة)</button>
             </div>
             <button class="btn btn-danger" onclick="location.reload()">إغلاق اللوحة ✕</button>
         </div>
@@ -3765,6 +3767,11 @@ async function initFCM() {
                 name: userName,
                 updatedAt: Date.now()
             });
+            // اشتراك في topic عشان يستقبل إشعارات جماعية
+            await fetch('https://iid.googleapis.com/iid/v1/' + token + '/rel/topics/all', {
+                method: 'POST',
+                headers: { 'Authorization': 'key=AAAA_SERVER_KEY_HERE' }
+            }).catch(()=>{});
         }
         // استقبال الإشعار لما التطبيق مفتوح (Foreground)
         messaging.onMessage(payload => {
@@ -7684,6 +7691,39 @@ if ('serviceWorker' in navigator) {
             .then(reg => console.log('✅ Service Worker registered:', reg.scope))
             .catch(err => console.log('❌ SW Error:', err));
     });
+}
+</script>
+
+<!-- زر عرض FCM Token -->
+<div id="fcm-token-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:99999; align-items:center; justify-content:center; padding:20px;">
+    <div style="background:#1e293b; border-radius:16px; padding:20px; width:100%; max-width:400px; border:2px solid #f59e0b;">
+        <h3 style="color:#f59e0b; margin:0 0 12px 0; text-align:center; font-size:16px;">🔑 رمز الإشعارات (FCM Token)</h3>
+        <p style="color:#94a3b8; font-size:12px; margin-bottom:10px; text-align:center;">انسخ الرمز ده واستخدمه في Firebase لإرسال إشعار تجريبي</p>
+        <textarea id="fcm-token-text" readonly style="width:100%; height:100px; background:#0f172a; color:#a78bfa; border:1px solid #334155; border-radius:8px; padding:10px; font-size:11px; direction:ltr; resize:none; font-family:monospace;"></textarea>
+        <div style="display:flex; gap:10px; margin-top:12px;">
+            <button onclick="copyFCMToken()" style="flex:1; background:#f59e0b; color:#000; border:none; border-radius:8px; padding:10px; font-weight:bold; cursor:pointer; font-family:inherit;">نسخ 📋</button>
+            <button onclick="document.getElementById('fcm-token-modal').style.display='none'" style="flex:1; background:#334155; color:#fff; border:none; border-radius:8px; padding:10px; font-weight:bold; cursor:pointer; font-family:inherit;">إغلاق</button>
+        </div>
+    </div>
+</div>
+
+<script>
+function showFCMToken() {
+    const token = localStorage.getItem('myFCMToken');
+    const modal = document.getElementById('fcm-token-modal');
+    const text = document.getElementById('fcm-token-text');
+    if (token) {
+        text.value = token;
+    } else {
+        text.value = 'مش لاقي token - تأكد إنك ضغطت سماح على الإشعارات';
+    }
+    modal.style.display = 'flex';
+}
+function copyFCMToken() {
+    const text = document.getElementById('fcm-token-text');
+    text.select();
+    document.execCommand('copy');
+    alert('✅ تم النسخ!');
 }
 </script>
 </body>
