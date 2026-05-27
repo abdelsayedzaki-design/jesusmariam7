@@ -1,68 +1,372 @@
-// Service Worker - غصن مثمر PWA
-const CACHE_NAME = 'ghosn-mothmr-v1';
-const urlsToCache = [
-  '/jesusmariam7/jesusmariamstudend.html',
-  '/jesusmariam7/manifest.json',
-  '/jesusmariam7/icon-192.png',
-  '/jesusmariam7/icon-512.png'
-];
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>إرسال إشعارات - غصن مثمر</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    background: #0a0f1e;
+    color: #e2e8f0;
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    min-height: 100vh;
+    padding: 20px;
+}
+.header {
+    text-align: center;
+    padding: 30px 0 20px;
+}
+.header h1 {
+    font-size: 26px;
+    color: #f59e0b;
+    margin-bottom: 6px;
+}
+.header p {
+    color: #64748b;
+    font-size: 13px;
+}
+.card {
+    background: #1e293b;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 16px;
+    border: 1px solid #334155;
+}
+.card h3 {
+    color: #f59e0b;
+    font-size: 15px;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+input, textarea {
+    width: 100%;
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 10px;
+    padding: 12px;
+    color: #e2e8f0;
+    font-family: inherit;
+    font-size: 14px;
+    margin-bottom: 10px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+input:focus, textarea:focus { border-color: #f59e0b; }
+textarea { height: 80px; resize: none; }
+.btn {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    font-family: inherit;
+    transition: opacity 0.2s;
+}
+.btn:active { opacity: 0.8; }
+.btn-send {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: #000;
+}
+.btn-load {
+    background: #1e40af;
+    color: #fff;
+    margin-bottom: 10px;
+}
+.status {
+    margin-top: 12px;
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 13px;
+    text-align: center;
+    display: none;
+}
+.status.success { background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid #10b981; }
+.status.error { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid #ef4444; }
+.status.loading { background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid #f59e0b; }
+.tokens-list {
+    max-height: 200px;
+    overflow-y: auto;
+    margin-top: 10px;
+}
+.token-item {
+    background: #0f172a;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+.token-name {
+    color: #a78bfa;
+    font-size: 14px;
+    font-weight: bold;
+}
+.token-status {
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 20px;
+}
+.token-status.sent { background: rgba(16,185,129,0.2); color: #10b981; }
+.token-status.pending { background: rgba(245,158,11,0.2); color: #f59e0b; }
+.token-status.failed { background: rgba(239,68,68,0.2); color: #ef4444; }
+.warning {
+    background: rgba(239,68,68,0.1);
+    border: 1px solid rgba(239,68,68,0.3);
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 12px;
+    color: #fca5a5;
+    margin-bottom: 16px;
+    text-align: center;
+}
+.count-badge {
+    background: #f59e0b;
+    color: #000;
+    border-radius: 20px;
+    padding: 2px 10px;
+    font-size: 12px;
+    font-weight: bold;
+}
+</style>
+</head>
+<body>
 
-// Install
-self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
-  );
-  self.skipWaiting();
-});
+<div class="header">
+    <h1>🔔 إرسال إشعارات</h1>
+    <p>غصن مثمر — للخادم بس</p>
+</div>
 
-// Activate
-self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
-    )
-  );
-  self.clients.claim();
-});
+<div class="warning">
+    ⚠️ هذه الصفحة سرية — لا ترفعها على GitHub
+</div>
 
-// Fetch
-self.addEventListener('fetch', event => {
-  event.respondWith(
-    fetch(event.request).catch(() => caches.match(event.request))
-  );
-});
+<div class="card">
+    <h3>👥 المخدومين <span class="count-badge" id="tokenCount">0</span></h3>
+    <button class="btn btn-load" onclick="loadTokens()">📥 تحميل قائمة المخدومين</button>
+    <div class="tokens-list" id="tokensList"></div>
+</div>
 
-// ✅ Push Notifications
-self.addEventListener('push', event => {
-  let data = { title: 'غصن مثمر', body: 'في رسالة جديدة!' };
-  if (event.data) {
-    try { data = event.data.json(); } catch(e) { data.body = event.data.text(); }
-  }
-  event.waitUntil(
-    self.registration.showNotification(data.title, {
-      body: data.body,
-      icon: '/jesusmariam7/icon-192.png',
-      badge: '/jesusmariam7/icon-192.png',
-      dir: 'rtl',
-      lang: 'ar',
-      vibrate: [200, 100, 200],
-      data: data
-    })
-  );
-});
+<div class="card">
+    <h3>✍️ كتابة الإشعار</h3>
+    <input type="text" id="notifTitle" placeholder="عنوان الإشعار..." maxlength="100">
+    <textarea id="notifBody" placeholder="نص الإشعار..."></textarea>
+    <button class="btn btn-send" onclick="sendToAll()">إرسال للكل 🚀</button>
+    <div class="status" id="sendStatus"></div>
+</div>
 
-// ✅ لما المستخدم يضغط على الإشعار
-self.addEventListener('notificationclick', event => {
-  event.notification.close();
-  event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clientList => {
-      if (clientList.length > 0) return clientList[0].focus();
-      return clients.openWindow('/jesusmariam7/jesusmariamstudend.html');
-    })
-  );
-});
+<script>
+// Firebase Config
+const DB_URL = 'https://mariam-b85f5-default-rtdb.firebaseio.com';
+const PROJECT_ID = 'mariam-b85f5';
+const CLIENT_EMAIL = 'firebase-adminsdk-fbsvc@mariam-b85f5.iam.gserviceaccount.com';
+const PRIVATE_KEY = `-----BEGIN PRIVATE KEY-----
+MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC5WAwCOi/W/INf
+SIIB+YJlN5GTuHB5qcWiTI8BzEnSmpImZDb++mNn+cFkquNylov2zrspGKoZng2c
+KHjH1Mo/Q2i4nfxziVRjMagkxULOkyWwKvu3m9BuZw43H2Il9kw5mxiXHcJpx4z0
+iBWY/5u/SrAqja8EEYcnJfXuCPaS4936vm+51WM1FM8rRwknFhlGgEAQ7krXmdG2
+k4H1G4baIhFAf8AcpTViqPRe8reHDIAe8fnneCf1jchs+ltXpZ66bInq+6rWM2La
+E7nUxqmOtvxoSJyeU4oNT04or+B+8Dtb+PXNE/R5kQ2EX0dALxZ61xjvY7kzoiF4
+uElYT8PFAgMBAAECggEARWKzWDAdUcAFlGmqFgAo8yh67NDK9pj6flhn3xXx+xBX
+r1ysBAeLqFSlNEEPVgoLCtH42hk8MMvtL20tTi4YqtdbAGZQqJYcS+g+mMlqSbhn
+jwyAYIvJ21LkTPmIPkr23Uf1TDldW0lTuQWrBDSIw3O8AKo6/2xqatr4tuyPFozp
+BdyAAoGQgBb/dxZtdjDhopf6x72Qn1JcozeEpZeqYWBYbeimU/oHlSh4bLVvjmB4
+4xkCMgAsjzCDVeAgt55YFL5nFUY0q9qgwt9SnlyChdq/MZ9Ul99j5XAV48s7N/en
+GqtWMQeP9kCNF6Y8eMYv/NDRhfuG84phvl/OlxnzvwKBgQDt7vF9i4UHwGqZmvTB
+8Mjk5/Lnj62AuyfThOUVy3EEXwwiewGJotCgjJSN+5uwZXPGTPG8uDwozCqwdVEt
+sO1O4Al0CeFLcqnZB+bXMHuO50rQ8dPr3JexnsCYkL7yimC1TWVI0RLjAcqFyWbS
+bXm6h/ra0JKyZk3LbPIjfTnxBwKBgQDHatijlFGWoyumtQEWplNiK8BplWHndW8r
+v9TKciEAcW0nqWiHIwdv/vyb4fzQwpeUnxEqYxVs/pBje0TWBtm0bEuJfpxbuctc
+oqQc36Rq589I2NcoFMZ0TRBHZfWqou3pVfgHZ3LWrC/RqQ/Wm550A+wiwNmar76o
+lXAwyrlN0wKBgA4KCk/JGrlhXijgHs8OwRvYn9mP/cHZyTjO36GQloOWhCXIskeH
+xt2iTeWu0fnvkoxB4AWtrUcO/Pnagka66NW9nHEvYA7Onj0DHVjXMIM3HJAFpOaG
+5qCBaIXYDJxNE/W+slpAk+e3JFcOkjWaZhNekKu2oOFL7g0xyXvUmMWjAoGBAIZl
+M+vKodHr1hdcFYe2QKwA4IRH8NuVAX9yoW5uzF8IEpCQU6n/qZuJNaW5ADGRc6bu
+LRtr+5yhU544DYRQyZgXBDF96tLGvI+J7SCoeJ6z67ckrJyOo9DtvvLffFmrxLtk
+/OvAhFy5XuDmF46DAp8dpZ8maYEewFfNnvbDKW+RAoGBAOamMHpVhxOqtZ0268Nt
++4/UlvfqHQdv/2HtIvWeu2pMuDybQsU8EIpgTTcUTVjoa7BRvnhxXnxmrR2n1BPp
+jpeba57ZKDv3jna3ngBW1vegjrGeG/dxV8APDzdvVoHxMwlbEiOhZenkO3/akav2
+hpWRal83lkjy1lJFdtjeQ/1i
+-----END PRIVATE KEY-----`;
 
-// ✅ Firebase Cloud Messaging background messages
-self.addEventListener('message', event => {
-  if (event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting();
-});
+let tokens = {};
+
+async function getAccessToken() {
+    const now = Math.floor(Date.now() / 1000);
+    const header = { alg: 'RS256', typ: 'JWT' };
+    const payload = {
+        iss: CLIENT_EMAIL,
+        scope: 'https://www.googleapis.com/auth/firebase.messaging',
+        aud: 'https://oauth2.googleapis.com/token',
+        exp: now + 3600,
+        iat: now
+    };
+
+    function b64(str) {
+        return btoa(unescape(encodeURIComponent(JSON.stringify(str))))
+            .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+    }
+
+    const signingInput = b64(header) + '.' + b64(payload);
+
+    const keyData = PRIVATE_KEY
+        .replace(/-----BEGIN PRIVATE KEY-----/, '')
+        .replace(/-----END PRIVATE KEY-----/, '')
+        .replace(/\n/g, '');
+
+    const binaryKey = Uint8Array.from(atob(keyData), c => c.charCodeAt(0));
+
+    const cryptoKey = await crypto.subtle.importKey(
+        'pkcs8', binaryKey.buffer,
+        { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
+        false, ['sign']
+    );
+
+    const signature = await crypto.subtle.sign(
+        'RSASSA-PKCS1-v1_5', cryptoKey,
+        new TextEncoder().encode(signingInput)
+    );
+
+    const sigB64 = btoa(String.fromCharCode(...new Uint8Array(signature)))
+        .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+
+    const jwt = signingInput + '.' + sigB64;
+
+    const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${jwt}`
+    });
+
+    const tokenData = await tokenRes.json();
+    return tokenData.access_token;
+}
+
+async function loadTokens() {
+    showStatus('sendStatus', 'loading', '⏳ جاري تحميل القائمة...');
+    try {
+        const res = await fetch(`${DB_URL}/fcm_tokens.json`);
+        const data = await res.json();
+        tokens = data || {};
+        const count = Object.keys(tokens).length;
+        document.getElementById('tokenCount').textContent = count;
+
+        const list = document.getElementById('tokensList');
+        if (count === 0) {
+            list.innerHTML = '<p style="color:#64748b; font-size:13px; text-align:center; padding:10px;">مفيش مخدومين مسجلين لحد دلوقتي</p>';
+            showStatus('sendStatus', 'error', '❌ مفيش tokens مسجلة');
+            return;
+        }
+
+        list.innerHTML = Object.entries(tokens).map(([key, val]) => `
+            <div class="token-item" id="item-${key}">
+                <span class="token-name">👤 ${val.name || key}</span>
+                <span class="token-status pending" id="status-${key}">في الانتظار</span>
+            </div>
+        `).join('');
+
+        showStatus('sendStatus', 'success', `✅ تم تحميل ${count} مخدوم`);
+    } catch(e) {
+        showStatus('sendStatus', 'error', '❌ خطأ في التحميل: ' + e.message);
+    }
+}
+
+async function sendToAll() {
+    const title = document.getElementById('notifTitle').value.trim();
+    const body = document.getElementById('notifBody').value.trim();
+
+    if (!title || !body) {
+        showStatus('sendStatus', 'error', '❌ اكتب العنوان والنص');
+        return;
+    }
+
+    const tokenList = Object.entries(tokens);
+    if (tokenList.length === 0) {
+        showStatus('sendStatus', 'error', '❌ حمّل القائمة الأول');
+        return;
+    }
+
+    showStatus('sendStatus', 'loading', '⏳ جاري الإرسال...');
+
+    try {
+        const accessToken = await getAccessToken();
+        let sent = 0, failed = 0;
+
+        for (const [key, val] of tokenList) {
+            const statusEl = document.getElementById('status-' + key);
+            try {
+                const res = await fetch(
+                    `https://fcm.googleapis.com/v1/projects/${PROJECT_ID}/messages:send`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': 'Bearer ' + accessToken,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            message: {
+                                token: val.token,
+                                notification: { title, body },
+                                webpush: {
+                                    headers: { Urgency: 'high' },
+                                    notification: {
+                                        title,
+                                        body,
+                                        icon: '/jesusmariam7/icon-192.png',
+                                        badge: '/jesusmariam7/icon-192.png',
+                                        dir: 'rtl',
+                                        lang: 'ar',
+                                        vibrate: [200, 100, 200],
+                                        requireInteraction: true
+                                    },
+                                    fcm_options: {
+                                        link: 'https://abdelsayedzaki-design.github.io/jesusmariam7/jesusmariamstudend.html'
+                                    }
+                                }
+                            }
+                        })
+                    }
+                );
+                if (res.ok) {
+                    sent++;
+                    if (statusEl) { statusEl.textContent = 'وصل ✅'; statusEl.className = 'token-status sent'; }
+                } else {
+                    const err = await res.json();
+                    console.error('FCM Error:', err);
+                    failed++;
+                    if (statusEl) { statusEl.textContent = 'فشل ❌'; statusEl.className = 'token-status failed'; }
+                }
+            } catch(e) {
+                failed++;
+                if (statusEl) { statusEl.textContent = 'فشل ❌'; statusEl.className = 'token-status failed'; }
+            }
+        }
+
+        // حفظ في Firebase
+        await fetch(`${DB_URL}/push_notifications.json`, {
+            method: 'POST',
+            body: JSON.stringify({ title, body, sentAt: Date.now(), sent, failed })
+        });
+
+        showStatus('sendStatus', sent > 0 ? 'success' : 'error',
+            `${sent > 0 ? '✅' : '❌'} تم الإرسال — وصل: ${sent} | فشل: ${failed}`);
+    } catch(e) {
+        showStatus('sendStatus', 'error', '❌ خطأ: ' + e.message);
+    }
+}
+
+function showStatus(id, type, msg) {
+    const el = document.getElementById(id);
+    el.className = 'status ' + type;
+    el.textContent = msg;
+    el.style.display = 'block';
+}
+</script>
+</body>
+</html>
