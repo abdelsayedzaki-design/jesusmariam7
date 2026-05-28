@@ -1,5 +1,4 @@
 
-
 <!--
 {<form></form>}╔═══════════════════════════════════════════════════════════════════╗
 ║  🔒 نظام حماية محدّث ضد التكرار من أجهزة متعددة 🔒              ║
@@ -3811,8 +3810,8 @@ async function initFCM() {
         OneSignalDeferred.push(async function(OneSignal) {
             await OneSignal.init({
                 appId: "8d814415-62f2-42ee-b94b-9210b59adc36",
-                serviceWorkerPath: "/jesusmariam7/OneSignalSDKWorker.js",
-                serviceWorkerParam: { scope: "/jesusmariam7/" },
+                serviceWorkerPath: "/OneSignalSDKWorker.js",
+                serviceWorkerParam: { scope: "/" },
                 notifyButton: { enable: false },
                 allowLocalhostAsSecureOrigin: true
             });
