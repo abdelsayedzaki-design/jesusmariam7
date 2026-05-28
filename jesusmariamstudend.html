@@ -85,6 +85,11 @@
             --shadow-lg: 0 8px 32px@:: rgba(0,0,0,0.5);
         }
 
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: translate(-50%,-50%) scale(0.8); }
+            to   { opacity: 1; transform: translate(-50%,-50%) scale(1); }
+        }
+
         * { margin:0; padding:0; box-sizing:border-box; }
 
         body {
@@ -2991,7 +2996,13 @@ function checkAccessWithSound() {
         <!-- Welcome Message (shown after name is selected) -->
         <div id="welcomeMessageSection" style="display:none; margin-bottom: 20px; padding: 24px 20px; background: linear-gradient(135deg, rgba(102,126,234,0.15), rgba(251,191,36,0.15)); border-radius: 20px; text-align: center; border: 2px solid #fbbf24; animation: slideDown 0.8s ease;">
             <div id="welcomeIcon" style="width:72px; height:72px; border-radius:20px; display:none; align-items:center; justify-content:center; font-size:40px; margin:0 auto 14px; box-shadow:0 8px 24px rgba(0,0,0,0.25);"></div>
-            <div id="welcomeText" style="font-size: 22px; font-weight: 800; color: var(--text-primary); margin-bottom: 8px;"></div>
+            <div style="display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; margin-bottom:8px;">
+                <div id="welcomeText" style="font-size: 22px; font-weight: 800; color: var(--text-primary);"></div>
+                <input type="file" accept="image/*" style="display:none" id="welcomePhotoInput" onchange="uploadUserPhotoFromWelcome(this)">
+                <button id="photoUploadLabel" type="button" onclick="document.getElementById('welcomePhotoInput').click()" style="display:inline-flex; align-items:center; gap:6px; padding:8px 16px; background:linear-gradient(135deg,#f59e0b,#d97706); color:#000; border:none; border-radius:50px; cursor:pointer; font-size:13px; font-weight:700; font-family:'Cairo',sans-serif; box-shadow:0 4px 12px rgba(245,158,11,0.4); transition:all 0.3s ease; white-space:nowrap;" title="اضف صورتك الشخصية" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                    📷 اضف صورتك
+                </button>
+            </div>
             <div style="font-size: 14px; color: var(--text-secondary);">ربنا يفرح قلبك ويقويك! 💙</div>
             <button onclick="openAvatarChanger()" style="
                 margin-top: 14px;
@@ -3777,6 +3788,52 @@ const config = {
 firebase.initializeApp(config);
 const db = firebase.database();
 
+// ====== رفع صورة المخدوم (Global) ======
+async function uploadUserPhoto(input, userId) {
+    const file = input.files[0];
+    if (!file) { alert('⚠️ مفيش صورة اتختارت'); return; }
+    alert('⏳ جاري المعالجة...\nنوع: ' + file.type + '\nحجم: ' + (file.size/1024).toFixed(0) + 'KB');
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    if (!allowedTypes.includes(file.type)) { alert('❌ نوع الصورة مش مدعوم'); input.value=''; return; }
+    if (file.size > 5 * 1024 * 1024) { alert('❌ الصورة أكبر من 5MB'); input.value=''; return; }
+    try {
+        const img = await new Promise((resolve, reject) => {
+            const url = URL.createObjectURL(file);
+            const i = new Image();
+            i.onload = () => { URL.revokeObjectURL(url); resolve(i); };
+            i.onerror = () => { URL.revokeObjectURL(url); reject(new Error('فشل تحميل الصورة')); };
+            i.src = url;
+        });
+        if (img.width < 50 || img.height < 50) { alert('❌ الصورة صغيرة جداً'); input.value=''; return; }
+        const canvas = document.createElement('canvas');
+        let w = img.width, h = img.height;
+        const maxSize = 400;
+        if (w > h) { if (w > maxSize) { h = Math.round(h * maxSize / w); w = maxSize; } }
+        else       { if (h > maxSize) { w = Math.round(w * maxSize / h); h = maxSize; } }
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        const compressed = canvas.toDataURL('image/jpeg', 0.8);
+        alert('⏳ جاري الرفع...\nuserId: ' + userId);
+        await db.ref('user_avatars/' + userId + '_photo').set(compressed);
+        alert('✅ تم رفع الصورة!');
+        db.ref('users').once('value', snap => { if (snap.val()) updateLeaderboardUI(snap.val()); });
+    } catch(err) {
+        alert('❌ خطأ: ' + err.message + '\n' + (err.code || ''));
+    }
+}
+
+async function uploadUserPhotoFromWelcome(input) {
+    const userId = localStorage.getItem('user_id') || localStorage.getItem('selectedUserId') || localStorage.getItem('userId');
+    if (!userId) { alert('اختار اسمك الأول!'); return; }
+    await uploadUserPhoto(input, userId);
+    const lbl = document.getElementById('photoUploadLabel');
+    if (lbl) {
+        lbl.style.background = 'linear-gradient(135deg,#48bb78,#38a169)';
+        lbl.textContent = '✅ تم رفع الصورة!';
+    }
+}
+// ====== نهاية رفع الصورة ======
+
 // ===== FCM Push Notifications =====
 async function initFCM() {
     try {
@@ -3791,12 +3848,25 @@ async function initFCM() {
             serviceWorkerRegistration: registration
         });
         if (token) {
-            const userName = localStorage.getItem('selectedUserName') || localStorage.getItem('selected_user_name') || 'unknown';
-            db.ref('fcm_tokens/' + userName.replace(/\s/g, '_')).set({
+            localStorage.setItem('myFCMToken', token);
+            const userName = localStorage.getItem('selectedUserName') || localStorage.getItem('selected_user_name') || localStorage.getItem('user_id') || ('user_' + Date.now());
+            const safeKey = userName.replace(/\s/g, '_').replace(/[.#$\[\]]/g, '_');
+            db.ref('fcm_tokens/' + safeKey).set({
                 token: token,
                 name: userName,
                 updatedAt: Date.now()
             });
+            // لو الاسم اتغيّر بعدين، حدّث الـ token
+            window._fcmToken = token;
+            window._fcmSaveToken = function(newName) {
+                if (!newName || !window._fcmToken) return;
+                const k = newName.replace(/\s/g, '_').replace(/[.#$\[\]]/g, '_');
+                db.ref('fcm_tokens/' + k).set({
+                    token: window._fcmToken,
+                    name: newName,
+                    updatedAt: Date.now()
+                });
+            };
             // اشتراك في topic عشان يستقبل إشعارات جماعية
             await fetch('https://iid.googleapis.com/iid/v1/' + token + '/rel/topics/all', {
                 method: 'POST',
@@ -3810,48 +3880,51 @@ async function initFCM() {
         OneSignalDeferred.push(async function(OneSignal) {
             await OneSignal.init({
                 appId: "8d814415-62f2-42ee-b94b-9210b59adc36",
-                serviceWorkerPath: "/OneSignalSDKWorker.js",
-                serviceWorkerParam: { scope: "/" },
                 notifyButton: { enable: false },
                 allowLocalhostAsSecureOrigin: true
             });
 
             // تحديث حالة الزرار عند الفتح
-            const isSubscribed = await OneSignal.User.PushSubscription.optedIn;
-            if (isSubscribed) {
-                ['notifPermBtn','notifPermBtn2'].forEach(id => {
-                    const btn = document.getElementById(id);
-                    if (btn) {
-                        btn.textContent = '✅ مفعّل';
-                        btn.style.background = 'linear-gradient(135deg,#10b981,#059669)';
-                        btn.disabled = true;
-                    }
-                });
-            }
+            try {
+                const isSubscribed = OneSignal.User.PushSubscription.optedIn;
+                if (isSubscribed) {
+                    ['notifPermBtn','notifPermBtn2'].forEach(id => {
+                        const btn = document.getElementById(id);
+                        if (btn) {
+                            btn.textContent = '✅ مفعّل';
+                            btn.style.background = 'linear-gradient(135deg,#10b981,#059669)';
+                            btn.disabled = true;
+                        }
+                    });
+                }
+            } catch(e) {}
         });
 
         async function requestNotifPermission() {
             const btns = ['notifPermBtn','notifPermBtn2'].map(id => document.getElementById(id)).filter(Boolean);
             btns.forEach(b => { b.textContent = '⏳ جاري...'; b.disabled = true; });
             try {
-                await OneSignal.Notifications.requestPermission();
-                const isSubscribed = OneSignal.User.PushSubscription.optedIn;
-                if (isSubscribed) {
-                    const userName = localStorage.getItem('selectedUserName') || 'مجهول';
-                    const playerId = await OneSignal.User.PushSubscription.id;
-                    await db.ref('onesignal_tokens/' + userName.replace(/\s/g, '_')).set({
-                        playerId: playerId,
-                        name: userName,
-                        updatedAt: Date.now()
-                    });
-                    btns.forEach(b => {
-                        b.textContent = '✅ مفعّل';
-                        b.style.background = 'linear-gradient(135deg,#10b981,#059669)';
-                        b.disabled = true;
-                    });
-                } else {
-                    btns.forEach(b => { b.textContent = '❌ مش مسموح'; b.disabled = false; });
-                }
+                window.OneSignalDeferred = window.OneSignalDeferred || [];
+                OneSignalDeferred.push(async function(OneSignal) {
+                    await OneSignal.Notifications.requestPermission();
+                    const isSubscribed = OneSignal.User.PushSubscription.optedIn;
+                    if (isSubscribed) {
+                        const userName = localStorage.getItem('selectedUserName') || 'مجهول';
+                        const playerId = OneSignal.User.PushSubscription.id;
+                        await db.ref('onesignal_tokens/' + userName.replace(/\s/g, '_')).set({
+                            playerId: playerId,
+                            name: userName,
+                            updatedAt: Date.now()
+                        });
+                        btns.forEach(b => {
+                            b.textContent = '✅ مفعّل';
+                            b.style.background = 'linear-gradient(135deg,#10b981,#059669)';
+                            b.disabled = true;
+                        });
+                    } else {
+                        btns.forEach(b => { b.textContent = '❌ مش مسموح'; b.disabled = false; });
+                    }
+                });
             } catch(e) {
                 console.error(e);
                 btns.forEach(b => { b.textContent = '❌ خطأ'; b.disabled = false; });
@@ -4396,6 +4469,16 @@ function updateLeaderboardUI(data) {
             const theme = savedAv
                 ? { bg: savedAv.bg, icon: savedAv.icon }
                 : AVATAR_THEMES[cardIdx % AVATAR_THEMES.length];
+            
+            // صورة شخصية من Firebase
+            const userPhoto = (firebaseAvatars[pUserId + '_photo']) || null;
+            const avatarHTML = userPhoto
+                ? `<div class="card-avatar" style="background:${theme.bg};overflow:hidden;padding:0;"><img src="${userPhoto}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;" onerror="this.parentElement.innerHTML='${theme.icon}'"></div>`
+                : `<div class="card-avatar" style="background:${theme.bg};">${theme.icon}</div>`;
+            
+            const curUserName = localStorage.getItem('selectedUserName') || '';
+            const isMyCard = curUserName === p.name;
+            const uploadBtn = isMyCard ? `<label style="position:absolute;bottom:-10px;right:-10px;background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;box-shadow:0 3px 10px rgba(245,158,11,0.5);border:2px solid white;" title="غيّر صورتك"><input type="file" accept="image/*" style="display:none" onchange="uploadUserPhoto(this,'${pUserId}')">📷</label>` : '';
 
             const rankBadge = rankIdx < 3 ? `<div class="card-rank-badge">${rankEmoji[rankIdx]}</div>` : '';
             const rankAttr = rankIdx < 3 ? `data-rank="${rankIdx+1}"` : '';
@@ -4404,14 +4487,20 @@ function updateLeaderboardUI(data) {
             list.innerHTML += `<div class="card" ${rankAttr} onclick="toggleCardView(this)">
                 ${rankBadge}
                 <div class="card-default-view">
-                    <div class="card-avatar" style="background:${theme.bg};">${theme.icon}</div>
+                    <div style="position:relative;display:inline-block;">
+                        ${avatarHTML}
+                        ${uploadBtn}
+                    </div>
                     <div class="bar-wrap"><div class="bar ${clr}" style="height:${Math.min(p.score,100)}%"></div></div>
                     <div style="font-weight:800; color:#fbbf24; font-size:15px;">${p.score}</div>
                     <div style="font-size:10px; color:#cbd5e0; line-height:1.3; margin-top:2px;">${p.name}</div>
                 </div>
                 
                 <div class="card-details-view">
-                    <div class="card-avatar" style="background:${theme.bg}; margin-bottom:8px;">${theme.icon}</div>
+                    <div style="position:relative;display:inline-block;margin-bottom:8px;">
+                        ${avatarHTML}
+                        ${uploadBtn}
+                    </div>
                     <div class="mini-bars-container">
                         <div class="mini-bar-col">
                             <div class="mini-bar quiz" style="height:${quizHeight}%"></div>
@@ -6499,6 +6588,9 @@ function confirmNameSelection() {
     
     // حفظ الأفاتار في Firebase عشان يظهر للكل في لوحة الشرف
     db.ref('user_avatars/' + currentUserId).set(selectedAvatarId);
+    
+    // تحديث الـ FCM token باسم المستخدم الصح
+    if (window._fcmSaveToken) window._fcmSaveToken(selectedName);
     
     // إخفاء قسم اختيار الاسم
     document.getElementById('nameSelectionSection').style.display = 'none';
