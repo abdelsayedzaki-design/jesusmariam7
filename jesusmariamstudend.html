@@ -1,4 +1,5 @@
 
+
 <!--
 {<form></form>}╔═══════════════════════════════════════════════════════════════════╗
 ║  🔒 نظام حماية محدّث ضد التكرار من أجهزة متعددة 🔒              ║
@@ -4973,7 +4974,17 @@ function loadQuiz() {
                 if (q.type === 'choice' || q.type === 'truefalse') {
                     (q.options || []).forEach(opt => { if(opt) html += `<label class="option-label"><input type="radio" name="quiz_q_${i}" value="${opt}"> ${opt}</label>`; });
                 } else if (q.type === 'essay') {
-                    html += `<textarea id="quiz_ans_${i}" onpaste="return false;" oninput="updateCharCount(${i})" placeholder="اكتب إجابتك بالتفصيل هنا..." style="height:100px; width:100%; border-radius:12px;"></textarea><div style="text-align:left; font-size:12px; color:var(--text-secondary);"><span id="charCount_${i}">0</span> حرف</div>`;
+                    html += `<textarea id="quiz_ans_${i}" onpaste="return false;" oninput="updateCharCount(${i})" placeholder="اكتب إجابتك بالتفصيل هنا..." style="height:100px; width:100%; border-radius:12px;"></textarea><div style="text-align:left; font-size:12px; color:var(--text-secondary);"><span id="charCount_${i}">0</span> حرف</div>
+                    <div style="margin-top:8px;">
+                        <label for="quiz_img_${i}" style="display:inline-flex; align-items:center; gap:6px; background:linear-gradient(135deg,#667eea,#764ba2); color:white; padding:8px 16px; border-radius:10px; cursor:pointer; font-size:13px; font-weight:700; font-family:'Cairo',sans-serif;">
+                            📷 أرفع صورة (اختياري)
+                        </label>
+                        <input type="file" id="quiz_img_${i}" accept="image/*" capture="environment" style="display:none;" onchange="previewEssayImage(${i}, this)">
+                        <div id="quiz_img_preview_${i}" style="margin-top:8px; display:none;">
+                            <img id="quiz_img_thumb_${i}" style="max-width:100%; max-height:200px; border-radius:10px; border:2px solid #667eea;" />
+                            <button onclick="removeEssayImage(${i})" style="display:block; margin-top:4px; background:#f56565; color:white; border:none; border-radius:8px; padding:5px 12px; font-family:'Cairo',sans-serif; cursor:pointer; font-size:12px;">❌ إزالة الصورة</button>
+                        </div>
+                    </div>`;
                 } else {
                     html += `<input type="text" id="quiz_ans_${i}" placeholder="اكتب الإجابة...">`;
                 }
@@ -4984,6 +4995,30 @@ function loadQuiz() {
             startCountdown(durationInSeconds);
         });
     });
+}
+
+// ── صور السؤال المقالي ──
+function previewEssayImage(idx, input) {
+    if (!input.files || !input.files[0]) return;
+    const file = input.files[0];
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const thumb = document.getElementById('quiz_img_thumb_' + idx);
+        const preview = document.getElementById('quiz_img_preview_' + idx);
+        thumb.src = e.target.result;
+        preview.style.display = 'block';
+        // حفظ base64 في متغير عشان نرسله مع الإجابة
+        if (!window.essayImages) window.essayImages = {};
+        window.essayImages[idx] = e.target.result;
+    };
+    reader.readAsDataURL(file);
+}
+
+function removeEssayImage(idx) {
+    document.getElementById('quiz_img_' + idx).value = '';
+    document.getElementById('quiz_img_preview_' + idx).style.display = 'none';
+    document.getElementById('quiz_img_thumb_' + idx).src = '';
+    if (window.essayImages) delete window.essayImages[idx];
 }
 
 function startCountdown(duration) {
@@ -5011,7 +5046,12 @@ async function submitQuiz() {
             if (q.correctAnswer && ans === q.correctAnswer) { correctAnswers++; isCorrect = true; }
         } else if (q.type === 'essay') {
             ans = document.getElementById(`quiz_ans_${idx}`).value.trim();
-            if (ans.length >= 50) { correctAnswers++; isCorrect = true; }
+            const imgData = window.essayImages && window.essayImages[idx];
+            if (imgData) {
+                // لو في صورة → درجة كاملة تلقائياً
+                correctAnswers++; isCorrect = true;
+                submittedAnswers.push({question: q.text + ' [صورة]', userAnswer: imgData, isImage: true});
+            } else if (ans.length >= 50) { correctAnswers++; isCorrect = true; }
             else if (ans.length >= 20) { correctAnswers += 0.7; }
         } else {
             ans = document.getElementById(`quiz_ans_${idx}`).value;
