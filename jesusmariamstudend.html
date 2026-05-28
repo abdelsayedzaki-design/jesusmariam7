@@ -1,4 +1,5 @@
 
+
 <!--
 {<form></form>}╔═══════════════════════════════════════════════════════════════════╗
 ║  🔒 نظام حماية محدّث ضد التكرار من أجهزة متعددة 🔒              ║
@@ -49,6 +50,7 @@
     <link rel="apple-touch-icon" href="icon-192.png">
     <link rel="manifest" href="manifest.json">
     
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-messaging.js"></script>
@@ -3804,60 +3806,57 @@ async function initFCM() {
         }
         // استقبال الإشعار لما التطبيق مفتوح (Foreground)
         // ====== زرار تفعيل الإشعارات ======
-        async function requestNotifPermission() {
-            const btn = document.getElementById('notifPermBtn') || document.getElementById('notifPermBtn2');
-            btn.textContent = '⏳ جاري التفعيل...';
-            btn.disabled = true;
-            try {
-                if (!firebase.messaging.isSupported()) {
-                    btn.textContent = '❌ غير مدعوم';
-                    return;
-                }
-                const permission = await Notification.requestPermission();
-                if (permission !== 'granted') {
-                    btn.textContent = '❌ مش مسموح';
-                    btn.disabled = false;
-                    return;
-                }
-                const registration = await navigator.serviceWorker.register('/jesusmariam7/firebase-messaging-sw.js');
-                const messaging2 = firebase.messaging();
-                const token = await messaging2.getToken({
-                    vapidKey: 'BHIdOQo8DikXwQEE22-V8Ro94OdnrFY6OQ9lyrfpmt5Yx81tl3gx__CBS7gjrmQIVBM4zW1yJNLw-5yZp9qxoo4',
-                    serviceWorkerRegistration: registration
+        // ====== OneSignal Init ======
+        window.OneSignalDeferred = window.OneSignalDeferred || [];
+        OneSignalDeferred.push(async function(OneSignal) {
+            await OneSignal.init({
+                appId: "8d814415-62f2-42ee-b94b-9210b59adc36",
+                serviceWorkerPath: "/jesusmariam7/OneSignalSDKWorker.js",
+                notifyButton: { enable: false },
+                allowLocalhostAsSecureOrigin: true
+            });
+
+            // تحديث حالة الزرار عند الفتح
+            const isSubscribed = await OneSignal.User.PushSubscription.optedIn;
+            if (isSubscribed) {
+                ['notifPermBtn','notifPermBtn2'].forEach(id => {
+                    const btn = document.getElementById(id);
+                    if (btn) {
+                        btn.textContent = '✅ مفعّل';
+                        btn.style.background = 'linear-gradient(135deg,#10b981,#059669)';
+                        btn.disabled = true;
+                    }
                 });
-                if (token) {
+            }
+        });
+
+        async function requestNotifPermission() {
+            const btns = ['notifPermBtn','notifPermBtn2'].map(id => document.getElementById(id)).filter(Boolean);
+            btns.forEach(b => { b.textContent = '⏳ جاري...'; b.disabled = true; });
+            try {
+                await OneSignal.Notifications.requestPermission();
+                const isSubscribed = OneSignal.User.PushSubscription.optedIn;
+                if (isSubscribed) {
                     const userName = localStorage.getItem('selectedUserName') || 'مجهول';
-                    await db.ref('fcm_tokens/' + userName.replace(/\s/g, '_')).set({
-                        token: token,
+                    const playerId = await OneSignal.User.PushSubscription.id;
+                    await db.ref('onesignal_tokens/' + userName.replace(/\s/g, '_')).set({
+                        playerId: playerId,
                         name: userName,
                         updatedAt: Date.now()
                     });
-                    localStorage.setItem('myFCMToken', token);
-                    btn.textContent = '✅ تم التفعيل';
-                    btn.style.background = 'linear-gradient(135deg,#10b981,#059669)';
+                    btns.forEach(b => {
+                        b.textContent = '✅ مفعّل';
+                        b.style.background = 'linear-gradient(135deg,#10b981,#059669)';
+                        b.disabled = true;
+                    });
                 } else {
-                    btn.textContent = '❌ فشل';
-                    btn.disabled = false;
+                    btns.forEach(b => { b.textContent = '❌ مش مسموح'; b.disabled = false; });
                 }
             } catch(e) {
                 console.error(e);
-                btn.textContent = '❌ خطأ';
-                btn.disabled = false;
+                btns.forEach(b => { b.textContent = '❌ خطأ'; b.disabled = false; });
             }
         }
-
-        // تحقق عند الفتح لو مفعّل
-        window.addEventListener('load', () => {
-            const saved = localStorage.getItem('myFCMToken');
-            ['notifPermBtn','notifPermBtn2'].forEach(id => {
-                const btn = document.getElementById(id);
-                if (saved && btn) {
-                    btn.textContent = '✅ مفعّل';
-                    btn.style.background = 'linear-gradient(135deg,#10b981,#059669)';
-                    btn.disabled = true;
-                }
-            });
-        });
         // ====== نهاية زرار الإشعارات ======
 
         messaging.onMessage(payload => {
