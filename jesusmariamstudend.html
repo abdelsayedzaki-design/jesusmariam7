@@ -3812,6 +3812,7 @@ async function initFCM() {
             await OneSignal.init({
                 appId: "8d814415-62f2-42ee-b94b-9210b59adc36",
                 serviceWorkerPath: "/jesusmariam7/OneSignalSDKWorker.js",
+                serviceWorkerParam: { scope: "/jesusmariam7/" },
                 notifyButton: { enable: false },
                 allowLocalhostAsSecureOrigin: true
             });
