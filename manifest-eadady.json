@@ -1,0 +1,25 @@
+{
+  "name": "خدمة إعدادي",
+  "short_name": "إعدادي",
+  "description": "لوحة مخدوم خدمة إعدادي",
+  "start_url": "jesusmariamstudend_v5.html",
+  "id": "eadady-student-app",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#6366f1",
+  "theme_color": "#6366f1",
+  "lang": "ar",
+  "dir": "rtl",
+  "icons": [
+    {
+      "src": "icon-eadady-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-eadady-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
