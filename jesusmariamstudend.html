@@ -1,5 +1,4 @@
 
-
 <!--
 {<form></form>}╔═══════════════════════════════════════════════════════════════════╗
 ║  🔒 نظام حماية محدّث ضد التكرار من أجهزة متعددة 🔒              ║
@@ -98,8 +97,131 @@
             background: var(--bg-secondary);
             color: var(--text-primary);
             min-height: 100vh;
-            transition: all 0.3s ease;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
+
+        /* ===== خلفية مخصصة - على الهيدر فقط ===== */
+        body.has-bg-image .main-header {
+            position: relative;
+            overflow: hidden;
+        }
+        body.has-bg-image .main-header::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 0;
+            pointer-events: none;
+            transition: background 0.3s;
+        }
+        body.has-bg-image .main-header > * {
+            position: relative;
+            z-index: 1;
+        }
+        body.has-bg-image .section,
+        body.has-bg-image .verse-container,
+        body.has-bg-image .switch-container {
+            /* باقي المحتوى مش بيتأثر */
+        }
+
+        /* زرار الخلفية */
+        #bgChangerBtn {
+            position: fixed;
+            bottom: 24px;
+            left: 16px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg,#7c3aed,#a78bfa);
+            border: none;
+            color: white;
+            font-size: 22px;
+            cursor: pointer;
+            z-index: 999;
+            box-shadow: 0 4px 20px rgba(124,58,237,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+        #bgChangerBtn:active { transform: scale(0.9); }
+
+        /* مودال تغيير الخلفية */
+        #bgModal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 10001;
+            align-items: flex-end;
+            justify-content: center;
+            backdrop-filter: blur(6px);
+        }
+        #bgModal.open { display: flex; }
+        #bgModalCard {
+            background: #1e1b4b;
+            border-radius: 28px 28px 0 0;
+            padding: 24px 20px 40px;
+            width: 100%;
+            max-width: 480px;
+            animation: slideUp 0.35s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        #bgModalCard h3 {
+            font-size: 18px;
+            font-weight: 800;
+            color: #c4b5fd;
+            margin-bottom: 4px;
+            text-align: center;
+        }
+        #bgModalCard p {
+            font-size: 12px;
+            color: rgba(255,255,255,0.5);
+            text-align: center;
+            margin-bottom: 16px;
+        }
+        .bg-preview-wrap {
+            height: 120px;
+            border-radius: 14px;
+            overflow: hidden;
+            margin-bottom: 14px;
+            position: relative;
+            background: rgba(255,255,255,0.06);
+            border: 2px dashed rgba(196,181,253,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .bg-preview-wrap img { width:100%; height:100%; object-fit:cover; display:none; }
+        .bg-placeholder { font-size: 44px; opacity: 0.4; }
+        .bg-upload-label {
+            display: block;
+            padding: 14px;
+            background: linear-gradient(135deg,#7c3aed,#a78bfa);
+            color: white;
+            border-radius: 14px;
+            text-align: center;
+            font-weight: 800;
+            font-size: 15px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+        .bg-opacity-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+            padding: 10px 14px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 12px;
+        }
+        .bg-opacity-row label {
+            font-size: 13px;
+            font-weight: 700;
+            color: #c4b5fd;
+            white-space: nowrap;
+        }
+        .bg-opacity-row input[type=range] { flex: 1; accent-color: #a78bfa; }
+        .bg-opacity-val { font-size: 12px; color: #c4b5fd; font-weight: 700; width: 32px; text-align: center; }
 
         /* ===== LOGIN ===== */
         #loginScreen {
@@ -705,19 +827,21 @@
         #mainContent { display: none; animation: fadeIn 0.5s ease; padding-bottom: 30px; }
 
         .theme-toggle-btn {
-            position: fixed; top: 16px; left: 16px;
+            position: fixed; top: 12px; left: 12px;
             background: var(--bg-card); color: var(--text-primary);
-            border: none; padding: 10px 18px; border-radius: 50px;
-            font-size: 13px; font-weight: 600; cursor: pointer;
+            border: none; padding: 6px 8px; border-radius: 50%;
+            font-size: 16px; cursor: pointer;
             box-shadow: var(--shadow-md); z-index: 100;
             transition: all 0.3s ease; font-family: 'Cairo', sans-serif;
+            width: 34px; height: 34px;
+            display: flex; align-items: center; justify-content: center;
         }
-        .theme-toggle-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+        .theme-toggle-btn:hover { transform: scale(1.1); box-shadow: var(--shadow-lg); }
 
         /* ===== HEADER ===== */
         .main-header {
             background: var(--bg-primary);
-            padding: 34px 20px 44px;
+            padding: 48px 20px 56px;
             text-align: center;
             box-shadow: var(--shadow-lg);
             position: relative; overflow: hidden;
@@ -729,7 +853,7 @@
             animation: float 20s infinite linear;
         }
         .main-header h2 {
-            color: white; font-size: 30px; font-weight: 800;
+            color: white; font-size: 38px; font-weight: 800;
             margin-bottom: 6px; position: relative;
             text-shadow: 0 2px 10px rgba(0,0,0,0.2);
             animation: titleGlow 3s ease-in-out infinite;
@@ -830,53 +954,49 @@
             font-size: 13px; 
             position: relative;
             display: inline-block;
-            animation: typewriter 8s steps(40) infinite, fadeInOut 8s ease-in-out infinite;
+            animation: subtitleOnce 10s ease forwards;
             overflow: hidden;
             white-space: nowrap;
             border-left: 2px solid rgba(255,255,255,0.7);
             padding-left: 8px;
         }
         
-        @keyframes typewriter {
-            0%, 10% {
-                width: 0;
-            }
-            50%, 90% {
-                width: 100%;
-            }
-            100% {
-                width: 0;
-            }
-        }
-        
-        @keyframes fadeInOut {
-            0%, 10% {
-                opacity: 0;
-            }
-            20%, 80% {
-                opacity: 1;
-            }
-            100% {
-                opacity: 0;
-            }
+        @keyframes subtitleOnce {
+            0%   { opacity: 0; width: 0; }
+            20%  { opacity: 1; width: 100%; }
+            70%  { opacity: 1; width: 100%; }
+            100% { opacity: 0; width: 0; }
         }
 
         /* ===== VERSE ===== */
         .verse-container {
             background: var(--bg-primary);
-            margin: -28px 15px 20px;
-            padding: 24px; border-radius: 24px;
-            box-shadow: var(--shadow-lg);
+            margin: 10px 15px 20px;
+            padding: 10px 14px; border-radius: 14px;
+            box-shadow: var(--shadow-md);
             position: relative; overflow: hidden;
             animation: slideUp 0.6s ease;
         }
         .verse-container::before {
             content:'✝'; position: absolute;
-            top: 8px; right: 18px;
-            font-size: 90px; opacity: 0.1; color: white;
+            top: 2px; right: 12px;
+            font-size: 40px; opacity: 0.1; color: white;
         }
-        .verse-text { font-size: 17px; font-weight: 600; color: white; line-height: 1.8; margin-bottom: 10px; position: relative; }
-        .verse-ref { font-size: 13px; color: rgba(255,255,255,0.8); font-weight: 600; position: relative; }
+        .verse-text {
+            font-size: 11px; font-weight: 600; color: white;
+            line-height: 1.5; margin-bottom: 3px; position: relative;
+            background: linear-gradient(90deg, rgba(255,255,255,0.7) 0%, #fff 40%, #fbbf24 60%, rgba(255,255,255,0.7) 100%);
+            background-size: 250% 100%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: verseShimmer 3s linear infinite;
+        }
+        @keyframes verseShimmer {
+            0%   { background-position: 200% 0; }
+            100% { background-position: -50% 0; }
+        }
+        .verse-ref { font-size: 10px; color: rgba(255,255,255,0.75); font-weight: 600; position: relative; }
 
         /* ===== CONTAINER ===== */
         .container { padding: 0 15px; }
@@ -2841,6 +2961,191 @@
 // ✨ تأثيرات شاشة الدخول
 // ═══════════════════════════════════════
 
+// ═══════════════════════════════════════
+// 🎨 نظام الثيمات العشوائية
+// ═══════════════════════════════════════
+(function applyRandomLoginTheme() {
+    const themes = [
+        // 1. ليل أزرق + ذهبي
+        {
+            bg: 'linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)',
+            accent: '#fbbf24',
+            accent2: '#f59e0b',
+            glow: 'rgba(251,191,36,0.2)',
+            particles: ['#fbbf24','#f59e0b','#fcd34d','#ffffff','#a78bfa'],
+            cross: '✝️',
+            crossFilter: 'drop-shadow(0 0 20px rgba(251,191,36,0.9))',
+            btnBg: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%)',
+            btnColor: '#0f0c29',
+            inputBg: 'rgba(251,191,36,0.08)',
+            inputBorder: 'rgba(251,191,36,0.2)',
+            inputFocus: 'rgba(251,191,36,0.4)',
+            titleGrad: 'linear-gradient(135deg, #fbbf24, #ffffff, #f59e0b)',
+            boxBg: 'rgba(255,255,255,0.04)',
+            boxBorder: 'rgba(251,191,36,0.15)',
+        },
+        // 2. فضاء + أخضر نيون
+        {
+            bg: 'linear-gradient(135deg, #000000 0%, #0d1b2a 50%, #051923 100%)',
+            accent: '#00ff88',
+            accent2: '#00d4aa',
+            glow: 'rgba(0,255,136,0.15)',
+            particles: ['#00ff88','#00d4aa','#7fff00','#00ffff','#ffffff'],
+            cross: '✝️',
+            crossFilter: 'drop-shadow(0 0 25px rgba(0,255,136,0.9))',
+            btnBg: 'linear-gradient(135deg, #00ff88 0%, #00d4aa 50%, #00b894 100%)',
+            btnColor: '#000000',
+            inputBg: 'rgba(0,255,136,0.06)',
+            inputBorder: 'rgba(0,255,136,0.2)',
+            inputFocus: 'rgba(0,255,136,0.35)',
+            titleGrad: 'linear-gradient(135deg, #00ff88, #ffffff, #00d4aa)',
+            boxBg: 'rgba(0,20,10,0.6)',
+            boxBorder: 'rgba(0,255,136,0.12)',
+        },
+        // 3. غروب + برتقالي وردي
+        {
+            bg: 'linear-gradient(135deg, #1a0533 0%, #6b1a3a 40%, #c0392b 70%, #e74c3c 100%)',
+            accent: '#ff6b9d',
+            accent2: '#ff9f43',
+            glow: 'rgba(255,107,157,0.2)',
+            particles: ['#ff6b9d','#ff9f43','#ffeaa7','#fd79a8','#fdcb6e'],
+            cross: '✝️',
+            crossFilter: 'drop-shadow(0 0 22px rgba(255,159,67,0.9))',
+            btnBg: 'linear-gradient(135deg, #ff6b9d 0%, #ff9f43 100%)',
+            btnColor: '#ffffff',
+            inputBg: 'rgba(255,107,157,0.08)',
+            inputBorder: 'rgba(255,107,157,0.25)',
+            inputFocus: 'rgba(255,159,67,0.4)',
+            titleGrad: 'linear-gradient(135deg, #ff9f43, #ffffff, #ff6b9d)',
+            boxBg: 'rgba(0,0,0,0.45)',
+            boxBorder: 'rgba(255,107,157,0.2)',
+        },
+        // 4. ثلج + أزرق سماوي
+        {
+            bg: 'linear-gradient(135deg, #0a1628 0%, #1e3a5f 50%, #2980b9 100%)',
+            accent: '#74b9ff',
+            accent2: '#0984e3',
+            glow: 'rgba(116,185,255,0.2)',
+            particles: ['#74b9ff','#ffffff','#0984e3','#dfe6e9','#a8c8ff'],
+            cross: '✝️',
+            crossFilter: 'drop-shadow(0 0 22px rgba(116,185,255,0.9))',
+            btnBg: 'linear-gradient(135deg, #0984e3 0%, #74b9ff 100%)',
+            btnColor: '#ffffff',
+            inputBg: 'rgba(116,185,255,0.07)',
+            inputBorder: 'rgba(116,185,255,0.2)',
+            inputFocus: 'rgba(116,185,255,0.35)',
+            titleGrad: 'linear-gradient(135deg, #74b9ff, #ffffff, #0984e3)',
+            boxBg: 'rgba(10,22,40,0.7)',
+            boxBorder: 'rgba(116,185,255,0.15)',
+        },
+        // 5. بنفسجي + وردي سايبر
+        {
+            bg: 'linear-gradient(135deg, #1a0040 0%, #3d0066 40%, #6a0080 70%, #9b00b3 100%)',
+            accent: '#e040fb',
+            accent2: '#ff4081',
+            glow: 'rgba(224,64,251,0.2)',
+            particles: ['#e040fb','#ff4081','#ff80ab','#ea80fc','#ffffff'],
+            cross: '✝️',
+            crossFilter: 'drop-shadow(0 0 24px rgba(224,64,251,0.9))',
+            btnBg: 'linear-gradient(135deg, #e040fb 0%, #ff4081 100%)',
+            btnColor: '#ffffff',
+            inputBg: 'rgba(224,64,251,0.08)',
+            inputBorder: 'rgba(224,64,251,0.25)',
+            inputFocus: 'rgba(255,64,129,0.35)',
+            titleGrad: 'linear-gradient(135deg, #e040fb, #ffffff, #ff4081)',
+            boxBg: 'rgba(20,0,40,0.65)',
+            boxBorder: 'rgba(224,64,251,0.18)',
+        },
+        // 6. ذهبي ملكي
+        {
+            bg: 'linear-gradient(135deg, #1a1000 0%, #3d2800 40%, #6b4400 70%, #8b5e00 100%)',
+            accent: '#ffd700',
+            accent2: '#ffaa00',
+            glow: 'rgba(255,215,0,0.2)',
+            particles: ['#ffd700','#ffaa00','#fff176','#ffcc02','#ffe066'],
+            cross: '✝️',
+            crossFilter: 'drop-shadow(0 0 28px rgba(255,215,0,1))',
+            btnBg: 'linear-gradient(135deg, #ffd700 0%, #ffaa00 100%)',
+            btnColor: '#1a1000',
+            inputBg: 'rgba(255,215,0,0.07)',
+            inputBorder: 'rgba(255,215,0,0.2)',
+            inputFocus: 'rgba(255,215,0,0.4)',
+            titleGrad: 'linear-gradient(135deg, #ffd700, #ffffff, #ffaa00)',
+            boxBg: 'rgba(10,8,0,0.7)',
+            boxBorder: 'rgba(255,215,0,0.15)',
+        },
+    ];
+
+    const t = themes[Math.floor(Math.random() * themes.length)];
+    const screen = document.getElementById('loginScreen');
+    if (!screen) return;
+
+    // خلفية الشاشة
+    screen.style.background = t.bg;
+
+    // الـ glow ring
+    const glowRing = screen.querySelector('.login-glow-ring');
+    if (glowRing) {
+        glowRing.style.background = `radial-gradient(circle, ${t.glow} 0%, transparent 70%)`;
+    }
+
+    // الصليب
+    const cross = screen.querySelector('.login-cross');
+    if (cross) {
+        cross.style.filter = t.crossFilter;
+    }
+
+    // صندوق الدخول
+    const box = screen.querySelector('.login-box');
+    if (box) {
+        box.style.background = t.boxBg;
+        box.style.borderColor = t.boxBorder;
+    }
+
+    // الـ title gradient
+    const title = box ? box.querySelector('h3') : null;
+    if (title) {
+        title.style.background = t.titleGrad;
+        title.style.backgroundSize = '200% 200%';
+        title.style.webkitBackgroundClip = 'text';
+        title.style.webkitTextFillColor = 'transparent';
+        title.style.backgroundClip = 'text';
+    }
+
+    // زر الدخول
+    const btn = screen.querySelector('.login-btn');
+    if (btn) {
+        btn.style.background = t.btnBg;
+        btn.style.color = t.btnColor;
+        btn.style.backgroundSize = '200% 200%';
+        btn.style.boxShadow = `0 8px 30px ${t.glow.replace('0.2','0.6')}`;
+    }
+
+    // الـ glow line
+    const glowLine = screen.querySelector('.login-btn-glow');
+    if (glowLine) {
+        glowLine.style.background = `linear-gradient(90deg, transparent, ${t.accent}, ${t.accent2}, transparent)`;
+    }
+
+    // الـ input
+    const input = screen.querySelector('#passInputUser');
+    if (input) {
+        input.style.background = t.inputBg;
+        input.style.borderColor = t.inputBorder;
+        input.addEventListener('focus', function() {
+            this.style.borderColor = t.accent;
+            this.style.boxShadow = `0 0 0 4px ${t.inputFocus}`;
+        });
+        input.addEventListener('blur', function() {
+            this.style.borderColor = t.inputBorder;
+            this.style.boxShadow = '';
+        });
+    }
+
+    // لون الجسيمات
+    window._loginThemeParticles = t.particles;
+})();
+
 // إنشاء النجوم
 (function createStars() {
     const container = document.getElementById('loginStars');
@@ -2865,7 +3170,7 @@
 (function createParticles() {
     const container = document.getElementById('loginParticles');
     if (!container) return;
-    const colors = ['#667eea','#f093fb','#fbbf24','#4facfe','#00f2fe','#43e97b'];
+    const colors = window._loginThemeParticles || ['#667eea','#f093fb','#fbbf24','#4facfe','#00f2fe','#43e97b'];
     for (let i = 0; i < 20; i++) {
         const p = document.createElement('div');
         p.className = 'login-particle';
@@ -2941,8 +3246,41 @@ function checkAccessWithSound() {
 </script>
 
 <!-- ===================== MAIN ===================== -->
+
+<!-- زرار تغيير الخلفية -->
+<button id="bgChangerBtn" onclick="openBgModal()" title="غيّر خلفية التطبيق">🖼️</button>
+
+<!-- مودال تغيير الخلفية -->
+<div id="bgModal" onclick="if(event.target===this)closeBgModal()">
+    <div id="bgModalCard">
+        <h3>🖼️ خلفية التطبيق</h3>
+        <p>ارفع صورة من جهازك تبقى خلفية التطبيق كلها ✨</p>
+
+        <div class="bg-preview-wrap" id="bgPreviewWrap">
+            <img id="bgPreviewImg" src="" alt="">
+            <div class="bg-placeholder" id="bgPlaceholder">🖼️</div>
+        </div>
+
+        <label class="bg-upload-label">
+            📷 اختار صورة من الجهاز
+            <input type="file" accept="image/*" style="display:none" onchange="handleBgUpload(this)">
+        </label>
+
+        <div class="bg-opacity-row">
+            <label>🌫️ تعتيم</label>
+            <input type="range" id="bgOpacitySlider" min="0" max="80" value="45" oninput="updateBgOverlay(this.value)">
+            <span class="bg-opacity-val" id="bgOpacityVal">45%</span>
+        </div>
+
+        <div id="bgUploadStatus" style="font-size:13px; color:#c4b5fd; text-align:center; min-height:18px; margin-bottom:12px;"></div>
+
+        <button onclick="removeBg()" style="width:100%; padding:12px; background:transparent; color:#f87171; border:2px solid #f87171; border-radius:12px; font-family:'Cairo',sans-serif; font-size:14px; font-weight:700; cursor:pointer; margin-bottom:10px;">🗑️ حذف الخلفية</button>
+        <button onclick="closeBgModal()" style="width:100%; padding:12px; background:rgba(255,255,255,0.08); color:#c4b5fd; border:none; border-radius:12px; font-family:'Cairo',sans-serif; font-size:14px; font-weight:700; cursor:pointer;">إغلاق</button>
+    </div>
+</div>
+
 <div id="mainContent">
-    <button class="theme-toggle-btn" onclick="toggleTheme()" id="themeBtn">☀️ الوضع الفاتح</button>
+    <button class="theme-toggle-btn" onclick="toggleTheme()" id="themeBtn">☀️</button>
 
     <!-- Header -->
     <div class="main-header">
@@ -2953,9 +3291,18 @@ function checkAccessWithSound() {
                 <span class="word-2">غصن</span>
                 <span class="word-3">مثمر</span>
             </h2>
-            <div style="width: 80px;"></div>
+            <label style="width:40px; display:flex; justify-content:flex-end;" title="غيّر خلفية التطبيق">
+                <span style="
+                    width:28px; height:28px;
+                    border-radius:50%;
+                    background:linear-gradient(135deg,#7c3aed,#a78bfa);
+                    display:flex; align-items:center; justify-content:center;
+                    font-size:14px; cursor:pointer;
+                    box-shadow:0 2px 8px rgba(124,58,237,0.5);
+                " onclick="openBgModal()">🖼️</span>
+            </label>
         </div>
-        <small class="animated-subtitle">كنيسة العذراء وأبوسيفين والشهيد أبسخيرون</small>
+        <small class="animated-subtitle" id="churchSubtitle">كنيسة العذراء وأبوسيفين والشهيد أبسخيرون</small>
     </div>
 
     <div class="container">
@@ -3472,7 +3819,7 @@ function checkAccessWithSound() {
             <div id="quizArea" style="display:none;">
                 <div id="quizTimerDisplay">⏱️ الوقت المتبقي: <span id="timeLeft">00:00</span></div>
                 <div id="questionsContainer"></div>
-                <button class="btn btn-success" onclick="submitQuiz()">إرسال الإجابات ✅</button>
+                <button class="btn btn-success" id="submitQuizBtn" onclick="submitQuiz()">إرسال الإجابات ✅</button>
             </div>
             <div id="quizDone" style="display:none; text-align:center; padding:14px;">
                 <div style="font-size:48px; margin-bottom:10px;">🎉</div>
@@ -3777,6 +4124,9 @@ function checkAccessWithSound() {
 
 <!-- ===================== SCRIPT ===================== -->
 <script>
+// ── Performance helpers ──
+function debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
+
 const config = {
     apiKey: "AIzaSyBhGsBIFzm-aoSNycttr1djw-c5QuwBNwg",
     authDomain: "mariam-b85f5.firebaseapp.com",
@@ -4016,11 +4366,11 @@ function toggleTheme() {
     const btn = document.getElementById('themeBtn');
     if (body.getAttribute('data-theme') === 'dark') {
         body.removeAttribute('data-theme');
-        btn.innerText = "☀️ الوضع الفاتح";
+        btn.innerText = "☀️";
         localStorage.setItem('theme','light');
     } else {
         body.setAttribute('data-theme','dark');
-        btn.innerText = "🌑 الوضع الداكن";
+        btn.innerText = "🌑";
         localStorage.setItem('theme','dark');
     }
 }
@@ -4035,6 +4385,7 @@ function checkAccess() {
         startApp();
         showRandomVerse();
         confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+        showBgBtn();
         
         // تشغيل الإشعارات تلقائياً بناءً على آخر اسم محفوظ
         setTimeout(() => {
@@ -4201,11 +4552,15 @@ function startApp() {
 
     listenToAdminPrayers();
 
+    const debouncedUpdateLeaderboard = debounce((data) => {
+        updateLeaderboardUI(data);
+    }, 500);
+    
     db.ref("points_data").on("value", snap => {
         const data = snap.val();
         if (data) {
             localStorage.setItem('offline_points_data', JSON.stringify(data));
-            updateLeaderboardUI(data);
+            debouncedUpdateLeaderboard(data);
         }
     });
 
@@ -4368,6 +4723,9 @@ db.ref('tasks_plan').on('child_added', snap => {
 });
 
 // ===== LEADERBOARD =====
+let _avatarsCache = null; // cache للأفاتارات عشان منجيبهاش في كل render
+let _avatarsCacheTime = 0;
+
 function updateLeaderboardUI(data) {
     const selectQuiz = document.getElementById('userNameListQuiz');
     const selectPrayer = document.getElementById('prayerUserName');
@@ -4442,9 +4800,16 @@ function updateLeaderboardUI(data) {
     const rankEmoji = ['🥇','🥈','🥉'];
     let rankIdx = 0;
 
-    // جيب الأفاتارات من Firebase أولاً
+    // جيب الأفاتارات من Firebase مع cache (كل 2 دقيقة بس)
+    const now = Date.now();
+    if (_avatarsCache && (now - _avatarsCacheTime) < 120000) {
+        renderLeaderboardWithAvatars(data, _avatarsCache);
+        return;
+    }
     db.ref('user_avatars').once('value', avSnap => {
-        const firebaseAvatars = avSnap.val() || {};
+        _avatarsCache = avSnap.val() || {};
+        _avatarsCacheTime = Date.now();
+        const firebaseAvatars = _avatarsCache;
 
         Object.values(data).sort((a,b) => b.score - a.score).forEach((p, cardIdx) => {
             const breakdown = p.breakdown || {};
@@ -4525,6 +4890,14 @@ function updateLeaderboardUI(data) {
             </div>`;
         });
     });
+}
+
+function renderLeaderboardWithAvatars(data, firebaseAvatars) {
+    // نفس الكود بس بدون جلب Firebase
+    const selectQuiz = document.getElementById('userNameListQuiz');
+    const list = document.getElementById('leaderboard');
+    if (!list) return;
+    // استخدام الـ cache مباشرة - الـ render بيحصل من updateLeaderboardUI
 }
 
 // ===== SHOW POINTS BREAKDOWN =====
@@ -4931,41 +5304,65 @@ async function showAlreadySubmittedQuizMessage(quizId) {
 async function startQuiz() {
     selectedQuizStudentName = document.getElementById('userNameListQuiz').value;
     if (!selectedQuizStudentName) return alert("اختر اسمك أولاً");
-    
-    // تحديد معرف المسابقة
-    const currentQuizId = 'current_quiz_2026';
-    
-    // التحقق من الحل المسبق في Firebase
-    const alreadySubmitted = await checkIfQuizSubmitted(currentQuizId);
-    
-    if (alreadySubmitted) {
-        await showAlreadySubmittedQuizMessage(currentQuizId);
-        localStorage.setItem('quiz_bound_name', selectedQuizStudentName);
-        showFinishedStatus();
-        return;
-    }
-    
+
+    // حماية الجهاز
     const boundName = localStorage.getItem('quiz_bound_name');
     if (boundName && boundName !== selectedQuizStudentName) {
         return alert(`هذا الجهاز مسجل باسم (${boundName}). لا يمكنك الحل لزميل آخر!`);
     }
-    db.ref("bible_quiz/submissions").orderByChild("userName").equalTo(selectedQuizStudentName).once("value", snap => {
-        if (snap.exists()) {
-            alert("لقد قمت بحل المسابقة مسبقاً!");
+
+    const currentQuizId = 'current_quiz_2026';
+    const userId = getUserId(selectedQuizStudentName);
+
+    const startBtn = document.querySelector('#quizSetup .btn');
+    if (startBtn) { startBtn.disabled = true; startBtn.textContent = '⏳ جاري التحقق...'; }
+
+    try {
+        // تحقق واحد بس من Firebase (النظام الجديد فقط - أسرع بكتير)
+        const newSysSnap = await db.ref(`quiz_submissions/${currentQuizId}/${userId}`).once('value');
+
+        if (newSysSnap.exists()) {
+            const d = newSysSnap.val();
+            alert(`⛔ حللت المسابقة دي قبل كده!\n\n📊 درجتك: ${d.score}/${d.max}\n🎯 النقاط: ${d.finalPoints}`);
             localStorage.setItem('quiz_bound_name', selectedQuizStudentName);
             showFinishedStatus();
-        } else {
-            localStorage.setItem('quiz_bound_name', selectedQuizStudentName);
-            loadQuiz();
+            return;
         }
-    });
+
+        // كل حاجة تمام - ابدأ المسابقة
+        localStorage.setItem('quiz_bound_name', selectedQuizStudentName);
+        currentUserId = userId;
+        currentUserName = selectedQuizStudentName;
+
+        // استخدم الـ cache لو متاح، غير كده اجيب من Firebase
+        const questionsSnap = _cachedQuestionsSnap
+            || await db.ref("bible_quiz/questions").once("value");
+        const durationInSeconds = _cachedTimerMinutes * 60;
+        _renderQuizDirect(questionsSnap, durationInSeconds);
+
+    } catch(err) {
+        alert('حدث خطأ، حاول تاني 🙏');
+        console.error(err);
+    } finally {
+        if (startBtn) { startBtn.disabled = false; startBtn.textContent = 'ابدأ المسابقة الآن 🚀'; }
+    }
 }
 
 function loadQuiz() {
-    db.ref("settings/quizTimer").once("value", snapTime => {
+    // deprecated - بقت بتتشغل من startQuiz مباشرة
+    startQuiz();
+}
+
+function _renderQuizQuestions(snapQ, durationInSeconds) {
+    // نفس كود الـ render بس منفصل
+    const fakeSnap = snapQ; // نفس الـ snapshot
+    {
+        const snapQ = fakeSnap;
+        const snapTime = { val: () => Math.round(durationInSeconds/60) };
         let timerMinutes = snapTime.val() || 5;
-        let durationInSeconds = timerMinutes * 60;
-        db.ref("bible_quiz/questions").once("value", snapQ => {
+        // durationInSeconds passed directly
+        db.ref("settings/quizTimer").once("value", _ignored => {
+        db.ref("bible_quiz/questions").once("value", _ignored2 => {
             const container = document.getElementById('questionsContainer');
             container.innerHTML = ""; allQuizQuestions = []; let i = 0;
             snapQ.forEach(child => {
@@ -4995,6 +5392,38 @@ function loadQuiz() {
             startCountdown(durationInSeconds);
         });
     });
+    }
+}
+
+// دالة render المسابقة بدون Firebase calls إضافية
+function _renderQuizDirect(snapQ, durationInSeconds) {
+    const container = document.getElementById('questionsContainer');
+    container.innerHTML = ""; allQuizQuestions = []; let i = 0;
+    snapQ.forEach(child => {
+        const q = child.val(); allQuizQuestions.push({...q, id: child.key});
+        let html = `<div class="question-card"><p><b>س${i+1}: ${q.text}</b> <small style="color:var(--text-secondary);">(${q.points||1} درجة)</small></p>`;
+        if (q.type === 'choice' || q.type === 'truefalse') {
+            (q.options || []).forEach(opt => { if(opt) html += `<label class="option-label"><input type="radio" name="quiz_q_${i}" value="${opt}"> ${opt}</label>`; });
+        } else if (q.type === 'essay') {
+            html += `<textarea id="quiz_ans_${i}" onpaste="return false;" oninput="updateCharCount(${i})" placeholder="اكتب إجابتك بالتفصيل هنا..." style="height:100px; width:100%; border-radius:12px;"></textarea><div style="text-align:left; font-size:12px; color:var(--text-secondary);"><span id="charCount_${i}">0</span> حرف</div>
+                    <div style="margin-top:8px;">
+                        <label for="quiz_img_${i}" style="display:inline-flex; align-items:center; gap:6px; background:linear-gradient(135deg,#667eea,#764ba2); color:white; padding:8px 16px; border-radius:10px; cursor:pointer; font-size:13px; font-weight:700; font-family:'Cairo',sans-serif;">
+                            📷 أرفع صورة (اختياري)
+                        </label>
+                        <input type="file" id="quiz_img_${i}" accept="image/*" capture="environment" style="display:none;" onchange="previewEssayImage(${i}, this)">
+                        <div id="quiz_img_preview_${i}" style="margin-top:8px; display:none;">
+                            <img id="quiz_img_thumb_${i}" style="max-width:100%; max-height:200px; border-radius:10px; border:2px solid #667eea;" />
+                            <button onclick="removeEssayImage(${i})" style="display:block; margin-top:4px; background:#f56565; color:white; border:none; border-radius:8px; padding:5px 12px; font-family:'Cairo',sans-serif; cursor:pointer; font-size:12px;">❌ إزالة الصورة</button>
+                        </div>
+                    </div>`;
+        } else {
+            html += `<input type="text" id="quiz_ans_${i}" placeholder="اكتب الإجابة...">`;
+        }
+        container.innerHTML += html + `</div>`; i++;
+    });
+    document.getElementById('quizSetup').style.display = 'none';
+    document.getElementById('quizArea').style.display = 'block';
+    startCountdown(durationInSeconds);
 }
 
 // ── صور السؤال المقالي ──
@@ -5034,8 +5463,54 @@ function startCountdown(duration) {
     }, 1000);
 }
 
+// ── cache الأسئلة والتايمر عشان startQuiz يبقى فوري ──
+let _cachedQuestionsSnap = null;
+let _cachedTimerMinutes = 5;
+(function preloadQuizData() {
+    db.ref("settings/quizTimer").once("value").then(s => { _cachedTimerMinutes = s.val() || 5; });
+    db.ref("bible_quiz/questions").once("value").then(s => { _cachedQuestionsSnap = s; });
+})();
+
+let isQuizSubmitting = false;
 async function submitQuiz() {
+    if (isQuizSubmitting) return;
+    isQuizSubmitting = true;
+    const submitBtn = document.getElementById('submitQuizBtn');
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = '⏳ جاري التحقق...'; }
     if (quizTimerInterval) clearInterval(quizTimerInterval);
+
+    // ✅ تأكد إن currentUserId موجود
+    if (!currentUserId || !currentUserName) {
+        // حاول تسترجعه من localStorage
+        const boundName = localStorage.getItem('quiz_bound_name');
+        if (boundName) {
+            currentUserName = boundName;
+            currentUserId = getUserId(boundName);
+        }
+        if (!currentUserId) {
+            alert('❌ خطأ: لم يتم التعرف على المستخدم. أعد تحميل الصفحة وابدأ المسابقة مجدداً.');
+            isQuizSubmitting = false;
+            if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'إرسال الإجابات ✅'; }
+            return;
+        }
+    }
+
+    // 🛡️ تحقق من Firebase قبل الإرسال (منع التكرار)
+    const currentQuizId = 'current_quiz_2026';
+    try {
+        const alreadySnap = await db.ref(`quiz_submissions/${currentQuizId}/${currentUserId}`).once('value');
+        if (alreadySnap.exists()) {
+            const d = alreadySnap.val();
+            alert(`⛔ تم إرسال إجابتك مسبقاً!\n\n📊 درجتك: ${d.score}/${d.max}\n🎯 النقاط: ${d.finalPoints}\n\n❌ لا يمكنك الإرسال مرة أخرى.`);
+            showFinishedStatus(d.score, d.max, d.finalPoints);
+            isQuizSubmitting = false;
+            return;
+        }
+    } catch(e) {
+        console.warn('تعذر التحقق من Firebase، سيكمل الإرسال:', e);
+    }
+
+    if (submitBtn) { submitBtn.textContent = '⏳ جاري الإرسال...'; }
     let correctAnswers = 0, totalQuestions = 0, submittedAnswers = [];
     allQuizQuestions.forEach((q, idx) => {
         let ans = "", isCorrect = false;
@@ -5065,8 +5540,6 @@ async function submitQuiz() {
     if (wrongAnswers === 0) finalPoints = 5;
     else if (wrongAnswers === 1) finalPoints = 4;
 
-    const currentQuizId = 'current_quiz_2026';
-    
     // حفظ في نظام منع التكرار
     const saved = await saveQuizSubmission(
         currentQuizId, 
@@ -5078,6 +5551,8 @@ async function submitQuiz() {
     
     if (!saved) {
         alert('حدث خطأ في حفظ إجابتك. لم يتم احتساب النقاط.');
+        isQuizSubmitting = false;
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'إرسال الإجابات ✅'; }
         return;
     }
 
@@ -5105,9 +5580,10 @@ async function submitQuiz() {
     });
     
     // ========== نظام شارات المسابقة ==========
-    checkQuizBadges(selectedQuizStudentName, Math.floor(correctAnswers), totalQuestions, wrongAnswers);
+    checkQuizBadges(selectedQuizStudentName || currentUserName, Math.floor(correctAnswers), totalQuestions, wrongAnswers);
     
     showFinishedStatus(Math.floor(correctAnswers), totalQuestions, finalPoints);
+    isQuizSubmitting = false;
 }
 
 // ========== فحص وإعطاء شارات المسابقة ==========
@@ -5870,8 +6346,10 @@ function updatePeersListWithPending(peerName) {
 }
 
 // مراقبة حالة التأكيد
+let _watchConfirmRef = null;
 function watchConfirmationStatus() {
-    db.ref("confirmation_requests").on('value', snap => {
+    if (_watchConfirmRef) db.ref("confirmation_requests").off('value', _watchConfirmRef);
+    _watchConfirmRef = db.ref("confirmation_requests").on('value', snap => {
         snap.forEach(child => {
             const req = child.val();
             
@@ -6235,7 +6713,7 @@ window.addEventListener('DOMContentLoaded', function() {
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme === 'dark') {
         document.body.setAttribute('data-theme','dark');
-        document.getElementById('themeBtn').innerText = "🌑 الوضع الداكن";
+        document.getElementById('themeBtn').innerText = "🌑";
     }
 
     const lastLogin = localStorage.getItem('session_login_time');
@@ -7031,13 +7509,13 @@ function startCheckingForNewStories() {
     // تحميل آخر وقت تحقق
     lastCheckedStoryTimestamp = parseInt(localStorage.getItem('lastCheckedStoryTime') || '0');
     
-    // التحقق كل 10 ثواني
+    // التحقق كل 60 ثانية (بدلاً من 10)
     notificationCheckInterval = setInterval(() => {
         checkForNewStories();
-    }, 10000);
+    }, 60000);
     
     // تحقق فوري عند البداية
-    setTimeout(() => checkForNewStories(), 3000);
+    setTimeout(() => checkForNewStories(), 5000); // تأخير أطول
 }
 
 // التحقق من المواقف الجديدة
@@ -7718,23 +8196,28 @@ function ccSendPost() {
 }
 
 // ── تحميل البوستات ──
+let _ccPostsLoaded = false;
 function ccLoadPosts() {
+    if (_ccPostsLoaded) return; // منع تشغيل أكتر من مرة
+    _ccPostsLoaded = true;
+    
+    const startTime = Date.now();
+    
+    // listener واحد بدل 3
     db.ref('community_posts').orderByChild('timestamp').limitToLast(40)
         .on('child_added', snap => {
+            const isNew = snap.val().timestamp > startTime;
             ccState.postsCache[snap.key] = snap.val();
             ccRenderPost(snap.key, snap.val());
+            if (isNew) {
+                document.getElementById('ccBadge').style.display = 'inline-block';
+            }
         });
 
     db.ref('community_posts').on('child_changed', snap => {
         ccState.postsCache[snap.key] = snap.val();
         ccUpdateReactions(snap.key, snap.val());
     });
-
-    // مراقبة البوستات الجديدة للـ badge
-    db.ref('community_posts').orderByChild('timestamp').startAt(Date.now())
-        .on('child_added', snap => {
-            document.getElementById('ccBadge').style.display = 'inline-block';
-        });
 }
 
 // ── رسم البوست ──
@@ -7838,8 +8321,9 @@ function ccLoadReplies(postId) {
     if (!list) return;
     list.innerHTML = '';
 
+    // once بدل on عشان منراكمش listeners
     db.ref(`community_replies/${postId}`).orderByChild('timestamp')
-        .on('child_added', snap => ccRenderReply(list, snap.val()));
+        .once('value', snap => snap.forEach(c => ccRenderReply(list, c.val())));
 }
 
 function ccRenderReply(container, reply) {
@@ -7942,6 +8426,212 @@ function copyFCMToken() {
     document.execCommand('copy');
     alert('✅ تم النسخ!');
 }
+</script>
+<script>
+// ═══════════════════════════════════════
+// 🖼️ نظام خلفية التطبيق
+// ═══════════════════════════════════════
+
+function openBgModal() {
+    document.getElementById('bgModal').classList.add('open');
+    // تحميل الخلفية الحالية للمعاينة
+    const saved = localStorage.getItem('app_bg_image');
+    const opacity = localStorage.getItem('app_bg_opacity') || '45';
+    if (saved) {
+        const img = document.getElementById('bgPreviewImg');
+        img.src = saved;
+        img.style.display = 'block';
+        document.getElementById('bgPlaceholder').style.display = 'none';
+    }
+    document.getElementById('bgOpacitySlider').value = opacity;
+    document.getElementById('bgOpacityVal').textContent = opacity + '%';
+}
+
+function closeBgModal() {
+    document.getElementById('bgModal').classList.remove('open');
+}
+
+function handleBgUpload(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const status = document.getElementById('bgUploadStatus');
+
+    status.textContent = '⏳ جاري المعالجة...';
+    status.style.color = '#c4b5fd';
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+            // ضغط تدريجي لحد ما الحجم يناسب localStorage
+            let quality = 0.8;
+            let maxW = 1280;
+            let compressed;
+
+            function tryCompress(q, mw) {
+                const canvas = document.createElement('canvas');
+                let w = img.width, h = img.height;
+                // crop/scale عشان تبقى خلفية كاملة (cover)
+                const screenRatio = window.screen.height / window.screen.width;
+                const imgRatio = h / w;
+                if (imgRatio < screenRatio) {
+                    // الصورة عرضها أكبر - نقلصها على الارتفاع
+                    h = Math.round(w * screenRatio);
+                }
+                if (w > mw) { h = Math.round(h * mw / w); w = mw; }
+                canvas.width = w; canvas.height = h;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, w, h);
+                return canvas.toDataURL('image/jpeg', q);
+            }
+
+            // جرب بجودة عالية أول
+            compressed = tryCompress(quality, maxW);
+
+            // لو أكبر من 4MB قلل الجودة
+            let attempts = 0;
+            while (compressed.length > 4 * 1024 * 1024 && attempts < 6) {
+                quality -= 0.1;
+                maxW = Math.round(maxW * 0.85);
+                compressed = tryCompress(Math.max(quality, 0.3), maxW);
+                attempts++;
+            }
+
+            try {
+                localStorage.setItem('app_bg_image', compressed);
+                applyBgImage(compressed);
+
+                const previewImg = document.getElementById('bgPreviewImg');
+                previewImg.src = compressed;
+                previewImg.style.display = 'block';
+                document.getElementById('bgPlaceholder').style.display = 'none';
+
+                const userId = localStorage.getItem('currentUserId') || localStorage.getItem('selected_user_name');
+                if (userId && typeof db !== 'undefined') {
+                    const safeId = userId.replace(/[^a-zA-Z0-9_\u0600-\u06FF]/g, '_');
+                    db.ref('user_backgrounds/' + safeId).set({
+                        image: compressed,
+                        opacity: localStorage.getItem('app_bg_opacity') || '45',
+                        updatedAt: Date.now()
+                    }).catch(()=>{});
+                }
+
+                const sizeKB = Math.round(compressed.length / 1024);
+                status.textContent = '✅ تم! (' + sizeKB + 'KB)';
+                status.style.color = '#86efac';
+                setTimeout(() => { status.textContent = ''; }, 2500);
+            } catch(e) {
+                // localStorage امتلأ - احفظ بجودة أقل
+                try {
+                    compressed = tryCompress(0.3, 600);
+                    localStorage.setItem('app_bg_image', compressed);
+                    applyBgImage(compressed);
+                    status.textContent = '✅ تم بجودة مضغوطة';
+                    status.style.color = '#fbbf24';
+                    setTimeout(() => { status.textContent = ''; }, 2500);
+                } catch(e2) {
+                    status.textContent = '❌ مساحة التخزين ممتلئة، امسح بيانات المتصفح';
+                    status.style.color = '#f87171';
+                }
+            }
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+}
+
+function applyBgImage(dataUrl, opacity) {
+    const op = opacity || localStorage.getItem('app_bg_opacity') || '45';
+    // الخلفية على الهيدر بس
+    const header = document.querySelector('.main-header');
+    if (header) {
+        header.style.backgroundImage = `url("${dataUrl}")`;
+        header.style.backgroundSize = 'cover';
+        header.style.backgroundPosition = 'center';
+        header.style.backgroundRepeat = 'no-repeat';
+    }
+    document.body.classList.add('has-bg-image');
+    updateOverlayOpacity(op);
+}
+
+function updateBgOverlay(val) {
+    document.getElementById('bgOpacityVal').textContent = val + '%';
+    localStorage.setItem('app_bg_opacity', val);
+    updateOverlayOpacity(val);
+
+    // حفظ في Firebase
+    const userId = localStorage.getItem('currentUserId') || localStorage.getItem('selected_user_name');
+    if (userId && typeof db !== 'undefined') {
+        const safeId = userId.replace(/\s+/g,'_');
+        db.ref('user_backgrounds/' + safeId + '/opacity').set(val).catch(()=>{});
+    }
+}
+
+function updateOverlayOpacity(val) {
+    const alpha = (parseInt(val) / 100).toFixed(2);
+    // نعدّل الـ overlay عبر CSS variable
+    document.body.style.setProperty('--bg-overlay', `rgba(0,0,0,${alpha})`);
+    // لأن ::before مش ممكن نعدله directly، نحط style tag
+    let styleEl = document.getElementById('bgOverlayStyle');
+    if (!styleEl) {
+        styleEl = document.createElement('style');
+        styleEl.id = 'bgOverlayStyle';
+        document.head.appendChild(styleEl);
+    }
+    styleEl.textContent = `body.has-bg-image .main-header::after { background: rgba(0,0,0,${alpha}) !important; }`;
+}
+
+function removeBg() {
+    localStorage.removeItem('app_bg_image');
+    localStorage.removeItem('app_bg_opacity');
+    const header = document.querySelector('.main-header');
+    if (header) {
+        header.style.backgroundImage = '';
+        header.style.backgroundSize = '';
+        header.style.backgroundPosition = '';
+        header.style.backgroundRepeat = '';
+    }
+    document.body.classList.remove('has-bg-image');
+
+    const previewImg = document.getElementById('bgPreviewImg');
+    previewImg.src = '';
+    previewImg.style.display = 'none';
+    document.getElementById('bgPlaceholder').style.display = 'block';
+
+    // حذف من Firebase
+    const userId = localStorage.getItem('currentUserId') || localStorage.getItem('selected_user_name');
+    if (userId && typeof db !== 'undefined') {
+        const safeId = userId.replace(/\s+/g,'_');
+        db.ref('user_backgrounds/' + safeId).remove().catch(()=>{});
+    }
+
+    document.getElementById('bgUploadStatus').textContent = '🗑️ تم حذف الخلفية';
+    setTimeout(() => { document.getElementById('bgUploadStatus').textContent = ''; }, 2000);
+}
+
+// تحميل الخلفية عند فتح التطبيق
+function loadSavedBg() {
+    const saved = localStorage.getItem('app_bg_image');
+    const opacity = localStorage.getItem('app_bg_opacity') || '45';
+    if (saved) {
+        applyBgImage(saved, opacity);
+    }
+}
+
+// إخفاء اسم الكنيسة نهائياً بعد 3 ثواني
+setTimeout(() => {
+    const sub = document.getElementById('churchSubtitle');
+    if (sub) sub.style.display = 'none';
+}, 10000);
+
+// تشغيل زرار الخلفية بعد الدخول
+function showBgBtn() {
+    const btn = document.getElementById('bgChangerBtn');
+    if (btn) btn.style.display = 'flex';
+}
+
+// تحميل عند بدء التطبيق
+loadSavedBg();
 </script>
 </body>
 </html>
