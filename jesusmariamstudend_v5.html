@@ -47,7 +47,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="خدمة إعدادي">
     <link rel="apple-touch-icon" href="icon-192.png">
-    <link rel="manifest" href="manifest-eadady.json">
+    <link rel="manifest" href="manifest.json">
     
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -127,18 +127,18 @@
         /* زرار الخلفية */
         #bgChangerBtn {
             position: fixed;
-            bottom: 24px;
-            left: 16px;
-            width: 50px;
-            height: 50px;
+            bottom: 20px;
+            left: 12px;
+            width: 30px;
+            height: 30px;
             border-radius: 50%;
-            background: linear-gradient(135deg,#7c3aed,#a78bfa);
+            background: rgba(124,58,237,0.5);
             border: none;
             color: white;
-            font-size: 22px;
+            font-size: 14px;
             cursor: pointer;
             z-index: 999;
-            box-shadow: 0 4px 20px rgba(124,58,237,0.5);
+            box-shadow: 0 2px 8px rgba(124,58,237,0.4);
             display: none;
             align-items: center;
             justify-content: center;
@@ -827,32 +827,104 @@
         #mainContent { display: none; animation: fadeIn 0.5s ease; padding-bottom: 30px; }
 
         .theme-toggle-btn {
-            position: fixed; top: 10px; left: 10px;
-            background: var(--bg-card); color: var(--text-primary);
-            border: none; border-radius: 50%;
-            font-size: 11px; cursor: pointer;
-            box-shadow: var(--shadow-sm); z-index: 100;
-            transition: all 0.3s ease;
-            width: 24px; height: 24px;
-            display:flex; align-items:center; justify-content:center;
-            opacity: 0.65;
+            position: fixed; top: 12px; left: 12px;
+            background: rgba(30,41,59,0.85); color: var(--text-primary);
+            border: 1px solid rgba(255,255,255,0.1); padding: 5px 10px; border-radius: 50px;
+            font-size: 10px; font-weight: 600; cursor: pointer;
+            box-shadow: var(--shadow-md); z-index: 100;
+            transition: all 0.3s ease; font-family: 'Cairo', sans-serif;
         }
-        .theme-toggle-btn:hover { opacity: 1; }
+        .theme-toggle-btn:hover { transform: translateY(-1px); }
 
-        /* ===== HEADER ===== */
+        /* ===== HEADER - راية إعدادي ===== */
         .main-header {
-            background: var(--bg-primary);
-            padding: 48px 20px 56px;
+            background: linear-gradient(180deg, #1a0a2e 0%, #0f172a 40%, #1e1035 100%);
+            padding: 0 0 80px 0;
             text-align: center;
             box-shadow: var(--shadow-lg);
             position: relative; overflow: hidden;
         }
+
+        /* شريط الراية العلوي */
         .main-header::before {
-            content:'';
-            position: absolute; inset: 0;
-            background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="40" fill="rgba(255,255,255,0.05)"/></svg>');
-            animation: float 20s infinite linear;
+            content: '';
+            display: block;
+            width: 100%;
+            height: 10px;
+            background: linear-gradient(90deg,
+                #c41e3a 0%, #c41e3a 33%,
+                #ffffff 33%, #ffffff 66%,
+                #c41e3a 66%, #c41e3a 100%
+            );
+            position: relative;
         }
+
+        /* خطوط زخرفية الراية */
+        .main-header::after {
+            content: '';
+            position: absolute;
+            top: 10px; left: 0; right: 0;
+            height: 4px;
+            background: linear-gradient(90deg,
+                transparent 0%, rgba(255,215,0,0.6) 30%,
+                rgba(255,215,0,0.9) 50%,
+                rgba(255,215,0,0.6) 70%, transparent 100%
+            );
+        }
+
+        /* علم يرفرف - صغير في الكورنر */
+        .flag-wrapper {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            display: flex;
+            align-items: flex-start;
+            gap: 0;
+            z-index: 10;
+        }
+
+        .flag-pole {
+            width: 3px;
+            height: 44px;
+            background: linear-gradient(180deg, #d4af37, #8b6914);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        .flag-body {
+            width: 38px;
+            height: 26px;
+            background: linear-gradient(135deg, #1a0a4e 0%, #2d1b69 100%);
+            border: 1.5px solid rgba(255,215,0,0.5);
+            border-right: none;
+            border-radius: 0 4px 6px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform-origin: right center;
+            animation: flagWave 2.5s ease-in-out infinite;
+            box-shadow: 1px 1px 8px rgba(0,0,0,0.4);
+        }
+
+        .flag-cross {
+            font-size: 14px;
+            filter: drop-shadow(0 0 4px rgba(255,215,0,0.9));
+            animation: crossGlow 2.5s ease-in-out infinite;
+        }
+
+        @keyframes flagWave {
+            0%   { transform: skewY(0deg) scaleX(1); }
+            25%  { transform: skewY(-4deg) scaleX(0.96); }
+            50%  { transform: skewY(0deg) scaleX(1); }
+            75%  { transform: skewY(4deg) scaleX(0.96); }
+            100% { transform: skewY(0deg) scaleX(1); }
+        }
+
+        @keyframes crossGlow {
+            0%, 100% { filter: drop-shadow(0 0 3px rgba(255,215,0,0.7)); }
+            50%       { filter: drop-shadow(0 0 10px rgba(255,215,0,1)); }
+        }
+
         .main-header h2 {
             color: white; font-size: 38px; font-weight: 800;
             margin-bottom: 6px; position: relative;
@@ -3281,65 +3353,31 @@ function checkAccessWithSound() {
 </div>
 
 <div id="mainContent">
-    <button class="theme-toggle-btn" onclick="toggleTheme()" id="themeBtn" title="الوضع الداكن">🌙</button>
-    <style>
-    @keyframes flagWave {
-        0%   { d: path("M0,0 Q8,-4 16,-1 Q24,2 32,-1 Q40,-4 48,0 L48,28 Q40,32 32,29 Q24,26 16,29 Q8,32 0,28 Z"); }
-        20%  { d: path("M0,0 Q8,3 16,0 Q24,-3 32,1 Q40,4 48,0 L48,28 Q40,24 32,28 Q24,32 16,28 Q8,25 0,28 Z"); }
-        40%  { d: path("M0,0 Q8,-3 16,2 Q24,5 32,0 Q40,-3 48,1 L48,28 Q40,31 32,27 Q24,23 16,27 Q8,31 0,28 Z"); }
-        60%  { d: path("M0,0 Q8,4 16,-1 Q24,-4 32,2 Q40,5 48,0 L48,28 Q40,23 32,29 Q24,33 16,28 Q8,24 0,28 Z"); }
-        80%  { d: path("M0,0 Q8,-2 16,3 Q24,6 32,-1 Q40,-3 48,1 L48,28 Q40,29 32,22 Q24,26 16,31 Q8,27 0,28 Z"); }
-        100% { d: path("M0,0 Q8,-4 16,-1 Q24,2 32,-1 Q40,-4 48,0 L48,28 Q40,32 32,29 Q24,26 16,29 Q8,32 0,28 Z"); }
-    }
-    @keyframes flagColors  { 0%{stop-color:#7c3aed} 16%{stop-color:#dc2626} 33%{stop-color:#d97706} 50%{stop-color:#059669} 66%{stop-color:#2563eb} 83%{stop-color:#7c3aed} 100%{stop-color:#7c3aed} }
-    @keyframes flagColors2 { 0%{stop-color:#a78bfa} 16%{stop-color:#f87171} 33%{stop-color:#fbbf24} 50%{stop-color:#34d399} 66%{stop-color:#60a5fa} 83%{stop-color:#a78bfa} 100%{stop-color:#a78bfa} }
-    @keyframes crossPulse  { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.85;transform:scale(1.05)} }
-    .flag-wave-path { animation: flagWave 2.5s ease-in-out infinite; }
-    .grad-stop1 { animation: flagColors 4s ease-in-out infinite; }
-    .grad-stop2 { animation: flagColors2 4s ease-in-out infinite; }
-    .cross-inner { animation: crossPulse 2.5s ease-in-out infinite; transform-origin: 24px 14px; }
-    </style>
-    <!-- العلم تحت زرار الداكن -->
-    <div style="position:fixed; top:38px; left:4px; z-index:99; display:flex; align-items:flex-start; direction:ltr;">
-        <svg width="44" height="26" viewBox="0 0 48 28" style="overflow:visible;">
-            <defs>
-                <linearGradient id="flagGrad" x1="0" y1="0" x2="1" y2="0">
-                    <stop class="grad-stop1" offset="0%" stop-color="#7c3aed"/>
-                    <stop class="grad-stop2" offset="100%" stop-color="#a78bfa"/>
-                </linearGradient>
-                <clipPath id="flagClip2">
-                    <path class="flag-wave-path" d="M0,0 Q8,-4 16,-1 Q24,2 32,-1 Q40,-4 48,0 L48,28 Q40,32 32,29 Q24,26 16,29 Q8,32 0,28 Z"/>
-                </clipPath>
-            </defs>
-            <path class="flag-wave-path" d="M0,0 Q8,-4 16,-1 Q24,2 32,-1 Q40,-4 48,0 L48,28 Q40,32 32,29 Q24,26 16,29 Q8,32 0,28 Z" fill="url(#flagGrad)"/>
-            <g clip-path="url(#flagClip2)">
-                <g class="cross-inner">
-                    <rect x="21" y="4"  width="6" height="20" rx="2" fill="white"/>
-                    <rect x="9"  y="11" width="30" height="6"  rx="2" fill="white"/>
-                </g>
-            </g>
-            <path class="flag-wave-path" d="M0,0 Q8,-4 16,-1 Q24,2 32,-1 Q40,-4 48,0 L48,6 Q40,10 32,7 Q24,4 16,7 Q8,10 0,6 Z" fill="white" opacity="0.15"/>
-        </svg>
-        <div style="width:3px; height:38px; background:linear-gradient(to bottom,#fbbf24,#92400e); border-radius:2px; flex-shrink:0;"></div>
-    </div>
+    <button class="theme-toggle-btn" onclick="toggleTheme()" id="themeBtn">🌑 الوضع الداكن</button>
 
     <!-- Header -->
     <div class="main-header">
-        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+        <!-- راية إعدادي صغيرة في الكورنر -->
+        <div class="flag-wrapper">
+            <div class="flag-pole"></div>
+            <div class="flag-body">
+                <span class="flag-cross">✝</span>
+            </div>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0 16px; box-sizing: border-box;">
             <div id="userNameDisplay" style="font-size: 15px; font-weight: 800; color: #fbbf24; animation: wave 2s ease-in-out infinite; display: none; text-shadow: 0 2px 4px rgba(0,0,0,0.3); cursor:pointer;" onclick="openAvatarChanger()" title="غيّر شكلك"></div>
             <h2 class="animated-title" style="margin: 0; flex: 1; text-align: center;">
                 <span class="word-2">راية</span>
                 <span class="word-3">إعدادي</span>
             </h2>
-            <label style="width:36px; display:flex; justify-content:flex-end;" title="غيّر خلفية التطبيق">
+            <label style="width:32px; display:flex; justify-content:flex-end;" title="غيّر خلفية التطبيق">
                 <span style="
-                    width:20px; height:20px;
+                    width:24px; height:24px;
                     border-radius:50%;
-                    background:linear-gradient(135deg,#7c3aed,#a78bfa);
+                    background:rgba(124,58,237,0.5);
                     display:flex; align-items:center; justify-content:center;
-                    font-size:10px; cursor:pointer;
-                    box-shadow:0 1px 4px rgba(124,58,237,0.3);
-                    opacity:0.65;
+                    font-size:13px; cursor:pointer;
+                    box-shadow:0 2px 6px rgba(124,58,237,0.4);
                 " onclick="openBgModal()">🖼️</span>
             </label>
         </div>
@@ -3388,23 +3426,23 @@ function checkAccessWithSound() {
             <div style="display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; margin-bottom:8px;">
                 <div id="welcomeText" style="font-size: 22px; font-weight: 800; color: var(--text-primary);"></div>
                 <input type="file" accept="image/*" style="display:none" id="welcomePhotoInput" onchange="uploadUserPhotoFromWelcome(this)">
-                <button id="photoUploadLabel" type="button" onclick="document.getElementById('welcomePhotoInput').click()" style="display:inline-flex; align-items:center; gap:6px; padding:8px 16px; background:linear-gradient(135deg,#f59e0b,#d97706); color:#000; border:none; border-radius:50px; cursor:pointer; font-size:13px; font-weight:700; font-family:'Cairo',sans-serif; box-shadow:0 4px 12px rgba(245,158,11,0.4); transition:all 0.3s ease; white-space:nowrap;" title="اضف صورتك الشخصية" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                <button id="photoUploadLabel" type="button" onclick="document.getElementById('welcomePhotoInput').click()" style="display:inline-flex; align-items:center; gap:8px; padding:12px 24px; background:linear-gradient(135deg,#f59e0b,#d97706); color:#000; border:none; border-radius:50px; cursor:pointer; font-size:15px; font-weight:700; font-family:'Cairo',sans-serif; box-shadow:0 4px 16px rgba(245,158,11,0.5); transition:all 0.3s ease; white-space:nowrap;" title="اضف صورتك الشخصية" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
                     📷 اضف صورتك
                 </button>
             </div>
             <div style="font-size: 14px; color: var(--text-secondary);">ربنا يفرح قلبك ويقويك! 💙</div>
             <button onclick="openAvatarChanger()" style="
                 margin-top: 14px;
-                padding: 10px 22px;
+                padding: 13px 28px;
                 background: linear-gradient(135deg,#667eea,#764ba2);
                 color: white;
                 border: none;
                 border-radius: 50px;
                 font-family: 'Cairo', sans-serif;
-                font-size: 13px;
+                font-size: 15px;
                 font-weight: 700;
                 cursor: pointer;
-                box-shadow: 0 4px 15px rgba(102,126,234,0.4);
+                box-shadow: 0 4px 18px rgba(102,126,234,0.5);
                 transition: all 0.3s ease;
             " onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
                 🎨 غيّر شكلك
@@ -4089,6 +4127,30 @@ const config = {
 firebase.initializeApp(config);
 const db = firebase.database();
 
+// ══════════════════════════════════════════════
+// 🗂️ نظام المسارات - إعدادي يستخدم group2/
+// غصن مثمر يستخدم root مباشرة
+// ══════════════════════════════════════════════
+const DB_PREFIX = 'group2/'; // مسار مخدومين إعدادي
+
+// المسارات المشتركة بين المجموعتين (لا تتغير)
+const SHARED_PATHS = [
+    'user_avatars', 'fcm_tokens', 'push_notifications',
+    'force_update_trigger', 'shared_stories', 'users',
+    'community_posts', 'community_replies', 'user_backgrounds',
+    'welcome_messages', 'onesignal_tokens'
+];
+
+function dbRef(path) {
+    // المسارات المشتركة تبقى على root
+    const root = path.split('/')[0];
+    if (SHARED_PATHS.includes(root)) {
+        return db.ref(path);
+    }
+    // باقي المسارات تاخد prefix إعدادي
+    return db.ref(DB_PREFIX + path);
+}
+
 // ====== رفع صورة المخدوم (Global) ======
 async function uploadUserPhoto(input, userId) {
     const file = input.files[0];
@@ -4115,9 +4177,9 @@ async function uploadUserPhoto(input, userId) {
         canvas.getContext('2d').drawImage(img, 0, 0, w, h);
         const compressed = canvas.toDataURL('image/jpeg', 0.8);
         alert('⏳ جاري الرفع...\nuserId: ' + userId);
-        await db.ref('user_avatars/' + userId + '_photo').set(compressed);
+        await dbRef('user_avatars/' + userId + '_photo').set(compressed);
         alert('✅ تم رفع الصورة!');
-        db.ref('users').once('value', snap => { if (snap.val()) updateLeaderboardUI(snap.val()); });
+        dbRef('users').once('value', snap => { if (snap.val()) updateLeaderboardUI(snap.val()); });
     } catch(err) {
         alert('❌ خطأ: ' + err.message + '\n' + (err.code || ''));
     }
@@ -4152,7 +4214,7 @@ async function initFCM() {
             localStorage.setItem('myFCMToken', token);
             const userName = localStorage.getItem('selectedUserName') || localStorage.getItem('selected_user_name') || localStorage.getItem('user_id') || ('user_' + Date.now());
             const safeKey = userName.replace(/\s/g, '_').replace(/[.#$\[\]]/g, '_');
-            db.ref('fcm_tokens/' + safeKey).set({
+            dbRef('fcm_tokens/' + safeKey).set({
                 token: token,
                 name: userName,
                 updatedAt: Date.now()
@@ -4162,7 +4224,7 @@ async function initFCM() {
             window._fcmSaveToken = function(newName) {
                 if (!newName || !window._fcmToken) return;
                 const k = newName.replace(/\s/g, '_').replace(/[.#$\[\]]/g, '_');
-                db.ref('fcm_tokens/' + k).set({
+                dbRef('fcm_tokens/' + k).set({
                     token: window._fcmToken,
                     name: newName,
                     updatedAt: Date.now()
@@ -4212,7 +4274,7 @@ async function initFCM() {
                     if (isSubscribed) {
                         const userName = localStorage.getItem('selectedUserName') || 'مجهول';
                         const playerId = OneSignal.User.PushSubscription.id;
-                        await db.ref('onesignal_tokens/' + userName.replace(/\s/g, '_')).set({
+                        await dbRef('onesignal_tokens/' + userName.replace(/\s/g, '_')).set({
                             playerId: playerId,
                             name: userName,
                             updatedAt: Date.now()
@@ -4246,7 +4308,7 @@ async function initFCM() {
             }
         });
         // الاستماع لإشعارات جديدة من Firebase مباشرة
-        db.ref('push_notifications').limitToLast(1).on('child_added', snap => {
+        dbRef('push_notifications').limitToLast(1).on('child_added', snap => {
             const data = snap.val();
             if (!data) return;
             const lastSeen = parseInt(localStorage.getItem('lastNotifSeen') || '0');
@@ -4316,7 +4378,7 @@ function toggleTheme() {
     const btn = document.getElementById('themeBtn');
     if (body.getAttribute('data-theme') === 'dark') {
         body.removeAttribute('data-theme');
-        btn.innerText = "☀️";
+        btn.innerText = "☀️ الوضع الفاتح";
         localStorage.setItem('theme','light');
     } else {
         body.setAttribute('data-theme','dark');
@@ -4362,7 +4424,7 @@ function openAdmin() {
 
 // ===== ADMIN =====
 function loadAdminData() {
-    db.ref("prayer_reports").limitToLast(10).on("value", snap => {
+    dbRef("prayer_reports").limitToLast(10).on("value", snap => {
         const list = document.getElementById('prayerResultsList');
         list.innerHTML = "";
         snap.forEach(child => {
@@ -4372,7 +4434,7 @@ function loadAdminData() {
     });
     
     // تحميل كلمة التشجيع الحالية
-    db.ref("prayer_encouragement").once("value", snap => {
+    dbRef("prayer_encouragement").once("value", snap => {
         const encouragement = snap.val();
         if (encouragement) {
             document.getElementById('prayerEncouragementInput').value = encouragement;
@@ -4382,14 +4444,14 @@ function loadAdminData() {
 
 function updateAdminAlert() {
     const val = document.getElementById('newAdminAlert').value;
-    db.ref("admin_announcement").set(val);
+    dbRef("admin_announcement").set(val);
     alert("تم النشر ✅");
 }
 
 function updatePrayerEncouragement() {
     const val = document.getElementById('prayerEncouragementInput').value.trim();
     if (!val) return alert("اكتب كلمة تشجيع!");
-    db.ref("prayer_encouragement").set(val);
+    dbRef("prayer_encouragement").set(val);
     alert("تم حفظ الكلمة بنجاح! 💝");
 }
 
@@ -4428,14 +4490,14 @@ function showRandomVerse() {
 function startApp() {
     if (localStorage.getItem('chat_user_name')) document.getElementById('userName').value = localStorage.getItem('chat_user_name');
 
-    db.ref("admin_announcement").on("value", snap => {
+    dbRef("admin_announcement").on("value", snap => {
         const text = snap.val();
         document.getElementById('adminAlert').style.display = (text && text.trim() !== "") ? 'block' : 'none';
         document.getElementById('alertText').innerText = text;
     });
 
     // الاستماع لكلمة التشجيع عن الصلاة
-    db.ref("prayer_encouragement").on("value", snap => {
+    dbRef("prayer_encouragement").on("value", snap => {
         const encouragement = snap.val();
         const box = document.getElementById('prayerEncouragementBox');
         const text = document.getElementById('prayerEncouragementText');
@@ -4448,15 +4510,15 @@ function startApp() {
         }
     });
 
-    db.ref("settings/quizEnabled").on("value", snap => {
+    dbRef("settings/quizEnabled").on("value", snap => {
         document.getElementById('quizSection').style.display = snap.val() === true ? "block" : "none";
     });
 
-    db.ref("settings/libVisible").on("value", snap => {
+    dbRef("settings/libVisible").on("value", snap => {
         document.getElementById('librarySection').style.display = snap.val() !== false ? "block" : "none";
     });
 
-    db.ref("settings/chatSectionVisible").on("value", snap => {
+    dbRef("settings/chatSectionVisible").on("value", snap => {
         const isVisible = snap.val() !== false;
         const nameSection = document.getElementById('chatNameSection');
         const chatSection = document.getElementById('groupChatSection');
@@ -4465,7 +4527,7 @@ function startApp() {
     });
 
     // إظهار/إخفاء قسم اليوميات بناءً على إعداد الخادم
-    db.ref("settings/journalSectionVisible").on("value", snap => {
+    dbRef("settings/journalSectionVisible").on("value", snap => {
         const isVisible = snap.val() === true; // default: مخفي
         const switchContainer = document.getElementById('journalSwitchContainer');
         const journalSection = document.getElementById('blessingsJournalSection');
@@ -4479,7 +4541,7 @@ function startApp() {
     });
 
     // إظهار/إخفاء يوميات المجتمع بناءً على إعداد الخادم
-    db.ref("settings/communityDiarySectionVisible").on("value", snap => {
+    dbRef("settings/communityDiarySectionVisible").on("value", snap => {
         const isVisible = snap.val() === true; // default: مخفي
         const switchContainer = document.getElementById('communitySwitchContainer');
         const section = document.getElementById('communityChatSection');
@@ -4491,7 +4553,7 @@ function startApp() {
         }
     });
 
-    db.ref("media_library").on("value", snap => {
+    dbRef("media_library").on("value", snap => {
         const d = snap.val();
         if (d) {
             document.getElementById('hymnLink').href = d.hymn || "#";
@@ -4506,7 +4568,7 @@ function startApp() {
         updateLeaderboardUI(data);
     }, 500);
     
-    db.ref("points_data").on("value", snap => {
+    dbRef("points_data").on("value", snap => {
         const data = snap.val();
         if (data) {
             localStorage.setItem('offline_points_data', JSON.stringify(data));
@@ -4514,7 +4576,7 @@ function startApp() {
         }
     });
 
-    db.ref("chat").limitToLast(15).on("value", snap => {
+    dbRef("chat").limitToLast(15).on("value", snap => {
         const box = document.getElementById('chatBox');
         box.innerHTML = "";
         snap.forEach(c => {
@@ -4525,7 +4587,7 @@ function startApp() {
         box.scrollTop = box.scrollHeight;
     });
 
-    db.ref("psychology/private_chats/" + psySessionID).on("value", snap => {
+    dbRef("psychology/private_chats/" + psySessionID).on("value", snap => {
         const box = document.getElementById('psyLocalChat');
         box.innerHTML = "";
         snap.forEach(m => {
@@ -4625,7 +4687,7 @@ function updateLeaderboardUI(data) {
         renderLeaderboardWithAvatars(data, _avatarsCache);
         return;
     }
-    db.ref('user_avatars').once('value', avSnap => {
+    dbRef('user_avatars').once('value', avSnap => {
         _avatarsCache = avSnap.val() || {};
         _avatarsCacheTime = Date.now();
         const firebaseAvatars = _avatarsCache;
@@ -4722,7 +4784,7 @@ function renderLeaderboardWithAvatars(data, firebaseAvatars) {
 // ===== SHOW POINTS BREAKDOWN =====
 function showPointsBreakdown(name, totalScore) {
     // Get breakdown from Firebase
-    db.ref("points_data").once("value", snap => {
+    dbRef("points_data").once("value", snap => {
         let breakdown = {};
         snap.forEach(child => {
             if (child.val().name === name) {
@@ -4775,7 +4837,7 @@ function closePointsModal() {
 
 // ===== ADMIN PRAYER HINTS =====
 function listenToAdminPrayers() {
-    db.ref("admin_prayer_hints").on("value", (snapshot) => {
+    dbRef("admin_prayer_hints").on("value", (snapshot) => {
         const data = snapshot.val() || {};
         document.getElementById('admin_agpeya_hint').innerText = data.agpeya || "صلِّ مزموراً من الأجبية..";
         document.getElementById('admin_thanks_hint').innerText = data.thanks || "اشكر الله على كل حال..";
@@ -4820,7 +4882,7 @@ async function sendMutualPrayer() {
     const deviceId = getDeviceFingerprintForAttendance();
     try {
         // 1️⃣ التحقق بالاسم: هل أرسل اليوم من أي جهاز؟
-        const userLastSubmitRef = db.ref(`users/${userId}/last_prayer_submit_date`);
+        const userLastSubmitRef = dbRef(`users/${userId}/last_prayer_submit_date`);
         const lastSubmitSnapshot = await userLastSubmitRef.once('value');
         const lastSubmitDate = lastSubmitSnapshot.val();
         
@@ -4829,7 +4891,7 @@ async function sendMutualPrayer() {
         }
 
         // 2️⃣ التحقق بالجهاز: هل هذا الجهاز أرسل اليوم بأي اسم؟
-        const devicePrayerRef = db.ref(`prayer_device_locks/${todayDate}/${deviceId}`);
+        const devicePrayerRef = dbRef(`prayer_device_locks/${todayDate}/${deviceId}`);
         const devicePrayerSnap = await devicePrayerRef.once('value');
         if (devicePrayerSnap.exists()) {
             const prevName = devicePrayerSnap.val().name || '';
@@ -4837,7 +4899,7 @@ async function sendMutualPrayer() {
         }
 
         // التحقق المزدوج: البحث في تقارير الصلاة اليوم
-        const todayReportsSnapshot = await db.ref("prayer_reports")
+        const todayReportsSnapshot = await dbRef("prayer_reports")
             .orderByChild('makhdom')
             .equalTo(name)
             .once('value');
@@ -4873,7 +4935,7 @@ async function sendMutualPrayer() {
         };
 
         // حفظ التقرير
-        await db.ref("prayer_reports").push(report);
+        await dbRef("prayer_reports").push(report);
         
         // تحديث تاريخ آخر إرسال في Firebase (الحماية الأساسية)
         await userLastSubmitRef.set(todayDate);
@@ -4882,9 +4944,9 @@ async function sendMutualPrayer() {
         await devicePrayerRef.set({ name: name, timestamp: Date.now() });
         
         // إضافة 5 نقاط للصلاة مخدع إذا كانت النقاط مفعّلة
-        const prayerEnabled = await db.ref('settings/prayerPointsEnabled').once('value');
+        const prayerEnabled = await dbRef('settings/prayerPointsEnabled').once('value');
         if (prayerEnabled.val() !== false) {
-            db.ref("points_data").orderByChild("name").equalTo(name).once("value", snap => {
+            dbRef("points_data").orderByChild("name").equalTo(name).once("value", snap => {
                 if (!snap.exists()) {
                     console.warn("مش لاقي المخدوم في points_data:", name);
                     return;
@@ -4934,7 +4996,7 @@ function trackPrayerStreak(userName) {
     const yesterdayDate = new Date(Date.now() - 86400000).toISOString().split('T')[0]; // فورمات موحد
     
     // جلب بيانات التتابع من Firebase
-    db.ref(`users/${userId}/prayer_streak`).once('value', snapshot => {
+    dbRef(`users/${userId}/prayer_streak`).once('value', snapshot => {
         let streakData = snapshot.val() || { 
             currentStreak: 0, 
             longestStreak: 0, 
@@ -4958,7 +5020,7 @@ function trackPrayerStreak(userName) {
         streakData.lastPrayerDate = todayDate;
         
         // حفظ في Firebase
-        db.ref(`users/${userId}/prayer_streak`).set(streakData);
+        dbRef(`users/${userId}/prayer_streak`).set(streakData);
         
         // إعطاء شارات وتشجيع
         checkPrayerBadges(userName, streakData.currentStreak);
@@ -5071,7 +5133,7 @@ async function checkIfQuizSubmitted(quizId) {
     }
     
     try {
-        const snapshot = await db.ref(`quiz_submissions/${quizId}/${currentUserId}`).once('value');
+        const snapshot = await dbRef(`quiz_submissions/${quizId}/${currentUserId}`).once('value');
         return snapshot.exists();
     } catch (error) {
         console.error('Error checking quiz submission:', error);
@@ -5087,7 +5149,7 @@ async function saveQuizSubmission(quizId, answers, score, max, finalPoints) {
     
     try {
         const todayDate = new Date().toISOString().split('T')[0];
-        await db.ref(`quiz_submissions/${quizId}/${currentUserId}`).set({
+        await dbRef(`quiz_submissions/${quizId}/${currentUserId}`).set({
             userName: currentUserName,
             userId: currentUserId,
             submitDate: todayDate,
@@ -5108,7 +5170,7 @@ async function saveQuizSubmission(quizId, answers, score, max, finalPoints) {
 
 async function showAlreadySubmittedQuizMessage(quizId) {
     try {
-        const snapshot = await db.ref(`quiz_submissions/${quizId}/${currentUserId}`).once('value');
+        const snapshot = await dbRef(`quiz_submissions/${quizId}/${currentUserId}`).once('value');
         if (snapshot.exists()) {
             const data = snapshot.val();
             alert(`⛔ لقد قمت بحل هذه المسابقة مسبقاً!\n\n📊 درجتك السابقة: ${data.score}/${data.max}\n🎯 النقاط: ${data.finalPoints}\n\n❌ لا يمكنك الحل مرة أخرى.`);
@@ -5138,7 +5200,7 @@ async function startQuiz() {
 
     try {
         // تحقق واحد بس من Firebase (النظام الجديد فقط - أسرع بكتير)
-        const newSysSnap = await db.ref(`quiz_submissions/${currentQuizId}/${userId}`).once('value');
+        const newSysSnap = await dbRef(`quiz_submissions/${currentQuizId}/${userId}`).once('value');
 
         if (newSysSnap.exists()) {
             const d = newSysSnap.val();
@@ -5155,7 +5217,7 @@ async function startQuiz() {
 
         // استخدم الـ cache لو متاح، غير كده اجيب من Firebase
         const questionsSnap = _cachedQuestionsSnap
-            || await db.ref("bible_quiz/questions").once("value");
+            || await dbRef("bible_quiz/questions").once("value");
         const durationInSeconds = _cachedTimerMinutes * 60;
         _renderQuizDirect(questionsSnap, durationInSeconds);
 
@@ -5180,8 +5242,8 @@ function _renderQuizQuestions(snapQ, durationInSeconds) {
         const snapTime = { val: () => Math.round(durationInSeconds/60) };
         let timerMinutes = snapTime.val() || 5;
         // durationInSeconds passed directly
-        db.ref("settings/quizTimer").once("value", _ignored => {
-        db.ref("bible_quiz/questions").once("value", _ignored2 => {
+        dbRef("settings/quizTimer").once("value", _ignored => {
+        dbRef("bible_quiz/questions").once("value", _ignored2 => {
             const container = document.getElementById('questionsContainer');
             container.innerHTML = ""; allQuizQuestions = []; let i = 0;
             snapQ.forEach(child => {
@@ -5286,8 +5348,8 @@ function startCountdown(duration) {
 let _cachedQuestionsSnap = null;
 let _cachedTimerMinutes = 5;
 (function preloadQuizData() {
-    db.ref("settings/quizTimer").once("value").then(s => { _cachedTimerMinutes = s.val() || 5; });
-    db.ref("bible_quiz/questions").once("value").then(s => { _cachedQuestionsSnap = s; });
+    dbRef("settings/quizTimer").once("value").then(s => { _cachedTimerMinutes = s.val() || 5; });
+    dbRef("bible_quiz/questions").once("value").then(s => { _cachedQuestionsSnap = s; });
 })();
 
 let isQuizSubmitting = false;
@@ -5317,7 +5379,7 @@ async function submitQuiz() {
     // 🛡️ تحقق من Firebase قبل الإرسال (منع التكرار)
     const currentQuizId = 'current_quiz_2026';
     try {
-        const alreadySnap = await db.ref(`quiz_submissions/${currentQuizId}/${currentUserId}`).once('value');
+        const alreadySnap = await dbRef(`quiz_submissions/${currentQuizId}/${currentUserId}`).once('value');
         if (alreadySnap.exists()) {
             const d = alreadySnap.val();
             alert(`⛔ تم إرسال إجابتك مسبقاً!\n\n📊 درجتك: ${d.score}/${d.max}\n🎯 النقاط: ${d.finalPoints}\n\n❌ لا يمكنك الإرسال مرة أخرى.`);
@@ -5375,8 +5437,8 @@ async function submitQuiz() {
         return;
     }
 
-    await db.ref("bible_quiz/submissions").push({ userName: selectedQuizStudentName, score: Math.floor(correctAnswers), max: totalQuestions, finalPoints, answers: submittedAnswers, time: new Date().toLocaleString() });
-    db.ref("points_data").once("value", snap => {
+    await dbRef("bible_quiz/submissions").push({ userName: selectedQuizStudentName, score: Math.floor(correctAnswers), max: totalQuestions, finalPoints, answers: submittedAnswers, time: new Date().toLocaleString() });
+    dbRef("points_data").once("value", snap => {
         snap.forEach(child => { 
             if (child.val().name === selectedQuizStudentName) {
                 const currentScore = child.val().score || 0;
@@ -5439,9 +5501,9 @@ function checkQuizBadges(userName, score, total, wrong) {
 
 // ========== تتبع عدد المسابقات ==========
 function trackQuizParticipation(userId, userName) {
-    db.ref(`users/${userId}/quiz_count`).once('value', snapshot => {
+    dbRef(`users/${userId}/quiz_count`).once('value', snapshot => {
         let quizCount = (snapshot.val() || 0) + 1;
-        db.ref(`users/${userId}/quiz_count`).set(quizCount);
+        dbRef(`users/${userId}/quiz_count`).set(quizCount);
         
         // شارات حسب عدد المسابقات
         const milestones = [
@@ -5550,7 +5612,7 @@ function closeQuizEncouragement() {
 
 // ========== دوال مساعدة لإضافة الشارات و XP ==========
 function addBadgeForUser(userId, badgeId, title, type, icon) {
-    db.ref(`users/${userId}/badges/${badgeId}`).set({
+    dbRef(`users/${userId}/badges/${badgeId}`).set({
         title: title,
         type: type,
         icon: icon,
@@ -5559,7 +5621,7 @@ function addBadgeForUser(userId, badgeId, title, type, icon) {
 }
 
 function addXPForUser(userId, amount, reason) {
-    db.ref(`users/${userId}/progress`).once('value', snapshot => {
+    dbRef(`users/${userId}/progress`).once('value', snapshot => {
         const data = snapshot.val() || { xp: 0, level: 1, xpForNextLevel: 100 };
         data.xp += amount;
         
@@ -5570,7 +5632,7 @@ function addXPForUser(userId, amount, reason) {
             data.xpForNextLevel = Math.floor(data.xpForNextLevel * 1.5);
         }
         
-        db.ref(`users/${userId}/progress`).set(data);
+        dbRef(`users/${userId}/progress`).set(data);
     });
 }
 
@@ -5598,7 +5660,7 @@ function updateCharCount(idx) {
 function sendChat() {
     const inp = document.getElementById('chatInput');
     const name = document.getElementById('userName').value || "مخدوم";
-    if (inp.value.trim()) { db.ref("chat").push({sender: name, text: inp.value}); inp.value = ""; }
+    if (inp.value.trim()) { dbRef("chat").push({sender: name, text: inp.value}); inp.value = ""; }
 }
 
 // ===== PSYCHOLOGY =====
@@ -5608,7 +5670,7 @@ function setMood(el, m) {
 }
 
 function sendMoodOnly() {
-    db.ref("psychology/confessions").push({
+    dbRef("psychology/confessions").push({
         sender: document.getElementById('psyNameInput').value || "ابن الطاعة",
         mood: currentMood,
         need: document.getElementById('psyNeed').value,
@@ -5621,13 +5683,13 @@ function sendMoodOnly() {
 function sendPsyChat() {
     const inp = document.getElementById('psyChatInput');
     if (inp.value.trim()) {
-        db.ref("psychology/private_chats/" + psySessionID).push({ sender: "أنا", text: inp.value.trim() });
+        dbRef("psychology/private_chats/" + psySessionID).push({ sender: "أنا", text: inp.value.trim() });
         inp.value = "";
     }
 }
 
 function clearPsyChat() {
-    if (confirm("هل أنت متأكد؟")) db.ref("psychology/private_chats/" + psySessionID).remove();
+    if (confirm("هل أنت متأكد؟")) dbRef("psychology/private_chats/" + psySessionID).remove();
 }
 
 // ===== PRAYER SESSION (33) =====
@@ -5651,7 +5713,7 @@ function updatePrayerDisplay() {
 function sendQuestion() {
     const txt = document.getElementById('quesMsg').value.trim();
     if (txt) {
-        db.ref("psychology/questions").push({ sender: "مخدوم", text: txt, time: new Date().toLocaleString() });
+        dbRef("psychology/questions").push({ sender: "مخدوم", text: txt, time: new Date().toLocaleString() });
         alert("تم الإرسال ✅"); document.getElementById('quesMsg').value = "";
     }
 }
@@ -5899,7 +5961,7 @@ async function checkDailyAttendanceLimit(type, name) {
     
     return new Promise((resolve) => {
         // التحقق من التسجيل بواسطة الاسم واليوم
-        db.ref('daily_attendance_locks/' + type + '/' + today)
+        dbRef('daily_attendance_locks/' + type + '/' + today)
             .orderByChild('name')
             .equalTo(name)
             .once('value', nameSnapshot => {
@@ -5911,7 +5973,7 @@ async function checkDailyAttendanceLimit(type, name) {
                     });
                 } else {
                     // التحقق من التسجيل بواسطة الجهاز
-                    db.ref('daily_attendance_locks/' + type + '/' + today)
+                    dbRef('daily_attendance_locks/' + type + '/' + today)
                         .orderByChild('deviceId')
                         .equalTo(deviceId)
                         .once('value', deviceSnapshot => {
@@ -5948,7 +6010,7 @@ async function recordDailyAttendance(type, name) {
         datetime: new Date().toISOString()
     };
     
-    return db.ref('daily_attendance_locks/' + type + '/' + today).push(recordData);
+    return dbRef('daily_attendance_locks/' + type + '/' + today).push(recordData);
 }
 
 async function submitAttendance(type, inputId) {
@@ -6028,7 +6090,7 @@ async function submitAttendance(type, inputId) {
         logData.priestName = priestName;
     }
     
-    db.ref("attendance_logs").push(logData);
+    dbRef("attendance_logs").push(logData);
     
     // الـ localStorage للتوافق مع الكود القديم فقط
     const lockKey = `lock_${type}_${name}_${today}`;
@@ -6061,7 +6123,7 @@ function showPeerConfirmationModal(userName) {
     currentConfirmationId = `confirm_${userName}_${Date.now()}`;
     
     // الحصول على جميع الأسماء
-    db.ref("points_data").once("value", snap => {
+    dbRef("points_data").once("value", snap => {
         const allNames = [];
         snap.forEach(child => {
             const name = child.val().name;
@@ -6122,7 +6184,7 @@ function selectPeerForConfirmation(peerName) {
         date: new Date().toISOString().split('T')[0] // فورمات موحد
     };
     
-    db.ref("confirmation_requests").push(confirmationRequest);
+    dbRef("confirmation_requests").push(confirmationRequest);
     
     // تحديث الواجهة لإظهار الحالة
     showNotification(`تم إرسال طلب تأكيد إلى ${peerName} 📨`);
@@ -6167,8 +6229,8 @@ function updatePeersListWithPending(peerName) {
 // مراقبة حالة التأكيد
 let _watchConfirmRef = null;
 function watchConfirmationStatus() {
-    if (_watchConfirmRef) db.ref("confirmation_requests").off('value', _watchConfirmRef);
-    _watchConfirmRef = db.ref("confirmation_requests").on('value', snap => {
+    if (_watchConfirmRef) dbRef("confirmation_requests").off('value', _watchConfirmRef);
+    _watchConfirmRef = dbRef("confirmation_requests").on('value', snap => {
         snap.forEach(child => {
             const req = child.val();
             
@@ -6201,7 +6263,7 @@ function watchConfirmationStatus() {
                 confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
                 
                 // إيقاف المراقبة
-                db.ref("confirmation_requests").off('value');
+                dbRef("confirmation_requests").off('value');
                 
                 // إغلاق المودال بعد 3 ثواني
                 setTimeout(() => {
@@ -6216,7 +6278,7 @@ function watchConfirmationStatus() {
 function closePeerModal() {
     const modal = document.getElementById('peerConfirmationModal');
     modal.style.display = 'none';
-    db.ref("confirmation_requests").off('value');
+    dbRef("confirmation_requests").off('value');
 }
 
 // عرض طلبات التأكيد المعلقة للمستخدم الحالي
@@ -6224,7 +6286,7 @@ function checkPendingConfirmations() {
     const currentName = document.getElementById('attendanceNameSelect').value;
     if (!currentName) return;
     
-    db.ref("confirmation_requests").once('value', snap => {
+    dbRef("confirmation_requests").once('value', snap => {
         const pendingRequests = [];
         
         snap.forEach(child => {
@@ -6251,11 +6313,11 @@ function startPendingConfirmationsListener(userName) {
     
     // إيقاف المراقبة السابقة إن وجدت
     if (confirmationListener) {
-        db.ref("confirmation_requests").off('value', confirmationListener);
+        dbRef("confirmation_requests").off('value', confirmationListener);
     }
     
     // بدء مراقبة جديدة
-    confirmationListener = db.ref("confirmation_requests").on('value', snap => {
+    confirmationListener = dbRef("confirmation_requests").on('value', snap => {
         const pendingRequests = [];
         
         snap.forEach(child => {
@@ -6316,7 +6378,7 @@ function displayPersistentNotifications(requests) {
 // الرد على طلب من الإشعار الثابت
 function respondToPersistentRequest(requestKey, requesterName, status) {
     // تحديث حالة الطلب
-    db.ref(`confirmation_requests/${requestKey}`).update({
+    dbRef(`confirmation_requests/${requestKey}`).update({
         status: status,
         respondedAt: Date.now()
     });
@@ -6451,13 +6513,13 @@ async function confirmPeerAttendance(requestKey, requesterName) {
     }
 
     // 🚫 حماية 2: التحقق من Firebase — هل هذا الطلب اتأكد قبل كده؟
-    const requestSnap = await db.ref(`confirmation_requests/${requestKey}`).once('value');
+    const requestSnap = await dbRef(`confirmation_requests/${requestKey}`).once('value');
     if (requestSnap.exists() && requestSnap.val().status === 'confirmed') {
         return alert("❌ هذا الحضور اتأكد قبل كده بالفعل!");
     }
 
     // 🚫 حماية 3: الجهاز ده أكد لمخدوم تاني النهارده؟
-    const deviceConfirmRef = db.ref(`peer_confirm_device_locks/${today}/${deviceId}`);
+    const deviceConfirmRef = dbRef(`peer_confirm_device_locks/${today}/${deviceId}`);
     const deviceConfirmSnap = await deviceConfirmRef.once('value');
     if (deviceConfirmSnap.exists()) {
         const prevConfirmer = deviceConfirmSnap.val().confirmerName || '';
@@ -6469,7 +6531,7 @@ async function confirmPeerAttendance(requestKey, requesterName) {
 
     // 🚫 حماية 4: هل هذا الـ confirmer أكد لنفس الشخص قبل كده النهارده؟
     const confirmerUserId = getUserId(confirmerName);
-    const confirmerLockRef = db.ref(`peer_confirm_name_locks/${today}/${confirmerUserId}`);
+    const confirmerLockRef = dbRef(`peer_confirm_name_locks/${today}/${confirmerUserId}`);
     const confirmerLockSnap = await confirmerLockRef.once('value');
     if (confirmerLockSnap.exists()) {
         const prevTarget = confirmerLockSnap.val().requesterName || '';
@@ -6479,7 +6541,7 @@ async function confirmPeerAttendance(requestKey, requesterName) {
     // ✅ كل التحققات عدت — نكمل التأكيد
 
     // تحديث حالة الطلب
-    await db.ref(`confirmation_requests/${requestKey}`).update({
+    await dbRef(`confirmation_requests/${requestKey}`).update({
         status: 'confirmed',
         confirmedAt: Date.now(),
         confirmerName: confirmerName,
@@ -6493,10 +6555,10 @@ async function confirmPeerAttendance(requestKey, requesterName) {
     await confirmerLockRef.set({ requesterName, confirmerName, timestamp: Date.now() });
 
     // إضافة 6 نقاط للمخدوم اللي اتأكد حضوره (لو الإضافة مفعّلة)
-    const attendanceEnabled = await db.ref('settings/attendancePointsEnabled').once('value');
+    const attendanceEnabled = await dbRef('settings/attendancePointsEnabled').once('value');
     if (attendanceEnabled.val() !== false) {
         // نجيب كل points_data ونلاقي الاسم بـ loop (أضمن من orderByChild)
-        const allPointsSnap = await db.ref("points_data").once("value");
+        const allPointsSnap = await dbRef("points_data").once("value");
         let found = false;
         allPointsSnap.forEach(child => {
             const val = child.val();
@@ -6528,11 +6590,14 @@ async function confirmPeerAttendance(requestKey, requesterName) {
 
 // ===== SESSION CHECK ON LOAD =====
 window.addEventListener('DOMContentLoaded', function() {
-    // Restore theme
-    const savedTheme = localStorage.getItem('theme');
+    // Restore theme - الوضع الداكن هو الافتراضي
+    const savedTheme = localStorage.getItem('theme') || 'dark';
     if (savedTheme === 'dark') {
         document.body.setAttribute('data-theme','dark');
         document.getElementById('themeBtn').innerText = "🌑 الوضع الداكن";
+    } else {
+        document.body.removeAttribute('data-theme');
+        document.getElementById('themeBtn').innerText = "☀️ الوضع الفاتح";
     }
 
     const lastLogin = localStorage.getItem('session_login_time');
@@ -6581,7 +6646,7 @@ function checkEncouragementMessages() {
         return;
     }
     
-    db.ref("encouragement_messages").orderByChild("to").equalTo(userName)
+    dbRef("encouragement_messages").orderByChild("to").equalTo(userName)
         .once("value", snap => {
             const unreadMessages = [];
             snap.forEach(child => {
@@ -6616,7 +6681,7 @@ function showNextEncouragementMessage() {
     const userName = localStorage.getItem('selected_user_name');
     if (!userName) return;
     
-    db.ref("encouragement_messages").orderByChild("to").equalTo(userName)
+    dbRef("encouragement_messages").orderByChild("to").equalTo(userName)
         .once("value", snap => {
             const unreadMessages = [];
             snap.forEach(child => {
@@ -6724,13 +6789,13 @@ function closeEncouragementPopup(messageId) {
 }
 
 function markMessageAsRead(messageId) {
-    db.ref(`encouragement_messages/${messageId}`).update({ read: true });
+    dbRef(`encouragement_messages/${messageId}`).update({ read: true });
     
     // تحديث البادج
     const userName = localStorage.getItem('selected_user_name');
     if (!userName) return;
     
-    db.ref("encouragement_messages").orderByChild("to").equalTo(userName)
+    dbRef("encouragement_messages").orderByChild("to").equalTo(userName)
         .once("value", snap => {
             let unreadCount = 0;
             snap.forEach(child => {
@@ -6924,7 +6989,7 @@ function confirmNameSelection() {
     localStorage.setItem('avatar_' + currentUserId, selectedAvatarId);
     
     // حفظ الأفاتار في Firebase عشان يظهر للكل في لوحة الشرف
-    db.ref('user_avatars/' + currentUserId).set(selectedAvatarId);
+    dbRef('user_avatars/' + currentUserId).set(selectedAvatarId);
     
     // تحديث الـ FCM token باسم المستخدم الصح
     if (window._fcmSaveToken) window._fcmSaveToken(selectedName);
@@ -7065,7 +7130,7 @@ function saveNewAvatar() {
     selectedAvatarId = pendingNewAvatarId;
     
     // حفظ في Firebase عشان يتحدث لوحة الشرف للكل
-    db.ref('user_avatars/' + currentUserId).set(pendingNewAvatarId);
+    dbRef('user_avatars/' + currentUserId).set(pendingNewAvatarId);
     
     // تحديث الهيدر والترحيب
     const av = AVATAR_OPTIONS.find(a => a.id === pendingNewAvatarId);
@@ -7246,7 +7311,7 @@ function openWelcomeMsgModal() {
     modal.classList.add('open');
 
     if (userId) {
-        db.ref(`welcome_messages/${userId}`).once('value', snap => {
+        dbRef(`welcome_messages/${userId}`).once('value', snap => {
             const data = snap.val();
             if (data && data.message) {
                 textEl.textContent = data.message;
@@ -7342,7 +7407,7 @@ function checkForNewStories() {
     const userName = localStorage.getItem('selected_user_name');
     if (!userName) return;
     
-    db.ref('shared_stories').orderByChild('timestamp').startAt(lastCheckedStoryTimestamp + 1).once('value', snapshot => {
+    dbRef('shared_stories').orderByChild('timestamp').startAt(lastCheckedStoryTimestamp + 1).once('value', snapshot => {
         if (!snapshot.exists()) return;
         
         let newStoriesCount = 0;
@@ -7451,7 +7516,7 @@ function openJournalFromNotification() {
 
 // تعليم كل المواقف كمقروءة
 function markAllStoriesAsRead() {
-    db.ref('shared_stories').orderByChild('timestamp').limitToLast(1).once('value', snapshot => {
+    dbRef('shared_stories').orderByChild('timestamp').limitToLast(1).once('value', snapshot => {
         if (snapshot.exists()) {
             let latestTimestamp = 0;
             snapshot.forEach(child => {
@@ -7567,7 +7632,7 @@ function saveJournalEntry() {
         };
         
         // حفظ في Firebase
-        db.ref('shared_stories').push(sharedEntry);
+        dbRef('shared_stories').push(sharedEntry);
     }
     
     // إغلاق النافذة
@@ -7720,7 +7785,7 @@ function filterJournalByFeeling(feeling) {
 function loadSharedStories() {
     const container = document.getElementById('sharedStoriesContainer');
     
-    db.ref('shared_stories').orderByChild('timestamp').limitToLast(20).once('value', snapshot => {
+    dbRef('shared_stories').orderByChild('timestamp').limitToLast(20).once('value', snapshot => {
         if (!snapshot.exists()) {
             container.innerHTML = `
                 <div class="empty-journal" style="text-align:center; padding:30px 20px; color:var(--text-secondary);">
@@ -7799,7 +7864,7 @@ window.addEventListener('load', () => {
 // ═════════════════════════════════════════════════
 
 // المراقبة المستمرة لأمر التحديث من الخادم
-db.ref('force_update_trigger').on('value', snapshot => {
+dbRef('force_update_trigger').on('value', snapshot => {
     const trigger = snapshot.val();
     const lastUpdate = localStorage.getItem('last_force_update');
     
@@ -8001,7 +8066,7 @@ function ccSendPost() {
     btn.disabled = true;
     btn.textContent = '⏳';
 
-    db.ref('community_posts').push(post)
+    dbRef('community_posts').push(post)
         .then(() => {
             ccClearCompose();
             btn.innerHTML = 'أرسل ✈️';
@@ -8023,7 +8088,7 @@ function ccLoadPosts() {
     const startTime = Date.now();
     
     // listener واحد بدل 3
-    db.ref('community_posts').orderByChild('timestamp').limitToLast(40)
+    dbRef('community_posts').orderByChild('timestamp').limitToLast(40)
         .on('child_added', snap => {
             const isNew = snap.val().timestamp > startTime;
             ccState.postsCache[snap.key] = snap.val();
@@ -8033,7 +8098,7 @@ function ccLoadPosts() {
             }
         });
 
-    db.ref('community_posts').on('child_changed', snap => {
+    dbRef('community_posts').on('child_changed', snap => {
         ccState.postsCache[snap.key] = snap.val();
         ccUpdateReactions(snap.key, snap.val());
     });
@@ -8112,7 +8177,7 @@ function ccReact(postId, emoji) {
     if (!post) return;
     const reactions = post.reactions || {};
     reactions[emoji] = Math.max(0, (reactions[emoji] || 0) + (mine[emoji] ? 1 : -1));
-    db.ref(`community_posts/${postId}/reactions`).set(reactions);
+    dbRef(`community_posts/${postId}/reactions`).set(reactions);
 }
 
 function ccUpdateReactions(id, post) {
@@ -8141,7 +8206,7 @@ function ccLoadReplies(postId) {
     list.innerHTML = '';
 
     // once بدل on عشان منراكمش listeners
-    db.ref(`community_replies/${postId}`).orderByChild('timestamp')
+    dbRef(`community_replies/${postId}`).orderByChild('timestamp')
         .once('value', snap => snap.forEach(c => ccRenderReply(list, c.val())));
 }
 
@@ -8174,8 +8239,8 @@ function ccSendReply(postId) {
     field.value = '';
     field.style.height = 'auto';
 
-    db.ref(`community_replies/${postId}`).push(reply).then(() => {
-        db.ref(`community_posts/${postId}/repliesCount`).transaction(c => (c || 0) + 1);
+    dbRef(`community_replies/${postId}`).push(reply).then(() => {
+        dbRef(`community_posts/${postId}/repliesCount`).transaction(c => (c || 0) + 1);
     });
 }
 
@@ -8328,7 +8393,7 @@ function handleBgUpload(input) {
                 const userId = localStorage.getItem('currentUserId') || localStorage.getItem('selected_user_name');
                 if (userId && typeof db !== 'undefined') {
                     const safeId = userId.replace(/[^a-zA-Z0-9_\u0600-\u06FF]/g, '_');
-                    db.ref('user_backgrounds/' + safeId).set({
+                    dbRef('user_backgrounds/' + safeId).set({
                         image: compressed,
                         opacity: localStorage.getItem('app_bg_opacity') || '45',
                         updatedAt: Date.now()
@@ -8382,7 +8447,7 @@ function updateBgOverlay(val) {
     const userId = localStorage.getItem('currentUserId') || localStorage.getItem('selected_user_name');
     if (userId && typeof db !== 'undefined') {
         const safeId = userId.replace(/\s+/g,'_');
-        db.ref('user_backgrounds/' + safeId + '/opacity').set(val).catch(()=>{});
+        dbRef('user_backgrounds/' + safeId + '/opacity').set(val).catch(()=>{});
     }
 }
 
@@ -8421,7 +8486,7 @@ function removeBg() {
     const userId = localStorage.getItem('currentUserId') || localStorage.getItem('selected_user_name');
     if (userId && typeof db !== 'undefined') {
         const safeId = userId.replace(/\s+/g,'_');
-        db.ref('user_backgrounds/' + safeId).remove().catch(()=>{});
+        dbRef('user_backgrounds/' + safeId).remove().catch(()=>{});
     }
 
     document.getElementById('bgUploadStatus').textContent = '🗑️ تم حذف الخلفية';
