@@ -827,14 +827,17 @@
         #mainContent { display: none; animation: fadeIn 0.5s ease; padding-bottom: 30px; }
 
         .theme-toggle-btn {
-            position: fixed; top: 16px; left: 16px;
+            position: fixed; top: 10px; left: 10px;
             background: var(--bg-card); color: var(--text-primary);
-            border: none; padding: 10px 18px; border-radius: 50px;
-            font-size: 13px; font-weight: 600; cursor: pointer;
-            box-shadow: var(--shadow-md); z-index: 100;
-            transition: all 0.3s ease; font-family: 'Cairo', sans-serif;
+            border: none; border-radius: 50%;
+            font-size: 11px; cursor: pointer;
+            box-shadow: var(--shadow-sm); z-index: 100;
+            transition: all 0.3s ease;
+            width: 24px; height: 24px;
+            display:flex; align-items:center; justify-content:center;
+            opacity: 0.65;
         }
-        .theme-toggle-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+        .theme-toggle-btn:hover { opacity: 1; }
 
         /* ===== HEADER ===== */
         .main-header {
@@ -3278,25 +3281,65 @@ function checkAccessWithSound() {
 </div>
 
 <div id="mainContent">
-    <button class="theme-toggle-btn" onclick="toggleTheme()" id="themeBtn">☀️ الوضع الفاتح</button>
+    <button class="theme-toggle-btn" onclick="toggleTheme()" id="themeBtn" title="الوضع الداكن">🌙</button>
+    <style>
+    @keyframes flagWave {
+        0%   { d: path("M0,0 Q8,-4 16,-1 Q24,2 32,-1 Q40,-4 48,0 L48,28 Q40,32 32,29 Q24,26 16,29 Q8,32 0,28 Z"); }
+        20%  { d: path("M0,0 Q8,3 16,0 Q24,-3 32,1 Q40,4 48,0 L48,28 Q40,24 32,28 Q24,32 16,28 Q8,25 0,28 Z"); }
+        40%  { d: path("M0,0 Q8,-3 16,2 Q24,5 32,0 Q40,-3 48,1 L48,28 Q40,31 32,27 Q24,23 16,27 Q8,31 0,28 Z"); }
+        60%  { d: path("M0,0 Q8,4 16,-1 Q24,-4 32,2 Q40,5 48,0 L48,28 Q40,23 32,29 Q24,33 16,28 Q8,24 0,28 Z"); }
+        80%  { d: path("M0,0 Q8,-2 16,3 Q24,6 32,-1 Q40,-3 48,1 L48,28 Q40,29 32,22 Q24,26 16,31 Q8,27 0,28 Z"); }
+        100% { d: path("M0,0 Q8,-4 16,-1 Q24,2 32,-1 Q40,-4 48,0 L48,28 Q40,32 32,29 Q24,26 16,29 Q8,32 0,28 Z"); }
+    }
+    @keyframes flagColors  { 0%{stop-color:#7c3aed} 16%{stop-color:#dc2626} 33%{stop-color:#d97706} 50%{stop-color:#059669} 66%{stop-color:#2563eb} 83%{stop-color:#7c3aed} 100%{stop-color:#7c3aed} }
+    @keyframes flagColors2 { 0%{stop-color:#a78bfa} 16%{stop-color:#f87171} 33%{stop-color:#fbbf24} 50%{stop-color:#34d399} 66%{stop-color:#60a5fa} 83%{stop-color:#a78bfa} 100%{stop-color:#a78bfa} }
+    @keyframes crossPulse  { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.85;transform:scale(1.05)} }
+    .flag-wave-path { animation: flagWave 2.5s ease-in-out infinite; }
+    .grad-stop1 { animation: flagColors 4s ease-in-out infinite; }
+    .grad-stop2 { animation: flagColors2 4s ease-in-out infinite; }
+    .cross-inner { animation: crossPulse 2.5s ease-in-out infinite; transform-origin: 24px 14px; }
+    </style>
+    <!-- العلم تحت زرار الداكن -->
+    <div style="position:fixed; top:38px; left:4px; z-index:99; display:flex; align-items:flex-start; direction:ltr;">
+        <svg width="44" height="26" viewBox="0 0 48 28" style="overflow:visible;">
+            <defs>
+                <linearGradient id="flagGrad" x1="0" y1="0" x2="1" y2="0">
+                    <stop class="grad-stop1" offset="0%" stop-color="#7c3aed"/>
+                    <stop class="grad-stop2" offset="100%" stop-color="#a78bfa"/>
+                </linearGradient>
+                <clipPath id="flagClip2">
+                    <path class="flag-wave-path" d="M0,0 Q8,-4 16,-1 Q24,2 32,-1 Q40,-4 48,0 L48,28 Q40,32 32,29 Q24,26 16,29 Q8,32 0,28 Z"/>
+                </clipPath>
+            </defs>
+            <path class="flag-wave-path" d="M0,0 Q8,-4 16,-1 Q24,2 32,-1 Q40,-4 48,0 L48,28 Q40,32 32,29 Q24,26 16,29 Q8,32 0,28 Z" fill="url(#flagGrad)"/>
+            <g clip-path="url(#flagClip2)">
+                <g class="cross-inner">
+                    <rect x="21" y="4"  width="6" height="20" rx="2" fill="white"/>
+                    <rect x="9"  y="11" width="30" height="6"  rx="2" fill="white"/>
+                </g>
+            </g>
+            <path class="flag-wave-path" d="M0,0 Q8,-4 16,-1 Q24,2 32,-1 Q40,-4 48,0 L48,6 Q40,10 32,7 Q24,4 16,7 Q8,10 0,6 Z" fill="white" opacity="0.15"/>
+        </svg>
+        <div style="width:3px; height:38px; background:linear-gradient(to bottom,#fbbf24,#92400e); border-radius:2px; flex-shrink:0;"></div>
+    </div>
 
     <!-- Header -->
     <div class="main-header">
         <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
             <div id="userNameDisplay" style="font-size: 15px; font-weight: 800; color: #fbbf24; animation: wave 2s ease-in-out infinite; display: none; text-shadow: 0 2px 4px rgba(0,0,0,0.3); cursor:pointer;" onclick="openAvatarChanger()" title="غيّر شكلك"></div>
             <h2 class="animated-title" style="margin: 0; flex: 1; text-align: center;">
-                <span class="word-1">🌿</span>
-                <span class="word-2">غصن</span>
-                <span class="word-3">مثمر</span>
+                <span class="word-2">راية</span>
+                <span class="word-3">إعدادي</span>
             </h2>
-            <label style="width:80px; display:flex; justify-content:flex-end;" title="غيّر خلفية التطبيق">
+            <label style="width:36px; display:flex; justify-content:flex-end;" title="غيّر خلفية التطبيق">
                 <span style="
-                    width:40px; height:40px;
+                    width:20px; height:20px;
                     border-radius:50%;
                     background:linear-gradient(135deg,#7c3aed,#a78bfa);
                     display:flex; align-items:center; justify-content:center;
-                    font-size:20px; cursor:pointer;
-                    box-shadow:0 3px 12px rgba(124,58,237,0.5);
+                    font-size:10px; cursor:pointer;
+                    box-shadow:0 1px 4px rgba(124,58,237,0.3);
+                    opacity:0.65;
                 " onclick="openBgModal()">🖼️</span>
             </label>
         </div>
@@ -4273,7 +4316,7 @@ function toggleTheme() {
     const btn = document.getElementById('themeBtn');
     if (body.getAttribute('data-theme') === 'dark') {
         body.removeAttribute('data-theme');
-        btn.innerText = "☀️ الوضع الفاتح";
+        btn.innerText = "☀️";
         localStorage.setItem('theme','light');
     } else {
         body.setAttribute('data-theme','dark');
