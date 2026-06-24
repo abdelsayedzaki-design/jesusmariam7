@@ -3472,6 +3472,7 @@ function checkAccessWithSound() {
         </div>
 
         <!-- ========== سويتش خطة المهام والتنبيهات ========== -->
+        <div id="tasksSwitchWrapper">
         <div class="switch-container" style="background: linear-gradient(135deg, rgba(251,191,36,0.1), rgba(239,68,68,0.1)); border: 2px solid #fbbf24;">
             <div style="display:flex; align-items:center; gap:8px;">
                 <span style="font-size:22px;">📋</span>
@@ -3488,6 +3489,7 @@ function checkAccessWithSound() {
                 </label>
             </div>
         </div>
+        </div><!-- end tasksSwitchWrapper -->
 
         <!-- ========== قسم خطة المهام ========== -->
         <div id="tasksPlanSection" class="section" style="display:none; background: linear-gradient(135deg, rgba(251,191,36,0.07), rgba(239,68,68,0.05)); border: 2px solid #fbbf24;">
@@ -3779,6 +3781,7 @@ function checkAccessWithSound() {
         </div>
 
         <!-- ========== سويتش تعاليم الأحد ========== -->
+        <div id="lessonsSwitchWrapper">
         <div class="switch-container" style="background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(5,150,105,0.1)); border: 2px solid #10b981;">
             <div style="display:flex; align-items:center; gap:8px;">
                 <span style="font-size:22px;">📚</span>
@@ -3795,6 +3798,7 @@ function checkAccessWithSound() {
                 </label>
             </div>
         </div>
+        </div><!-- end lessonsSwitchWrapper -->
 
         <!-- ========== قسم تعاليم الأحد ========== -->
         <div id="lessonsSection" class="section" style="display:none; border: 2px solid #10b981; background: linear-gradient(135deg, rgba(16,185,129,0.05), rgba(5,150,105,0.03));">
@@ -3852,6 +3856,7 @@ function checkAccessWithSound() {
         </div>
 
         <!-- Psychology Toggle -->
+        <div id="psySwitchWrapper">
         <div class="switch-container switch-pink">
             <span style="font-weight:700;">🌱 ركن المساندة النفسية</span>
             <label class="switch">
@@ -3896,6 +3901,7 @@ function checkAccessWithSound() {
                 <button class="prayer-btn" onclick="countPrayer()">اضغط للعد ➔</button>
             </div>
         </div>
+        </div><!-- end psySwitchWrapper -->
 
         <!-- Library -->
         <div id="librarySection" class="section" style="border: 2px solid var(--success);">
@@ -4506,6 +4512,29 @@ function startApp() {
 
     dbRef("settings/libVisible").on("value", snap => {
         document.getElementById('librarySection').style.display = snap.val() !== false ? "block" : "none";
+    });
+    dbRef("settings/psyVisible").on("value", snap => {
+        const isVisible = snap.val() !== false;
+        const wrapper = document.getElementById('psySwitchWrapper');
+        const area = document.getElementById('psyArea');
+        if (wrapper) wrapper.style.display = isVisible ? '' : 'none';
+        if (!isVisible && area) area.style.display = 'none';
+    });
+    dbRef("settings/tasksPlanVisible").on("value", snap => {
+        const isVisible = snap.val() !== false;
+        const switchContainer = document.querySelector('.switch-container[data-section="tasks"]');
+        const section = document.getElementById('tasksPlanSection');
+        // نخفي السويتش والقسم كله لو الخادم أخفاهم
+        const tasksWrapper = document.getElementById('tasksSwitchWrapper');
+        if (tasksWrapper) tasksWrapper.style.display = isVisible ? '' : 'none';
+        if (!isVisible && section) section.style.display = 'none';
+    });
+    dbRef("settings/sundayLessonsVisible").on("value", snap => {
+        const isVisible = snap.val() !== false;
+        const lessonsWrapper = document.getElementById('lessonsSwitchWrapper');
+        const section = document.getElementById('lessonsSection');
+        if (lessonsWrapper) lessonsWrapper.style.display = isVisible ? '' : 'none';
+        if (!isVisible && section) section.style.display = 'none';
     });
 
     dbRef("settings/chatSectionVisible").on("value", snap => {
