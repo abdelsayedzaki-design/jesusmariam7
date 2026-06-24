@@ -12,7 +12,7 @@
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/4230/4230633.png">
     <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/4230/4230633.png">
 
-    <title>لوحة إدارة إعدادي - الإصدار النهائي</title>
+    <title>لوحة إدارة الخدمة - الإصدار النهائي</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-messaging.js"></script>
@@ -60,8 +60,8 @@
         .group-card:hover { transform: translateY(-3px); box-shadow: 0 8px 30px rgba(0,0,0,0.4); }
         .group-card.g1 { border-color: #6366f1; }
         .group-card.g1:hover { background: #1e1b4b; }
-        .group-card.g2 { border-color: #10b981; }
-        .group-card.g2:hover { background: #052e16; }
+        .group-card.g2 { border-color: #3b82f6; }
+        .group-card.g2:hover { background: #0c2a4d; }
         .group-card-icon { font-size: 48px; margin-bottom: 12px; }
         .group-card-name { font-size: 20px; font-weight: bold; color: white; margin-bottom: 6px; }
         .group-card-desc { font-size: 12px; color: #94a3b8; }
@@ -271,15 +271,15 @@
         <div class="group-card-desc">إعدادي - خدمة كاملة</div>
     </div>
     <div class="group-card g2" onclick="selectGroup(2)">
-        <div class="group-card-icon">🟢</div>
-        <div class="group-card-name">إعدادي</div>
-        <div class="group-card-desc">خدمة إعدادي</div>
+        <div class="group-card-icon">🔵</div>
+        <div class="group-card-name">خدمة شباب أبوسيفين</div>
+        <div class="group-card-desc">خدمة شباب أبوسيفين - خدمة كاملة</div>
     </div>
 </div>
 
 <div id="admin">
     <div style="text-align: center; margin-bottom: 15px;">
-        <h3 style="margin:0; color:#818cf8;">إدارة خدمة إعدادي</h3>
+        <h3 style="margin:0; color:#818cf8;">إدارة خدمة</h3>
         <small id="welcomeServant" style="color: #fbbf24; font-weight: bold;"></small>
     </div>
 
@@ -537,12 +537,17 @@
         </div>
     </div>
 
-    <div class="psy-section-red">
-        <h4 style="margin:0; color:#ffedd5; border-bottom: 1px solid #ef4444; padding-bottom: 5px;">🚨 ركن المساندة النفسية</h4>
-        <div id="psyList" style="margin-top:10px;"></div>
-        
-        <h5 style="color: #fbbf24; margin: 15px 0 5px 0; border-bottom: 1px solid #334155; font-size: 14px;">💬 محادثات مباشرة مجهولة</h5>
-        <div id="adminPsyChats" style="max-height: 250px; overflow-y: auto;"></div>
+    <div class="psy-section-red" id="psySection">
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid #ef4444; padding-bottom: 5px;">
+            <h4 style="margin:0; color:#ffedd5;">🚨 ركن المساندة النفسية</h4>
+            <button id="psySectionToggleBtn" onclick="togglePsySection()" style="font-size:10px; padding:6px 10px; font-weight:bold; background:#ef4444; color:white; border:none; border-radius:8px; cursor:pointer;">إخفاء 🙈</button>
+        </div>
+        <div id="psySectionBody">
+            <div id="psyList" style="margin-top:10px;"></div>
+
+            <h5 style="color: #fbbf24; margin: 15px 0 5px 0; border-bottom: 1px solid #334155; font-size: 14px;">💬 محادثات مباشرة مجهولة</h5>
+            <div id="adminPsyChats" style="max-height: 250px; overflow-y: auto;"></div>
+        </div>
     </div>
 
     <div class="section" style="border: 2px solid #fbbf24; background: rgba(251, 191, 36, 0.05);">
@@ -631,7 +636,10 @@
         <button onclick="updatePrayerHints()" style="width: 100%; margin-top: 20px; padding: 15px; background: #4ade80; color: #0f172a; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px;">تحديث الإرشادات عند المخدومين الآن 🚀</button>
     </div>
     <div id="tasksPlanSection" class="section" style="border: 2px solid #fbbf24; background: rgba(251,191,36,0.05);">
-        <h4 style="margin:0 0 15px 0; color:#fbbf24; text-align:center;">📋 إدارة خطة المهام والتنبيهات</h4>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h4 style="margin:0; color:#fbbf24;">📋 إدارة خطة المهام والتنبيهات</h4>
+            <button id="tasksPlanToggleBtn" onclick="toggleTasksPlanVisibility()" style="font-size:10px; padding:6px 10px; font-weight:bold; background:#22c55e; color:white; border:none; border-radius:8px; cursor:pointer;">ظاهرة ✅</button>
+        </div>
         <p style="font-size:12px; color:#94a3b8; text-align:center; margin-bottom:15px;">ما تكتبه هنا هيظهر للمخدومين فوراً في قسم "خطة المهام"</p>
 
         <div style="background:#0f172a; padding:15px; border-radius:12px; margin-bottom:15px; border:1px solid #334155;">
@@ -668,7 +676,10 @@
 
     <!-- ========== قسم تعاليم الأحد ========== -->
     <div id="sundayLessonsSection" class="section" style="border: 2px solid #10b981; background: rgba(16,185,129,0.05);">
-        <h4 style="margin:0 0 15px 0; color:#10b981; text-align:center;">📚 إدارة تعاليم الأحد</h4>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h4 style="margin:0; color:#10b981;">📚 إدارة تعاليم الأحد</h4>
+            <button id="sundayLessonsToggleBtn" onclick="toggleSundayLessonsVisibility()" style="font-size:10px; padding:6px 10px; font-weight:bold; background:#22c55e; color:white; border:none; border-radius:8px; cursor:pointer;">ظاهرة ✅</button>
+        </div>
         <p style="font-size:12px; color:#94a3b8; text-align:center; margin-bottom:15px;">ملخص الدرس هيظهر للمخدومين فوراً في قسم "تعاليم الأحد"</p>
 
         <div style="background:#0f172a; padding:15px; border-radius:12px; margin-bottom:15px; border:1px solid #334155; display:flex; flex-direction:column; gap:10px;">
@@ -760,7 +771,7 @@
     
     const users = { "jesus": "أمين الخدمة", "mikel": "أ/ ميكائيل", "john": "أ/ يوحنا", "servant": "خادم عام" };
     let localData = []; let isEditMode = false; let currentServant = "";
-    let dbPrefix = ''; // '' للغصن مثمر، 'group2/' للإعدادي
+    let dbPrefix = ''; // '' لغصن مثمر، 'group2/' لخدمة شباب أبوسيفين
     // مساعد: db.ref مع البريفيكس
     function dbRef(path) { return db.ref(dbPrefix + path); }
 
@@ -791,20 +802,18 @@
         // تحديث العنوان
         const titleEl = document.querySelector('#admin h3');
         if (titleEl) {
-            titleEl.innerText = groupNum === 1 ? 'إدارة خدمة - غصن مثمر' : 'إدارة خدمة - إعدادي';
-            titleEl.style.color = groupNum === 1 ? '#818cf8' : '#10b981';
+            titleEl.innerText = groupNum === 1 ? 'إدارة خدمة - غصن مثمر' : 'إدارة خدمة - شباب أبوسيفين';
+            titleEl.style.color = groupNum === 1 ? '#818cf8' : '#3b82f6';
         }
         document.getElementById('welcomeServant').innerText = "أهلاً يا " + currentServant;
 
-        // إخفاء أقسام غير موجودة في الإعدادي
-        if (groupNum === 2) {
-            const tasksSection = document.getElementById('tasksPlanSection');
-            const lessonsSection = document.getElementById('sundayLessonsSection');
-            if (tasksSection) tasksSection.style.display = 'none';
-            if (lessonsSection) lessonsSection.style.display = 'none';
-        }
+        // كل الأقسام مفعّلة في المجموعتين (غصن مثمر وشباب أبوسيفين)
+        const tasksSection = document.getElementById('tasksPlanSection');
+        const lessonsSection = document.getElementById('sundayLessonsSection');
+        if (tasksSection) tasksSection.style.display = '';
+        if (lessonsSection) lessonsSection.style.display = '';
 
-        // تحديث مسارات Firebase للإعدادي
+        // تحديث مسارات Firebase لمجموعة شباب أبوسيفين
         if (groupNum === 2) {
             dbPrefix = 'group2/';
         } else {
@@ -844,6 +853,23 @@
             const btn = document.getElementById('libStatusBtn');
             btn.innerText = isVisible ? "ظاهرة الآن ✅" : "مخفية الآن ❌";
             btn.style.background = isVisible ? "#22c55e" : "#ef4444";
+        });
+        dbRef("settings/psyVisible").on("value", snap => {
+            const isVisible = snap.val() !== false;
+            const body = document.getElementById('psySectionBody');
+            const btn = document.getElementById('psySectionToggleBtn');
+            if (body) body.style.display = isVisible ? "" : "none";
+            if (btn) btn.innerText = isVisible ? "إخفاء 🙈" : "إظهار 👁️";
+        });
+        dbRef("settings/tasksPlanVisible").on("value", snap => {
+            const isVisible = snap.val() !== false;
+            const btn = document.getElementById('tasksPlanToggleBtn');
+            if (btn) { btn.innerText = isVisible ? "ظاهرة ✅" : "مخفية ❌"; btn.style.background = isVisible ? "#22c55e" : "#ef4444"; }
+        });
+        dbRef("settings/sundayLessonsVisible").on("value", snap => {
+            const isVisible = snap.val() !== false;
+            const btn = document.getElementById('sundayLessonsToggleBtn');
+            if (btn) { btn.innerText = isVisible ? "ظاهرة ✅" : "مخفية ❌"; btn.style.background = isVisible ? "#22c55e" : "#ef4444"; }
         });
         dbRef("activity_logs").limitToLast(20).on("value", snap => {
             const box = document.getElementById('actionLog'); box.innerHTML = "";
@@ -1272,6 +1298,16 @@
         } 
     }
     function sendAdminReply() { const inp = document.getElementById('adminReplyInp'); if(inp.value.trim()) { dbRef("chat").push({ sender: currentServant, text: inp.value.trim() }); inp.value = ""; } }
+    function toggleTasksPlanVisibility() {
+        dbRef("settings/tasksPlanVisible").once("value", snap => {
+            dbRef("settings").update({ tasksPlanVisible: !(snap.val() !== false) });
+        });
+    }
+    function toggleSundayLessonsVisibility() {
+        dbRef("settings/sundayLessonsVisible").once("value", snap => {
+            dbRef("settings").update({ sundayLessonsVisible: !(snap.val() !== false) });
+        });
+    }
     function toggleLibVisibility() { dbRef("settings/libVisible").once("value", snap => dbRef("settings").update({ libVisible: !(snap.val() !== false) })); }
     function updateMediaLinks() { dbRef("media_library").set({ hymn: document.getElementById('hymnUrl').value, pdf: document.getElementById('pdfUrl').value, video: document.getElementById('videoUrl').value }).then(() => alert("تم ✅")); }
     function resetSingleScore(id, name) { 
@@ -1281,6 +1317,12 @@
         } 
     }
     function deleteMakhdoum(id, name) { if (prompt(`باسوورد حذف (${name}):`) === "jesus 777") dbRef(`points_data/${id}`).remove(); }
+    function togglePsySection() {
+        dbRef("settings/psyVisible").once("value", snap => {
+            const current = snap.val() !== false;
+            dbRef("settings").update({ psyVisible: !current });
+        });
+    }
     function togglePsyResponse(k, s) { dbRef(`psychology/confessions/${k}`).update({ responded: s }); }
     function deletePsyMsg(k) { if (prompt("باسوورد الحذف:") === "jesus 777") dbRef(`psychology/confessions/${k}`).remove(); }
     function resetAllScores() { if (prompt("كلمة السر:") === "jesus 777" && confirm("تصفير الجميع؟")) { let up = {}; localData.forEach(p => up[`points_data/${p.id}/score`] = 0); db.ref(dbPrefix).update(up); } }
@@ -1521,7 +1563,7 @@
             const currentMsg = existing ? existing.message : '';
             const msg = prompt(
                 `اكتب رسالة ترحيب شخصية لـ ${personName}:\n(هتظهرله لما يضغط على شارة "مرحباً بك")`,
-                currentMsg || `أهلاً يا ${personName}! 💙\nمبسوطين بيك معانا في خدمة إعدادي.\nربنا يقويك ويباركك! 🙏`
+                currentMsg || `أهلاً يا ${personName}! 💙\nمبسوطين بيك معانا في الخدمة.\nربنا يقويك ويباركك! 🙏`
             );
             if (msg === null || msg.trim() === '') return;
 
@@ -1571,7 +1613,7 @@
             return;
         }
         
-        const message = `السلام عليكم يا ${name}! 💙\n\nوحشتنا في خدمة إعدادي وعايزين نشوفك معانا.\nربنا يفرح قلبك! 🙏`;
+        const message = `السلام عليكم يا ${name}! 💙\n\nوحشتنا في الخدمة وعايزين نشوفك معانا.\nربنا يفرح قلبك! 🙏`;
         const encodedMessage = encodeURIComponent(message);
         
         // إزالة أي مسافات أو أحرف خاصة من رقم التليفون
