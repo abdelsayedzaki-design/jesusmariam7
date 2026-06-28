@@ -438,7 +438,23 @@
                 <option value="text">أكمل (نص قصير)</option>
                 <option value="essay">سؤال مقالي (شرح)</option>
             </select>
-            <input type="text" id="mQuestion" placeholder="نص السؤال">
+            
+            <div style="display:flex; gap:8px; margin-bottom:5px;">
+                <div style="flex:2;">
+                    <label style="font-size:11px; color:#94a3b8; display:block; margin-bottom:3px;">📝 نص السؤال</label>
+                    <input type="text" id="mQuestion" placeholder="نص السؤال" style="margin-bottom:0;">
+                </div>
+                <div style="flex:1;">
+                    <label style="font-size:11px; color:#a78bfa; display:block; margin-bottom:3px;">🎯 المستوى</label>
+                    <select id="mLevel" style="margin-bottom:0; border:1px solid #a78bfa; background:#1e293b;">
+                        <option value="1">مستوى 1</option>
+                        <option value="2">مستوى 2</option>
+                        <option value="3">مستوى 3</option>
+                        <option value="4">مستوى 4</option>
+                        <option value="5">مستوى 5</option>
+                    </select>
+                </div>
+            </div>
             
             <input type="number" id="mPoints" placeholder="عدد النقاط لهذا السؤال (مثال: 5)" style="border: 1px solid #fbbf24; background: #1e293b;">
 
@@ -462,7 +478,8 @@
         </div>
 
         <div id="viewNet" style="display: none;">
-            <textarea id="bulkInput" rows="5" placeholder="السؤال | الإجابة | النقاط (مثال: من هو أول الشهداء؟ | استفانوس | 5)"></textarea>
+            <p style="font-size:11px; color:#a78bfa; margin-bottom:5px;">📌 الصيغة: السؤال | الإجابة | النقاط | المستوى (مثال: من هو أول الشهداء؟ | استفانوس | 5 | 1)</p>
+            <textarea id="bulkInput" rows="5" placeholder="السؤال | الإجابة | النقاط | المستوى&#10;من هو أول الشهداء؟ | استفانوس | 5 | 1&#10;كم سفراً في العهد الجديد؟ | 27 | 3 | 2"></textarea>
             <button onclick="saveBulkNet()" class="main-btn" style="background: #6366f1; margin-top: 10px;">إضافة دفعة واحدة 🚀</button>
         </div>
 
@@ -1120,8 +1137,9 @@
         const type = document.getElementById('qType').value;
         const qText = document.getElementById('mQuestion').value.trim();
         const qPoints = document.getElementById('mPoints').value.trim() || 1;
+        const qLevel = parseInt(document.getElementById('mLevel').value) || 1;
         if(!qText) return alert("اكتب السؤال");
-        let data = { text: qText, type: type, points: parseInt(qPoints), options: [] };
+        let data = { text: qText, type: type, points: parseInt(qPoints), level: qLevel, options: [] };
         if(type === 'choice') {
             const opts = [document.getElementById('opt0').value.trim(), document.getElementById('opt1').value.trim(), document.getElementById('opt2').value.trim(), document.getElementById('opt3').value.trim()];
             data.options = opts; data.correctAnswer = opts[document.querySelector('input[name="correctRadio"]:checked').value];
@@ -1132,7 +1150,7 @@
         } else {
             data.options = [""]; data.correctAnswer = document.getElementById('manualAns').value.trim();
         }
-        dbRef("bible_quiz/questions").push(data).then(() => { alert("تم الحفظ ✅"); document.getElementById('mQuestion').value = ""; });
+        dbRef("bible_quiz/questions").push(data).then(() => { alert(`تم الحفظ ✅ (مستوى ${qLevel})`); document.getElementById('mQuestion').value = ""; });
     }
 
     function saveBulkNet() {
@@ -1141,7 +1159,8 @@
         input.split('\n').forEach(line => {
             if(line.includes('|')) {
                 const parts = line.split('|');
-                dbRef("bible_quiz/questions").push({ text: parts[0].trim(), correctAnswer: parts[1].trim(), type: "text", options: [""], points: parts[2] ? parseInt(parts[2].trim()) : 1 });
+                const lvl = parts[3] ? parseInt(parts[3].trim()) : 1;
+                dbRef("bible_quiz/questions").push({ text: parts[0].trim(), correctAnswer: parts[1].trim(), type: "text", options: [""], points: parts[2] ? parseInt(parts[2].trim()) : 1, level: lvl });
             }
         });
         alert("تم ✅"); document.getElementById('bulkInput').value = "";
@@ -1152,28 +1171,53 @@
         dbRef("bible_quiz/submissions").once("value", snap => {
             const list = document.getElementById('resList'); list.innerHTML = "";
             if(!snap.exists()) { list.innerHTML = "لا توجد نتائج"; return; }
+            
+            // تجميع النتائج حسب المستخدم
+            const userResults = {};
             snap.forEach(c => { 
                 const data = c.val();
-                let ansHtml = "";
-                if(data.answers) {
-                    data.answers.forEach((a, idx) => {
-                        let color = (a.type === 'essay') ? '#fbbf24' : '#22c55e';
-                        let ansContent = '';
-                        if (a.isImage && a.userAnswer && a.userAnswer.startsWith('data:image')) {
-                            ansContent = `<div style="margin-top:4px;"><img src="${a.userAnswer}" style="max-width:100%; max-height:200px; border-radius:8px; border:2px solid #fbbf24;" /></div>`;
-                        } else {
-                            ansContent = `<span style="color:${color}">${a.userAnswer || "لا توجد"}</span>`;
-                        }
-                        ansHtml += `<div style="margin-bottom:6px; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:4px;">س${idx+1}: ${ansContent}</div>`;
-                    });
-                }
+                const lvl = data.level || 1;
+                if (!userResults[data.userName]) userResults[data.userName] = {};
+                userResults[data.userName][lvl] = data;
+            });
+            
+            Object.keys(userResults).forEach(userName => {
+                const levels = userResults[userName];
+                let totalScore = 0, totalMax = 0, totalPoints = 0;
+                let levelsHtml = '';
+                Object.keys(levels).sort((a,b)=>a-b).forEach(lvl => {
+                    const d = levels[lvl];
+                    totalScore += d.score || 0;
+                    totalMax += d.max || 0;
+                    totalPoints += d.finalPoints || 0;
+                    let ansHtml = "";
+                    if(d.answers) {
+                        d.answers.forEach((a, idx) => {
+                            let color = (a.type === 'essay') ? '#fbbf24' : '#22c55e';
+                            let ansContent = '';
+                            if (a.isImage && a.userAnswer && a.userAnswer.startsWith('data:image')) {
+                                ansContent = `<div style="margin-top:4px;"><img src="${a.userAnswer}" style="max-width:100%; max-height:200px; border-radius:8px; border:2px solid #fbbf24;" /></div>`;
+                            } else {
+                                ansContent = `<span style="color:${color}">${a.userAnswer || "لا توجد"}</span>`;
+                            }
+                            ansHtml += `<div style="margin-bottom:6px; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:4px;">س${idx+1}: ${ansContent}</div>`;
+                        });
+                    }
+                    levelsHtml += `<div style="background:rgba(167,139,250,0.08); padding:7px; border-radius:8px; margin-bottom:6px; border-right:3px solid #a78bfa;">
+                        <div style="display:flex;justify-content:space-between; margin-bottom:4px;">
+                            <span style="color:#a78bfa; font-size:11px; font-weight:bold;">🎯 المستوى ${lvl}</span>
+                            <span style="color:#fbbf24; font-size:11px;">${d.score}/${d.max} (+${d.finalPoints} نقاط)</span>
+                        </div>
+                        <div class="ans-detail-box">${ansHtml}</div>
+                    </div>`;
+                });
                 list.innerHTML += `
-                <div style="padding: 10px; border-bottom: 1px solid #334155; background: rgba(255,255,255,0.02); border-radius: 8px; margin-bottom: 5px;">
-                    <div style="display:flex; justify-content:space-between;">
-                        <b>👤 ${data.userName}</b>
-                        <span style="color:#fbbf24; font-weight:bold;">${data.score}/${data.max}</span>
+                <div style="padding: 10px; border-bottom: 1px solid #334155; background: rgba(255,255,255,0.02); border-radius: 8px; margin-bottom: 8px;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                        <b>👤 ${userName}</b>
+                        <span style="color:#fbbf24; font-weight:bold;">${totalScore}/${totalMax} (${totalPoints} نقطة إجمالي)</span>
                     </div>
-                    <div class="ans-detail-box">${ansHtml}</div>
+                    ${levelsHtml}
                 </div>`; 
             });
         });
@@ -1187,29 +1231,22 @@
             return;
         }
         
-        const doubleCheck = confirm("⚠️ تحذير!\n\nهل أنت متأكد من تصفير المسابقة لجميع المخدومين؟\n\nسيتم:\n✅ مسح جميع الإجابات من Firebase\n✅ مسح النظام القديم والجديد\n✅ السماح للجميع بالحل مرة أخرى\n\nهذا الإجراء لا يمكن التراجع عنه!");
+        const doubleCheck = confirm("⚠️ تحذير!\n\nهل أنت متأكد من تصفير المسابقة لجميع المخدومين؟\n\nسيتم:\n✅ مسح جميع الإجابات من Firebase\n✅ مسح كل المستويات (level_1, level_2 ...)\n✅ السماح للجميع بالحل مرة أخرى\n\nهذا الإجراء لا يمكن التراجع عنه!");
         
         if (!doubleCheck) {
             alert("تم الإلغاء ❌");
             return;
         }
         
-        // مسح النظام القديم (bible_quiz)
+        // مسح bible_quiz
         dbRef("bible_quiz").remove()
             .then(() => {
-                console.log("✅ تم مسح bible_quiz");
-                
-                // مسح النظام الجديد (quiz_submissions)
-                const currentQuizId = 'current_quiz_2026';
-                return dbRef(`quiz_submissions/${currentQuizId}`).remove();
+                // مسح كل quiz_submissions (شامل كل المستويات)
+                return dbRef("quiz_submissions").remove();
             })
             .then(() => {
-                console.log("✅ تم مسح quiz_submissions");
-                
-                // تسجيل في السجل
-                dbRef("activity_logs").push(`${currentServant}: صفّر المسابقة بالكامل (النظام القديم + الجديد)`);
-                
-                alert("✅ تم تصفير المسابقة بنجاح!\n\n🎉 جميع المخدومين يمكنهم الآن حل المسابقة من جديد!\n\n⚠️ ملحوظة: المخدومين يحتاجون لتحديث الصفحة (F5) إذا كانت مفتوحة.");
+                dbRef("activity_logs").push(`${currentServant}: صفّر المسابقة بالكامل (كل المستويات)`);
+                alert("✅ تم تصفير المسابقة بنجاح!\n\n🎉 جميع المستويات مُصفَّرة!\n\n⚠️ المخدومين يحتاجون لتحديث الصفحة إذا كانت مفتوحة.");
             })
             .catch((error) => {
                 console.error("خطأ في التصفير:", error);
@@ -1380,7 +1417,7 @@
             return;
         }
         
-        // حذف سجلات المسابقات
+        // حذف سجلات المسابقات (كل المستويات)
         dbRef("bible_quiz/submissions").once("value", snap => {
             const updates = {};
             snap.forEach(child => {
