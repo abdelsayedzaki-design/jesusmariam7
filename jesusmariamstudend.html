@@ -3811,21 +3811,44 @@ function checkAccessWithSound() {
         <!-- Quiz -->
         <div id="quizSection" class="section quiz-card" style="display:none;">
             <div class="section-title"><span class="emoji">📖</span> مسابقة الكتاب المقدس</div>
+            
+            <!-- شاشة الاختيار الأولي -->
             <div id="quizSetup">
                 <p style="font-size:13px; color:var(--text-secondary); margin-bottom:10px;">اختر اسمك من القائمة للبدء:</p>
                 <select id="userNameListQuiz"><option value="">جاري تحميل الأسماء...</option></select>
                 <button class="btn btn-gold" onclick="startQuiz()">ابدأ المسابقة الآن 🚀</button>
             </div>
+            
+            <!-- شاشة حل المستوى -->
             <div id="quizArea" style="display:none;">
+                <!-- رأس المستوى -->
+                <div id="levelHeader" style="text-align:center; margin-bottom:16px; padding:12px; border-radius:12px; background:linear-gradient(135deg,rgba(251,191,36,0.15),rgba(167,139,250,0.15)); border:1px solid rgba(251,191,36,0.4);">
+                    <div style="font-size:28px; margin-bottom:4px;" id="levelIcon">⭐</div>
+                    <div style="font-weight:900; font-size:17px; color:var(--warning);" id="levelTitle">المستوى 1</div>
+                    <div style="font-size:12px; color:var(--text-secondary); margin-top:4px;" id="levelDesc"></div>
+                </div>
                 <div id="quizTimerDisplay">⏱️ الوقت المتبقي: <span id="timeLeft">00:00</span></div>
                 <div id="questionsContainer"></div>
-                <button class="btn btn-success" id="submitQuizBtn" onclick="submitQuiz()">إرسال الإجابات ✅</button>
+                <button class="btn btn-success" id="submitQuizBtn" onclick="submitCurrentLevel()">إرسال إجابات هذا المستوى ✅</button>
             </div>
+            
+            <!-- شاشة انتقال بين المستويات -->
+            <div id="levelTransition" style="display:none; text-align:center; padding:24px;">
+                <div style="font-size:56px; margin-bottom:12px;" id="transitionIcon">🎉</div>
+                <h3 id="transitionTitle" style="color:var(--success); margin-bottom:8px;"></h3>
+                <div id="transitionScore" style="font-size:16px; font-weight:800; color:var(--warning); margin:10px 0;"></div>
+                <div id="transitionMsg" style="font-size:13px; color:var(--text-secondary); margin-bottom:20px;"></div>
+                <button class="btn btn-gold" id="nextLevelBtn" onclick="startNextLevel()" style="font-size:16px; font-weight:800; padding:14px 30px;">
+                    المستوى التالي 🚀
+                </button>
+            </div>
+            
+            <!-- شاشة الانتهاء الكامل -->
             <div id="quizDone" style="display:none; text-align:center; padding:14px;">
-                <div style="font-size:48px; margin-bottom:10px;">🎉</div>
-                <h3 id="quizStatusTitle" style="color:var(--success); margin-bottom:8px;">تم التسجيل!</h3>
+                <div style="font-size:48px; margin-bottom:10px;">🏆</div>
+                <h3 id="quizStatusTitle" style="color:var(--success); margin-bottom:8px;">أكملت كل المستويات!</h3>
                 <div id="finalQuizScore" style="font-size:19px; font-weight:800; color:var(--warning); margin:10px 0;"></div>
-                <p style="font-size:12px; color:var(--text-secondary);">درجتك مسجلة في لوحة الشرف ❤️</p>
+                <p style="font-size:12px; color:var(--text-secondary);">درجتك الإجمالية مسجلة في لوحة الشرف ❤️</p>
             </div>
         </div>
 
@@ -5244,101 +5267,132 @@ function closePrayerEncouragement() {
 
 // ===== QUIZ =====
 
+// ===== QUIZ - نظام المستويات =====
+
 // دوال التحقق والحفظ للمسابقة
 async function checkIfQuizSubmitted(quizId) {
-    if (!currentUserId) {
-        console.error('User ID not found');
-        return false;
-    }
-    
+    if (!currentUserId) { console.error('User ID not found'); return false; }
     try {
         const snapshot = await db.ref(`quiz_submissions/${quizId}/${currentUserId}`).once('value');
         return snapshot.exists();
-    } catch (error) {
-        console.error('Error checking quiz submission:', error);
-        return false;
-    }
+    } catch (error) { console.error('Error checking quiz submission:', error); return false; }
 }
 
 async function saveQuizSubmission(quizId, answers, score, max, finalPoints) {
-    if (!currentUserId || !currentUserName) {
-        alert('خطأ: لم يتم التعرف على المستخدم');
-        return false;
-    }
-    
+    if (!currentUserId || !currentUserName) { alert('خطأ: لم يتم التعرف على المستخدم'); return false; }
     try {
         const todayDate = new Date().toISOString().split('T')[0];
         await db.ref(`quiz_submissions/${quizId}/${currentUserId}`).set({
-            userName: currentUserName,
-            userId: currentUserId,
-            submitDate: todayDate,
-            answers: answers,
-            score: score,
-            max: max,
-            finalPoints: finalPoints,
-            timestamp: Date.now(),
-            submittedAt: new Date().toLocaleString()
+            userName: currentUserName, userId: currentUserId, submitDate: todayDate,
+            answers: answers, score: score, max: max, finalPoints: finalPoints,
+            timestamp: Date.now(), submittedAt: new Date().toLocaleString()
         });
         return true;
-    } catch (error) {
-        console.error('Error saving quiz submission:', error);
-        alert('حدث خطأ أثناء حفظ الإجابة. حاول مرة أخرى.');
-        return false;
-    }
+    } catch (error) { console.error('Error saving quiz submission:', error); alert('حدث خطأ أثناء حفظ الإجابة. حاول مرة أخرى.'); return false; }
 }
 
-async function showAlreadySubmittedQuizMessage(quizId) {
-    try {
-        const snapshot = await db.ref(`quiz_submissions/${quizId}/${currentUserId}`).once('value');
-        if (snapshot.exists()) {
-            const data = snapshot.val();
-            alert(`⛔ لقد قمت بحل هذه المسابقة مسبقاً!\n\n📊 درجتك السابقة: ${data.score}/${data.max}\n🎯 النقاط: ${data.finalPoints}\n\n❌ لا يمكنك الحل مرة أخرى.`);
-        } else {
-            alert('⛔ لقد قمت بحل هذه المسابقة مسبقاً!\n\n❌ لا يمكنك الحل مرة أخرى.');
-        }
-    } catch (error) {
-        alert('⛔ لقد قمت بحل هذه المسابقة مسبقاً!\n\n❌ لا يمكنك الحل مرة أخرى.');
-    }
-}
+// ── متغيرات نظام المستويات ──
+let _allLeveledQuestions = {};   // { 1: [q,...], 2: [q,...] }
+let _availableLevels = [];       // [1, 2, 3] مرتبة
+let _currentLevel = 1;
+let _totalEarnedPoints = 0;
+let _totalEarnedScore = 0;
+let _totalMaxScore = 0;
+let _completedLevels = {};       // { 1: true, 2: true }
+let _cachedTimerMinutesLeveled = 5;
+
+// ── تحضير بيانات المسابقة ──
+(function preloadQuizData() {
+    db.ref("settings/quizTimer").once("value").then(s => { 
+        _cachedTimerMinutes = s.val() || 5;
+        _cachedTimerMinutesLeveled = s.val() || 5;
+    });
+    db.ref("bible_quiz/questions").once("value").then(s => { 
+        _cachedQuestionsSnap = s;
+        // تجميع الأسئلة حسب المستوى
+        _allLeveledQuestions = {};
+        s.forEach(child => {
+            const q = { ...child.val(), id: child.key };
+            const lvl = q.level || 1;
+            if (!_allLeveledQuestions[lvl]) _allLeveledQuestions[lvl] = [];
+            _allLeveledQuestions[lvl].push(q);
+        });
+        _availableLevels = Object.keys(_allLeveledQuestions).map(Number).sort((a,b)=>a-b);
+    });
+})();
+
+let isQuizSubmitting = false;
 
 async function startQuiz() {
     selectedQuizStudentName = document.getElementById('userNameListQuiz').value;
     if (!selectedQuizStudentName) return alert("اختر اسمك أولاً");
 
-    // حماية الجهاز
     const boundName = localStorage.getItem('quiz_bound_name');
     if (boundName && boundName !== selectedQuizStudentName) {
         return alert(`هذا الجهاز مسجل باسم (${boundName}). لا يمكنك الحل لزميل آخر!`);
     }
 
-    const currentQuizId = 'current_quiz_2026';
-    const userId = getUserId(selectedQuizStudentName);
-
     const startBtn = document.querySelector('#quizSetup .btn');
     if (startBtn) { startBtn.disabled = true; startBtn.textContent = '⏳ جاري التحقق...'; }
 
     try {
-        // تحقق واحد بس من Firebase (النظام الجديد فقط - أسرع بكتير)
-        const newSysSnap = await db.ref(`quiz_submissions/${currentQuizId}/${userId}`).once('value');
+        // تحميل الأسئلة لو مش محملة
+        if (_availableLevels.length === 0) {
+            const snap = await db.ref("bible_quiz/questions").once("value");
+            _allLeveledQuestions = {};
+            snap.forEach(child => {
+                const q = { ...child.val(), id: child.key };
+                const lvl = q.level || 1;
+                if (!_allLeveledQuestions[lvl]) _allLeveledQuestions[lvl] = [];
+                _allLeveledQuestions[lvl].push(q);
+            });
+            _availableLevels = Object.keys(_allLeveledQuestions).map(Number).sort((a,b)=>a-b);
+        }
 
-        if (newSysSnap.exists()) {
-            const d = newSysSnap.val();
-            alert(`⛔ حللت المسابقة دي قبل كده!\n\n📊 درجتك: ${d.score}/${d.max}\n🎯 النقاط: ${d.finalPoints}`);
-            localStorage.setItem('quiz_bound_name', selectedQuizStudentName);
-            showFinishedStatus();
+        if (_availableLevels.length === 0) {
+            alert('لا توجد أسئلة في المسابقة بعد!');
+            if (startBtn) { startBtn.disabled = false; startBtn.textContent = 'ابدأ المسابقة الآن 🚀'; }
             return;
         }
 
-        // كل حاجة تمام - ابدأ المسابقة
+        const userId = getUserId(selectedQuizStudentName);
+
+        // تحقق من المستويات المكتملة
+        _completedLevels = {};
+        _totalEarnedPoints = 0;
+        _totalEarnedScore = 0;
+        _totalMaxScore = 0;
+        
+        for (const lvl of _availableLevels) {
+            const submSnap = await db.ref(`quiz_submissions/level_${lvl}_2026/${userId}`).once('value');
+            if (submSnap.exists()) {
+                const d = submSnap.val();
+                _completedLevels[lvl] = true;
+                _totalEarnedPoints += d.finalPoints || 0;
+                _totalEarnedScore += d.score || 0;
+                _totalMaxScore += d.max || 0;
+            }
+        }
+
+        // إيجاد أول مستوى لم يُكتمل
+        const nextLevel = _availableLevels.find(l => !_completedLevels[l]);
+
+        if (!nextLevel) {
+            // كل المستويات مكتملة
+            alert(`⭐ أكملت كل مستويات المسابقة!\n\n📊 مجموعك: ${_totalEarnedScore}/${_totalMaxScore}\n🎯 إجمالي النقاط: ${_totalEarnedPoints}`);
+            showAllLevelsDone();
+            localStorage.setItem('quiz_bound_name', selectedQuizStudentName);
+            if (startBtn) { startBtn.disabled = false; startBtn.textContent = 'ابدأ المسابقة الآن 🚀'; }
+            return;
+        }
+
+        // ابدأ من المستوى التالي
         localStorage.setItem('quiz_bound_name', selectedQuizStudentName);
         currentUserId = userId;
         currentUserName = selectedQuizStudentName;
+        _currentLevel = nextLevel;
 
-        // استخدم الـ cache لو متاح، غير كده اجيب من Firebase
-        const questionsSnap = _cachedQuestionsSnap
-            || await db.ref("bible_quiz/questions").once("value");
-        const durationInSeconds = _cachedTimerMinutes * 60;
-        _renderQuizDirect(questionsSnap, durationInSeconds);
+        _renderLevel(_currentLevel);
 
     } catch(err) {
         alert('حدث خطأ، حاول تاني 🙏');
@@ -5348,82 +5402,203 @@ async function startQuiz() {
     }
 }
 
-function loadQuiz() {
-    // deprecated - بقت بتتشغل من startQuiz مباشرة
-    startQuiz();
-}
-
-function _renderQuizQuestions(snapQ, durationInSeconds) {
-    // نفس كود الـ render بس منفصل
-    const fakeSnap = snapQ; // نفس الـ snapshot
-    {
-        const snapQ = fakeSnap;
-        const snapTime = { val: () => Math.round(durationInSeconds/60) };
-        let timerMinutes = snapTime.val() || 5;
-        // durationInSeconds passed directly
-        db.ref("settings/quizTimer").once("value", _ignored => {
-        db.ref("bible_quiz/questions").once("value", _ignored2 => {
-            const container = document.getElementById('questionsContainer');
-            container.innerHTML = ""; allQuizQuestions = []; let i = 0;
-            snapQ.forEach(child => {
-                const q = child.val(); allQuizQuestions.push({...q, id: child.key});
-                let html = `<div class="question-card"><p><b>س${i+1}: ${q.text}</b> <small style="color:var(--text-secondary);">(${q.points||1} درجة)</small></p>`;
-                if (q.type === 'choice' || q.type === 'truefalse') {
-                    (q.options || []).forEach(opt => { if(opt) html += `<label class="option-label"><input type="radio" name="quiz_q_${i}" value="${opt}"> ${opt}</label>`; });
-                } else if (q.type === 'essay') {
-                    html += `<textarea id="quiz_ans_${i}" onpaste="return false;" oninput="updateCharCount(${i})" placeholder="اكتب إجابتك بالتفصيل هنا..." style="height:100px; width:100%; border-radius:12px;"></textarea><div style="text-align:left; font-size:12px; color:var(--text-secondary);"><span id="charCount_${i}">0</span> حرف</div>
-                    <div style="margin-top:8px;">
-                        <label for="quiz_img_${i}" style="display:inline-flex; align-items:center; gap:6px; background:linear-gradient(135deg,#667eea,#764ba2); color:white; padding:8px 16px; border-radius:10px; cursor:pointer; font-size:13px; font-weight:700; font-family:'Cairo',sans-serif;">
-                            📷 أرفع صورة (اختياري)
-                        </label>
-                        <input type="file" id="quiz_img_${i}" accept="image/*" capture="environment" style="display:none;" onchange="previewEssayImage(${i}, this)">
-                        <div id="quiz_img_preview_${i}" style="margin-top:8px; display:none;">
-                            <img id="quiz_img_thumb_${i}" style="max-width:100%; max-height:200px; border-radius:10px; border:2px solid #667eea;" />
-                            <button onclick="removeEssayImage(${i})" style="display:block; margin-top:4px; background:#f56565; color:white; border:none; border-radius:8px; padding:5px 12px; font-family:'Cairo',sans-serif; cursor:pointer; font-size:12px;">❌ إزالة الصورة</button>
-                        </div>
-                    </div>`;
-                } else {
-                    html += `<input type="text" id="quiz_ans_${i}" placeholder="اكتب الإجابة...">`;
-                }
-                container.innerHTML += html + `</div>`; i++;
-            });
-            document.getElementById('quizSetup').style.display = 'none';
-            document.getElementById('quizArea').style.display = 'block';
-            startCountdown(durationInSeconds);
-        });
-    });
+function _renderLevel(lvl) {
+    const questions = _allLeveledQuestions[lvl] || [];
+    if (questions.length === 0) {
+        alert(`المستوى ${lvl} لا يحتوي على أسئلة!`);
+        return;
     }
-}
 
-// دالة render المسابقة بدون Firebase calls إضافية
-function _renderQuizDirect(snapQ, durationInSeconds) {
+    // تحديث رأس المستوى
+    const icons = ['⭐','🔥','💎','👑','🏆'];
+    const lvlIdx = _availableLevels.indexOf(lvl);
+    document.getElementById('levelIcon').textContent = icons[lvlIdx] || '🎯';
+    document.getElementById('levelTitle').textContent = `المستوى ${lvl}`;
+    document.getElementById('levelDesc').textContent = `${questions.length} سؤال | أجب وافتح المستوى التالي!`;
+
+    // رسم الأسئلة
     const container = document.getElementById('questionsContainer');
-    container.innerHTML = ""; allQuizQuestions = []; let i = 0;
-    snapQ.forEach(child => {
-        const q = child.val(); allQuizQuestions.push({...q, id: child.key});
+    container.innerHTML = "";
+    allQuizQuestions = [];
+    let i = 0;
+    questions.forEach(q => {
+        allQuizQuestions.push(q);
         let html = `<div class="question-card"><p><b>س${i+1}: ${q.text}</b> <small style="color:var(--text-secondary);">(${q.points||1} درجة)</small></p>`;
         if (q.type === 'choice' || q.type === 'truefalse') {
             (q.options || []).forEach(opt => { if(opt) html += `<label class="option-label"><input type="radio" name="quiz_q_${i}" value="${opt}"> ${opt}</label>`; });
         } else if (q.type === 'essay') {
             html += `<textarea id="quiz_ans_${i}" onpaste="return false;" oninput="updateCharCount(${i})" placeholder="اكتب إجابتك بالتفصيل هنا..." style="height:100px; width:100%; border-radius:12px;"></textarea><div style="text-align:left; font-size:12px; color:var(--text-secondary);"><span id="charCount_${i}">0</span> حرف</div>
-                    <div style="margin-top:8px;">
-                        <label for="quiz_img_${i}" style="display:inline-flex; align-items:center; gap:6px; background:linear-gradient(135deg,#667eea,#764ba2); color:white; padding:8px 16px; border-radius:10px; cursor:pointer; font-size:13px; font-weight:700; font-family:'Cairo',sans-serif;">
-                            📷 أرفع صورة (اختياري)
-                        </label>
-                        <input type="file" id="quiz_img_${i}" accept="image/*" capture="environment" style="display:none;" onchange="previewEssayImage(${i}, this)">
-                        <div id="quiz_img_preview_${i}" style="margin-top:8px; display:none;">
-                            <img id="quiz_img_thumb_${i}" style="max-width:100%; max-height:200px; border-radius:10px; border:2px solid #667eea;" />
-                            <button onclick="removeEssayImage(${i})" style="display:block; margin-top:4px; background:#f56565; color:white; border:none; border-radius:8px; padding:5px 12px; font-family:'Cairo',sans-serif; cursor:pointer; font-size:12px;">❌ إزالة الصورة</button>
-                        </div>
-                    </div>`;
+            <div style="margin-top:8px;">
+                <label for="quiz_img_${i}" style="display:inline-flex; align-items:center; gap:6px; background:linear-gradient(135deg,#667eea,#764ba2); color:white; padding:8px 16px; border-radius:10px; cursor:pointer; font-size:13px; font-weight:700; font-family:'Cairo',sans-serif;">📷 أرفع صورة (اختياري)</label>
+                <input type="file" id="quiz_img_${i}" accept="image/*" capture="environment" style="display:none;" onchange="previewEssayImage(${i}, this)">
+                <div id="quiz_img_preview_${i}" style="margin-top:8px; display:none;"><img id="quiz_img_thumb_${i}" style="max-width:100%; max-height:200px; border-radius:10px; border:2px solid #667eea;" /><button onclick="removeEssayImage(${i})" style="display:block; margin-top:4px; background:#f56565; color:white; border:none; border-radius:8px; padding:5px 12px; font-family:'Cairo',sans-serif; cursor:pointer; font-size:12px;">❌ إزالة الصورة</button></div>
+            </div>`;
         } else {
             html += `<input type="text" id="quiz_ans_${i}" placeholder="اكتب الإجابة...">`;
         }
         container.innerHTML += html + `</div>`; i++;
     });
+
     document.getElementById('quizSetup').style.display = 'none';
+    document.getElementById('levelTransition').style.display = 'none';
+    document.getElementById('quizDone').style.display = 'none';
     document.getElementById('quizArea').style.display = 'block';
-    startCountdown(durationInSeconds);
+    startCountdown(_cachedTimerMinutesLeveled * 60);
+}
+
+async function submitCurrentLevel() {
+    if (isQuizSubmitting) return;
+    isQuizSubmitting = true;
+    const submitBtn = document.getElementById('submitQuizBtn');
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = '⏳ جاري الإرسال...'; }
+    if (quizTimerInterval) clearInterval(quizTimerInterval);
+
+    if (!currentUserId || !currentUserName) {
+        const boundName = localStorage.getItem('quiz_bound_name');
+        if (boundName) { currentUserName = boundName; currentUserId = getUserId(boundName); }
+        if (!currentUserId) {
+            alert('❌ خطأ: لم يتم التعرف على المستخدم. أعد تحميل الصفحة.');
+            isQuizSubmitting = false;
+            if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'إرسال إجابات هذا المستوى ✅'; }
+            return;
+        }
+    }
+
+    const levelQuizId = `level_${_currentLevel}_2026`;
+
+    // تحقق من إرسال مسبق
+    try {
+        const alreadySnap = await db.ref(`quiz_submissions/${levelQuizId}/${currentUserId}`).once('value');
+        if (alreadySnap.exists()) {
+            const d = alreadySnap.val();
+            alert(`⛔ تم إرسال المستوى ${_currentLevel} مسبقاً!\n\n📊 درجتك: ${d.score}/${d.max}\n🎯 النقاط: ${d.finalPoints}`);
+            _completedLevels[_currentLevel] = true;
+            showLevelTransitionOrDone(_currentLevel, d.score, d.max, d.finalPoints);
+            isQuizSubmitting = false;
+            return;
+        }
+    } catch(e) { console.warn('تعذر التحقق من Firebase:', e); }
+
+    // تصحيح الإجابات
+    let correctAnswers = 0, totalQuestions = 0, submittedAnswers = [];
+    allQuizQuestions.forEach((q, idx) => {
+        let ans = "", isCorrect = false;
+        totalQuestions++;
+        if (q.type === 'choice' || q.type === 'truefalse') {
+            const sel = document.querySelector(`input[name="quiz_q_${idx}"]:checked`);
+            ans = sel ? sel.value : "";
+            if (q.correctAnswer && ans === q.correctAnswer) { correctAnswers++; isCorrect = true; }
+        } else if (q.type === 'essay') {
+            ans = document.getElementById(`quiz_ans_${idx}`)?.value?.trim() || "";
+            const imgData = window.essayImages && window.essayImages[idx];
+            if (imgData) { correctAnswers++; isCorrect = true; submittedAnswers.push({question: q.text + ' [صورة]', userAnswer: imgData, isImage: true}); }
+            else if (ans.length >= 50) { correctAnswers++; isCorrect = true; }
+            else if (ans.length >= 20) { correctAnswers += 0.7; }
+        } else {
+            ans = document.getElementById(`quiz_ans_${idx}`)?.value || "";
+            if (q.correctAnswer && ans.trim().toLowerCase() === q.correctAnswer.trim().toLowerCase()) { correctAnswers++; isCorrect = true; }
+        }
+        submittedAnswers.push({question: q.text, userAnswer: ans});
+    });
+    window.essayImages = {};
+
+    const wrongAnswers = totalQuestions - Math.floor(correctAnswers);
+    let finalPoints = 3;
+    if (wrongAnswers === 0) finalPoints = 5;
+    else if (wrongAnswers === 1) finalPoints = 4;
+
+    // حفظ في Firebase
+    try {
+        const todayDate = new Date().toISOString().split('T')[0];
+        await db.ref(`quiz_submissions/${levelQuizId}/${currentUserId}`).set({
+            userName: currentUserName, userId: currentUserId, submitDate: todayDate,
+            answers: submittedAnswers, score: Math.floor(correctAnswers),
+            max: totalQuestions, finalPoints: finalPoints, level: _currentLevel,
+            timestamp: Date.now(), submittedAt: new Date().toLocaleString()
+        });
+    } catch(e) {
+        alert('حدث خطأ في الحفظ. حاول مرة أخرى.');
+        isQuizSubmitting = false;
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'إرسال إجابات هذا المستوى ✅'; }
+        return;
+    }
+
+    // حفظ في bible_quiz/submissions للسجل التاريخي
+    await db.ref("bible_quiz/submissions").push({
+        userName: selectedQuizStudentName, score: Math.floor(correctAnswers),
+        max: totalQuestions, finalPoints, answers: submittedAnswers,
+        level: _currentLevel, time: new Date().toLocaleString()
+    });
+
+    // إضافة النقاط
+    db.ref("points_data").once("value", snap => {
+        snap.forEach(child => {
+            if (child.val().name === selectedQuizStudentName) {
+                const currentScore = child.val().score || 0;
+                const currentBreakdown = child.val().breakdown || {};
+                child.ref.update({
+                    score: currentScore + finalPoints,
+                    breakdown: { quiz: (currentBreakdown.quiz || 0) + finalPoints, prayer: currentBreakdown.prayer || 0, attendance: currentBreakdown.attendance || 0 },
+                    lastUpdate: Date.now()
+                });
+            }
+        });
+    });
+
+    // تحديث الإحصاء المحلي
+    _completedLevels[_currentLevel] = true;
+    _totalEarnedPoints += finalPoints;
+    _totalEarnedScore += Math.floor(correctAnswers);
+    _totalMaxScore += totalQuestions;
+
+    // شارات
+    checkQuizBadges(selectedQuizStudentName || currentUserName, Math.floor(correctAnswers), totalQuestions, wrongAnswers);
+
+    showLevelTransitionOrDone(_currentLevel, Math.floor(correctAnswers), totalQuestions, finalPoints);
+    isQuizSubmitting = false;
+}
+
+function showLevelTransitionOrDone(lvl, score, max, points) {
+    const nextLevel = _availableLevels.find(l => l > lvl && !_completedLevels[l]);
+    
+    document.getElementById('quizArea').style.display = 'none';
+
+    if (nextLevel) {
+        // في مستوى تاني
+        const icons = ['⭐','🔥','💎','👑','🏆'];
+        const nextIdx = _availableLevels.indexOf(nextLevel);
+        document.getElementById('transitionIcon').textContent = icons[_availableLevels.indexOf(lvl)] || '🎉';
+        document.getElementById('transitionTitle').textContent = `أكملت المستوى ${lvl}! 🎉`;
+        document.getElementById('transitionScore').textContent = `${score}/${max} صح ← +${points} نقاط`;
+        document.getElementById('transitionMsg').textContent = `ممتاز! دلوقتي المستوى ${nextLevel} مفتوح ليك 🔓`;
+        const nextBtn = document.getElementById('nextLevelBtn');
+        nextBtn.textContent = `المستوى ${nextLevel} ${icons[nextIdx] || '🎯'}`;
+        nextBtn.onclick = () => { _currentLevel = nextLevel; _renderLevel(nextLevel); };
+        document.getElementById('levelTransition').style.display = 'block';
+
+        // confetti خفيف
+        if (typeof confetti !== 'undefined') {
+            confetti({ particleCount: 80, spread: 60, origin: { y: 0.6 } });
+        }
+    } else {
+        // كل المستويات خلصت
+        showAllLevelsDone();
+    }
+}
+
+function showAllLevelsDone() {
+    document.getElementById('quizSetup').style.display = 'none';
+    document.getElementById('quizArea').style.display = 'none';
+    document.getElementById('levelTransition').style.display = 'none';
+    document.getElementById('quizDone').style.display = 'block';
+    
+    const totalLevels = _availableLevels.length;
+    document.getElementById('quizStatusTitle').textContent = `أكملت كل المستويات! (${totalLevels} مستوى) 🏆`;
+    document.getElementById('finalQuizScore').textContent = `إجمالي: ${_totalEarnedScore}/${_totalMaxScore} صح ← ${_totalEarnedPoints} نقاط 🎯`;
+
+    if (typeof confetti !== 'undefined') {
+        confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
+    }
 }
 
 // ── صور السؤال المقالي ──
@@ -5461,129 +5636,6 @@ function startCountdown(duration) {
         if (secondsLeft <= 0) { clearInterval(quizTimerInterval); submitQuiz(); }
         secondsLeft--;
     }, 1000);
-}
-
-// ── cache الأسئلة والتايمر عشان startQuiz يبقى فوري ──
-let _cachedQuestionsSnap = null;
-let _cachedTimerMinutes = 5;
-(function preloadQuizData() {
-    db.ref("settings/quizTimer").once("value").then(s => { _cachedTimerMinutes = s.val() || 5; });
-    db.ref("bible_quiz/questions").once("value").then(s => { _cachedQuestionsSnap = s; });
-})();
-
-let isQuizSubmitting = false;
-async function submitQuiz() {
-    if (isQuizSubmitting) return;
-    isQuizSubmitting = true;
-    const submitBtn = document.getElementById('submitQuizBtn');
-    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = '⏳ جاري التحقق...'; }
-    if (quizTimerInterval) clearInterval(quizTimerInterval);
-
-    // ✅ تأكد إن currentUserId موجود
-    if (!currentUserId || !currentUserName) {
-        // حاول تسترجعه من localStorage
-        const boundName = localStorage.getItem('quiz_bound_name');
-        if (boundName) {
-            currentUserName = boundName;
-            currentUserId = getUserId(boundName);
-        }
-        if (!currentUserId) {
-            alert('❌ خطأ: لم يتم التعرف على المستخدم. أعد تحميل الصفحة وابدأ المسابقة مجدداً.');
-            isQuizSubmitting = false;
-            if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'إرسال الإجابات ✅'; }
-            return;
-        }
-    }
-
-    // 🛡️ تحقق من Firebase قبل الإرسال (منع التكرار)
-    const currentQuizId = 'current_quiz_2026';
-    try {
-        const alreadySnap = await db.ref(`quiz_submissions/${currentQuizId}/${currentUserId}`).once('value');
-        if (alreadySnap.exists()) {
-            const d = alreadySnap.val();
-            alert(`⛔ تم إرسال إجابتك مسبقاً!\n\n📊 درجتك: ${d.score}/${d.max}\n🎯 النقاط: ${d.finalPoints}\n\n❌ لا يمكنك الإرسال مرة أخرى.`);
-            showFinishedStatus(d.score, d.max, d.finalPoints);
-            isQuizSubmitting = false;
-            return;
-        }
-    } catch(e) {
-        console.warn('تعذر التحقق من Firebase، سيكمل الإرسال:', e);
-    }
-
-    if (submitBtn) { submitBtn.textContent = '⏳ جاري الإرسال...'; }
-    let correctAnswers = 0, totalQuestions = 0, submittedAnswers = [];
-    allQuizQuestions.forEach((q, idx) => {
-        let ans = "", isCorrect = false;
-        totalQuestions++;
-        if (q.type === 'choice' || q.type === 'truefalse') {
-            const sel = document.querySelector(`input[name="quiz_q_${idx}"]:checked`);
-            ans = sel ? sel.value : "";
-            if (q.correctAnswer && ans === q.correctAnswer) { correctAnswers++; isCorrect = true; }
-        } else if (q.type === 'essay') {
-            ans = document.getElementById(`quiz_ans_${idx}`).value.trim();
-            const imgData = window.essayImages && window.essayImages[idx];
-            if (imgData) {
-                // لو في صورة → درجة كاملة تلقائياً
-                correctAnswers++; isCorrect = true;
-                submittedAnswers.push({question: q.text + ' [صورة]', userAnswer: imgData, isImage: true});
-            } else if (ans.length >= 50) { correctAnswers++; isCorrect = true; }
-            else if (ans.length >= 20) { correctAnswers += 0.7; }
-        } else {
-            ans = document.getElementById(`quiz_ans_${idx}`).value;
-            if (q.correctAnswer && ans.trim().toLowerCase() === q.correctAnswer.trim().toLowerCase()) { correctAnswers++; isCorrect = true; }
-        }
-        submittedAnswers.push({question: q.text, userAnswer: ans});
-    });
-
-    const wrongAnswers = totalQuestions - Math.floor(correctAnswers);
-    let finalPoints = 3;
-    if (wrongAnswers === 0) finalPoints = 5;
-    else if (wrongAnswers === 1) finalPoints = 4;
-
-    // حفظ في نظام منع التكرار
-    const saved = await saveQuizSubmission(
-        currentQuizId, 
-        submittedAnswers, 
-        Math.floor(correctAnswers), 
-        totalQuestions, 
-        finalPoints
-    );
-    
-    if (!saved) {
-        alert('حدث خطأ في حفظ إجابتك. لم يتم احتساب النقاط.');
-        isQuizSubmitting = false;
-        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'إرسال الإجابات ✅'; }
-        return;
-    }
-
-    await db.ref("bible_quiz/submissions").push({ userName: selectedQuizStudentName, score: Math.floor(correctAnswers), max: totalQuestions, finalPoints, answers: submittedAnswers, time: new Date().toLocaleString() });
-    db.ref("points_data").once("value", snap => {
-        snap.forEach(child => { 
-            if (child.val().name === selectedQuizStudentName) {
-                const currentScore = child.val().score || 0;
-                const currentBreakdown = child.val().breakdown || {};
-                
-                // Update breakdown in Firebase
-                const newBreakdown = {
-                    quiz: (currentBreakdown.quiz || 0) + finalPoints,
-                    prayer: currentBreakdown.prayer || 0,
-                    attendance: currentBreakdown.attendance || 0
-                };
-                
-                child.ref.update({ 
-                    score: currentScore + finalPoints,
-                    breakdown: newBreakdown,
-                    lastUpdate: Date.now()
-                });
-            }
-        });
-    });
-    
-    // ========== نظام شارات المسابقة ==========
-    checkQuizBadges(selectedQuizStudentName || currentUserName, Math.floor(correctAnswers), totalQuestions, wrongAnswers);
-    
-    showFinishedStatus(Math.floor(correctAnswers), totalQuestions, finalPoints);
-    isQuizSubmitting = false;
 }
 
 // ========== فحص وإعطاء شارات المسابقة ==========
