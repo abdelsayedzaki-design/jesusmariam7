@@ -4163,13 +4163,33 @@ firebase.initializeApp(config);
 const db = firebase.database();
 
 // ====== رفع صورة المخدوم (Global) ======
+function showPhotoToast(msg, color) {
+    let t = document.getElementById('_photoToast');
+    if (!t) {
+        t = document.createElement('div');
+        t.id = '_photoToast';
+        t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);padding:12px 22px;border-radius:14px;font-family:Cairo,sans-serif;font-size:14px;font-weight:700;color:#fff;z-index:99999;box-shadow:0 4px 20px rgba(0,0,0,0.35);transition:opacity 0.4s;pointer-events:none;';
+        document.body.appendChild(t);
+    }
+    t.style.background = color;
+    t.style.opacity = '1';
+    t.textContent = msg;
+    clearTimeout(t._timer);
+    if (color !== '#f59e0b') { // مش toast المعالجة - بيختفي لوحده
+        t._timer = setTimeout(() => { t.style.opacity = '0'; }, 3000);
+    }
+}
+
 async function uploadUserPhoto(input, userId) {
     const file = input.files[0];
-    if (!file) { alert('⚠️ مفيش صورة اتختارت'); return; }
-    alert('⏳ جاري المعالجة...\nنوع: ' + file.type + '\nحجم: ' + (file.size/1024).toFixed(0) + 'KB');
+    if (!file) return;
+
     const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-    if (!allowedTypes.includes(file.type)) { alert('❌ نوع الصورة مش مدعوم'); input.value=''; return; }
-    if (file.size > 5 * 1024 * 1024) { alert('❌ الصورة أكبر من 5MB'); input.value=''; return; }
+    if (!allowedTypes.includes(file.type)) { showPhotoToast('❌ نوع الصورة مش مدعوم', '#ef4444'); input.value=''; return; }
+    if (file.size > 5 * 1024 * 1024) { showPhotoToast('❌ الصورة أكبر من 5MB', '#ef4444'); input.value=''; return; }
+
+    showPhotoToast('⏳ جاري المعالجة...', '#f59e0b');
+
     try {
         const img = await new Promise((resolve, reject) => {
             const url = URL.createObjectURL(file);
@@ -4178,32 +4198,68 @@ async function uploadUserPhoto(input, userId) {
             i.onerror = () => { URL.revokeObjectURL(url); reject(new Error('فشل تحميل الصورة')); };
             i.src = url;
         });
-        if (img.width < 50 || img.height < 50) { alert('❌ الصورة صغيرة جداً'); input.value=''; return; }
+
+        if (img.width < 50 || img.height < 50) { showPhotoToast('❌ الصورة صغيرة جداً', '#ef4444'); input.value=''; return; }
+
+        // ضغط الصورة - بنبدأ بجودة عالية ونقلل لو الحجم كبير
         const canvas = document.createElement('canvas');
         let w = img.width, h = img.height;
-        const maxSize = 400;
+        const maxSize = 300; // قلّلنا من 400 لضمان الرفع
         if (w > h) { if (w > maxSize) { h = Math.round(h * maxSize / w); w = maxSize; } }
         else       { if (h > maxSize) { w = Math.round(w * maxSize / h); h = maxSize; } }
         canvas.width = w; canvas.height = h;
         canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-        const compressed = canvas.toDataURL('image/jpeg', 0.8);
-        alert('⏳ جاري الرفع...\nuserId: ' + userId);
-        await db.ref('user_avatars/' + userId + '_photo').set(compressed);
-        alert('✅ تم رفع الصورة!');
+
+        let quality = 0.7;
+        let compressed = canvas.toDataURL('image/jpeg', quality);
+        // لو لسه كبير، قلّل أكتر
+        while (compressed.length > 200 * 1024 && quality > 0.3) {
+            quality -= 0.1;
+            compressed = canvas.toDataURL('image/jpeg', quality);
+        }
+
+        showPhotoToast('⏳ جاري الرفع...', '#f59e0b');
+
+        // الرفع على Firebase مع timeout صريح
+        await Promise.race([
+            db.ref('user_avatars/' + userId + '_photo').set(compressed),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('انتهى وقت الرفع، تأكد من النت')), 15000))
+        ]);
+
+        showPhotoToast('✅ اتحفظت الصورة!', '#22c55e');
+        input.value = '';
+        // تحديث الليدربورد
         db.ref('users').once('value', snap => { if (snap.val()) updateLeaderboardUI(snap.val()); });
     } catch(err) {
-        alert('❌ خطأ: ' + err.message + '\n' + (err.code || ''));
+        console.error('Photo upload error:', err);
+        showPhotoToast('❌ ' + (err.message || 'فشل الرفع، حاول تاني'), '#ef4444');
+        input.value = '';
     }
 }
 
 async function uploadUserPhotoFromWelcome(input) {
-    const userId = localStorage.getItem('user_id') || localStorage.getItem('selectedUserId') || localStorage.getItem('userId');
-    if (!userId) { alert('اختار اسمك الأول!'); return; }
-    await uploadUserPhoto(input, userId);
+    // نجيب الـ userId من كل المصادر الممكنة
+    const userId = localStorage.getItem('user_id')
+                || localStorage.getItem('selectedUserId')
+                || localStorage.getItem('userId')
+                || (typeof currentUserId !== 'undefined' ? currentUserId : null);
+
+    if (!userId) { showPhotoToast('⚠️ اختار اسمك الأول!', '#f59e0b'); return; }
+
     const lbl = document.getElementById('photoUploadLabel');
+    if (lbl) { lbl.style.opacity = '0.6'; lbl.style.pointerEvents = 'none'; }
+
+    await uploadUserPhoto(input, userId);
+
     if (lbl) {
+        lbl.style.opacity = '1';
+        lbl.style.pointerEvents = 'auto';
         lbl.style.background = 'linear-gradient(135deg,#48bb78,#38a169)';
-        lbl.textContent = '✅ تم رفع الصورة!';
+        lbl.innerHTML = '✅ تم!';
+        setTimeout(() => {
+            lbl.style.background = 'linear-gradient(135deg,#f59e0b,#d97706)';
+            lbl.innerHTML = '📷 اضف صورتك';
+        }, 3000);
     }
 }
 // ====== نهاية رفع الصورة ======
