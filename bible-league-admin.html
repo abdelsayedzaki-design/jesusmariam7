@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="مسابقة الكتاب المقدس">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0f172a">
+<link rel="icon" href="https://cdn-icons-png.flaticon.com/512/4230/4230633.png">
+<title>لوحة تحكم - مسابقة لوحة الشرف</title>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap');
+* { box-sizing: border-box; }
+body { font-family: 'Cairo', sans-serif; background: #0f172a; color: #fff; margin: 0; padding: 10px; -webkit-tap-highlight-color: transparent; }
+#login { position: fixed; inset: 0; background: #1e293b; display: flex; justify-content: center; align-items: center; z-index: 1000; }
+.login-box { background: #334155; padding: 25px; border-radius: 20px; text-align: center; border: 2px solid #6366f1; width: 85%; max-width: 320px; }
+.login-box h2 { margin-top: 0; }
+.login-box input { padding: 12px; border-radius: 8px; border: none; width: 100%; margin-bottom: 12px; font-size: 16px; text-align: center; }
+.login-box button { background: #6366f1; color: #fff; border: none; padding: 12px 20px; border-radius: 10px; font-weight: bold; font-size: 15px; width: 100%; cursor: pointer; }
+
+#admin { display: none; max-width: 720px; margin: auto; padding-bottom: 60px; }
+.top-bar { position: sticky; top: 0; background: #0f172a; padding: 10px 0; z-index: 50; }
+.header-title { text-align: center; font-size: 20px; font-weight: 800; color: #fbbf24; margin-bottom: 12px; }
+.tabs { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+.tab-btn { flex: 1; min-width: 75px; padding: 10px 4px; border-radius: 10px; border: none; cursor: pointer; background: #1e293b; color: #94a3b8; font-weight: bold; font-size: 12.5px; font-family: 'Cairo', sans-serif; border: 1px solid #334155; }
+.tab-btn.active { background: #6366f1; color: #fff; border-color: #6366f1; }
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+.section { background: #1e293b; padding: 16px; border-radius: 16px; margin-bottom: 16px; border: 1px solid #334155; }
+.section h3 { margin-top: 0; font-size: 15px; color: #fbbf24; display: flex; align-items: center; gap: 6px; }
+
+input, textarea, select { padding: 11px; border-radius: 8px; border: 1px solid #334155; outline: none; background: #0f172a; color: #fff; width: 100%; box-sizing: border-box; font-size: 15px; margin-bottom: 8px; font-family: 'Cairo', sans-serif; }
+textarea { resize: vertical; min-height: 60px; }
+label.small-label { font-size: 12px; color: #94a3b8; display: block; margin-bottom: 4px; }
+
+button.main-btn { width: 100%; padding: 13px; border-radius: 10px; border: none; font-weight: bold; font-size: 15px; cursor: pointer; color: #fff; font-family: 'Cairo', sans-serif; }
+.btn-purple { background: #6366f1; }
+.btn-green { background: #22c55e; }
+.btn-red { background: #ef4444; }
+.btn-yellow { background: #fbbf24; color: #0f172a; }
+.btn-gray { background: #475569; }
+.btn-row { display: flex; gap: 8px; }
+.btn-row button { flex: 1; }
+
+.team-card, .q-card, .week-card, .sub-card { background: #0f172a; padding: 12px; border-radius: 12px; margin-bottom: 10px; border: 1px solid #334155; border-right: 4px solid #6366f1; }
+.team-card .t-name { font-weight: bold; font-size: 15px; margin-bottom: 4px; }
+.team-card .t-code { display: inline-block; background: #334155; color: #fbbf24; font-weight: bold; padding: 3px 10px; border-radius: 6px; font-size: 13px; letter-spacing: 1px; margin-bottom: 6px; }
+.team-card .t-members { font-size: 12.5px; color: #94a3b8; margin-bottom: 8px; }
+.team-card .t-points { font-size: 13px; color: #22c55e; font-weight: bold; }
+.small-btn { padding: 6px 10px; font-size: 11.5px; border-radius: 6px; border: none; cursor: pointer; color: #fff; font-family: 'Cairo', sans-serif; }
+
+.week-card { border-right-color: #fbbf24; }
+.week-card.active-week { border: 2px solid #22c55e; }
+.week-status { font-size: 11px; padding: 3px 9px; border-radius: 20px; font-weight: bold; display: inline-block; }
+.status-open { background: rgba(34,197,94,0.2); color: #22c55e; }
+.status-closed { background: rgba(239,68,68,0.2); color: #ef4444; }
+
+.lock-row { display: flex; align-items: center; justify-content: space-between; background: #0f172a; border: 1px solid #334155; border-radius: 10px; padding: 8px 10px; margin-bottom: 6px; font-size: 12.5px; }
+.lock-badge { font-size: 11px; padding: 2px 8px; border-radius: 6px; font-weight: bold; }
+.lock-on { background: rgba(239,68,68,0.2); color: #f87171; }
+.lock-off { background: rgba(34,197,94,0.2); color: #22c55e; }
+.scope-tag { font-size: 10.5px; padding: 2px 8px; border-radius: 5px; font-weight: bold; }
+.tag-scope-general { background: rgba(56,189,248,0.2); color: #7dd3fc; }
+.tag-scope-personal { background: rgba(251,146,60,0.2); color: #fdba74; }
+.member-sub-card { background: #111827; padding: 10px; border-radius: 10px; margin-top: 8px; border: 1px solid #334155; border-right: 3px solid #fbbf24; }
+.grading-photo { max-width: 100%; max-height: 380px; display: block; border-radius: 10px; margin: 6px 0; border: 1px solid #334155; }
+
+.bslot-row { display: flex; align-items: center; gap: 6px; background: #0f172a; border: 1px solid #334155; border-radius: 10px; padding: 8px; margin-bottom: 6px; }
+.bslot-row select { margin-bottom: 0; flex: 1; }
+.bslot-row .vs-txt { color: #94a3b8; font-size: 11px; flex-shrink: 0; }
+.bracket-round-wrap { margin-bottom: 16px; }
+.bracket-round-label { font-size: 12.5px; font-weight: bold; color: #fbbf24; margin-bottom: 8px; }
+.divider-h { height: 1px; background: #334155; margin: 14px 0; }
+.bracket-visual-wrap { overflow-x: auto; padding-bottom: 10px; -webkit-overflow-scrolling: touch; }
+.bracket-visual { display: flex; gap: 16px; align-items: center; min-width: max-content; padding: 4px 2px; }
+.bv-col { display: flex; flex-direction: column; justify-content: space-around; gap: 12px; min-width: 128px; }
+.bv-col-label { text-align: center; font-size: 10.5px; color: #fbbf24; font-weight: bold; margin-bottom: 4px; }
+.bv-box { background: #0f172a; border: 1px solid #334155; border-radius: 10px; padding: 7px 8px; font-size: 11.5px; text-align: center; }
+.bv-team { padding: 3px 0; color: #fff; }
+.bv-team.winner { color: #22c55e; font-weight: 800; }
+.bv-team.tbd { color: #64748b; font-style: italic; }
+.bv-vs { font-size: 9px; color: #64748b; }
+.bmatch-card { background: #111827; border: 1px solid #334155; border-radius: 10px; padding: 10px; margin-bottom: 8px; }
+.bmatch-team { display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; border-radius: 8px; margin-bottom: 4px; font-size: 13px; }
+.bmatch-team.tbd { color: #64748b; font-style: italic; }
+.bmatch-team.is-winner { background: rgba(34,197,94,0.15); color: #22c55e; font-weight: bold; }
+.bmatch-team .win-btn { background: #6366f1; color: #fff; border: none; border-radius: 6px; padding: 4px 10px; font-size: 11px; cursor: pointer; }
+.bmatch-undo { background: #475569; color: #fff; border: none; border-radius: 6px; padding: 4px 10px; font-size: 11px; cursor: pointer; margin-top: 4px; }
+.q-type-tag { font-size: 10.5px; padding: 2px 8px; border-radius: 5px; font-weight: bold; }
+.tag-mcq { background: rgba(99,102,241,0.25); color: #a5b4fc; }
+.tag-tf { background: rgba(34,197,94,0.25); color: #86efac; }
+.tag-fill { background: rgba(251,191,36,0.25); color: #fbbf24; }
+.tag-essay { background: rgba(239,68,68,0.25); color: #fca5a5; }
+
+.opt-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.opt-row input[type=text] { margin-bottom: 0; }
+.opt-row input[type=radio] { width: 20px; height: 20px; flex-shrink: 0; }
+
+.q-builder-tabs { display: flex; gap: 5px; margin-bottom: 10px; }
+.q-builder-tabs button { flex: 1; padding: 8px 2px; font-size: 11.5px; }
+
+.leader-row { display: flex; align-items: center; gap: 10px; background: #0f172a; padding: 10px 12px; border-radius: 12px; margin-bottom: 8px; border: 1px solid #334155; }
+.leader-rank { font-size: 18px; font-weight: 800; width: 28px; text-align: center; color: #fbbf24; }
+.leader-info { flex: 1; }
+.leader-name { font-weight: bold; font-size: 14px; }
+.leader-members { font-size: 11px; color: #94a3b8; }
+.leader-pts { font-weight: 800; font-size: 16px; color: #22c55e; }
+
+.empty-msg { text-align: center; color: #64748b; font-size: 13px; padding: 20px 0; }
+
+.sub-card .sub-team { font-weight: bold; }
+.sub-answer-box { background: rgba(255,255,255,0.04); padding: 8px; border-radius: 8px; margin: 6px 0; font-size: 13px; }
+.sub-answer-box .q-text { color: #cbd5e1; margin-bottom: 4px; }
+.sub-answer-box .a-text { color: #fbbf24; font-weight: bold; }
+.grade-input-row { display: flex; gap: 8px; align-items: center; margin-top: 6px; }
+.grade-input-row input { margin-bottom: 0; width: 70px; text-align: center; }
+
+.toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #1e293b; border: 1px solid #6366f1; color: #fff; padding: 12px 20px; border-radius: 12px; font-size: 13.5px; z-index: 9999; opacity: 0; transition: 0.3s; pointer-events: none; }
+.toast.show { opacity: 1; }
+
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 2000; justify-content: center; align-items: center; padding: 20px; }
+.modal-overlay.show { display: flex; }
+.modal-box { background: #1e293b; padding: 22px; border-radius: 18px; width: 100%; max-width: 380px; border: 2px solid #6366f1; max-height: 85vh; overflow-y: auto; }
+.modal-box h3 { margin-top: 0; color: #fbbf24; }
+.close-x { float: left; background: #475569; border: none; color: #fff; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 14px; }
+</style>
+</head>
+<body>
+
+<div id="login">
+    <div class="login-box">
+        <h2>🏆 لوحة تحكم المسابقة</h2>
+        <input type="password" id="adminPin" placeholder="ادخل الرقم السري">
+        <button onclick="tryLogin()">دخول</button>
+    </div>
+</div>
+
+<div id="admin">
+    <div class="top-bar">
+        <div class="header-title">🏆 مسابقة الكتاب المقدس - لوحة الشرف</div>
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="teams" onclick="showTab('teams')">👥 الفرق</button>
+            <button class="tab-btn" data-tab="weeks" onclick="showTab('weeks')">📅 الأسئلة</button>
+            <button class="tab-btn" data-tab="grading" onclick="showTab('grading')">✍️ التصحيح</button>
+            <button class="tab-btn" data-tab="leaderboard" onclick="showTab('leaderboard')">🥇 الشرف</button>
+            <button class="tab-btn" data-tab="bracket" onclick="showTab('bracket')">🏆 الجدول</button>
+        </div>
+    </div>
+
+    <!-- ============ TEAMS TAB ============ -->
+    <div class="tab-panel active" id="tab-teams">
+        <div class="section">
+            <h3>➕ إنشاء فريق جديد</h3>
+            <label class="small-label">اسم الفريق</label>
+            <input type="text" id="newTeamName" placeholder="مثال: فريق الغيورين">
+            <label class="small-label">أسماء الأعضاء (٣ أعضاء)</label>
+            <input type="text" id="newMember1" placeholder="العضو الأول">
+            <input type="text" id="newMember2" placeholder="العضو الثاني">
+            <input type="text" id="newMember3" placeholder="العضو الثالث">
+            <button class="main-btn btn-purple" onclick="createTeam()">إنشاء الفريق</button>
+        </div>
+        <div class="section">
+            <h3>➕📋 إضافة فرق بالجملة (دفعة واحدة)</h3>
+            <p style="font-size:12px;color:#94a3b8;margin-top:-4px;">اكتب فريق في كل سطر بالشكل: <b>اسم الفريق, العضو الأول, العضو التاني, العضو التالت</b></p>
+            <textarea id="bulkTeamsInput" placeholder="فريق الغيورين, مينا, مريم, يوسف&#10;فريق الأمانة, كيرلس, مارتينا, بيشوي&#10;فريق النور, داود, فيبي, أنطونيوس" style="min-height:110px;"></textarea>
+            <button class="main-btn btn-green" onclick="bulkCreateTeams()">➕ إنشاء كل الفرق دي</button>
+            <div id="bulkResultBox" style="margin-top:10px;"></div>
+        </div>
+        <div class="section">
+            <h3>👥 الفرق الحالية</h3>
+            <div id="teamsList"><div class="empty-msg">لا توجد فرق بعد</div></div>
+        </div>
+    </div>
+
+    <!-- ============ WEEKS TAB ============ -->
+    <div class="tab-panel" id="tab-weeks">
+        <div class="section">
+            <h3>➕ إنشاء أسبوع جديد</h3>
+            <label class="small-label">عنوان الأسبوع</label>
+            <input type="text" id="newWeekTitle" placeholder="مثال: الأسبوع الأول - سفر التكوين">
+            <button class="main-btn btn-purple" onclick="createWeek()">إنشاء الأسبوع</button>
+        </div>
+        <div class="section">
+            <h3>📅 الأسابيع</h3>
+            <div id="weeksList"><div class="empty-msg">لا توجد أسابيع بعد</div></div>
+        </div>
+    </div>
+
+    <!-- ============ GRADING TAB ============ -->
+    <div class="tab-panel" id="tab-grading">
+        <div class="section">
+            <h3>✍️ إجابات محتاجة تصحيح</h3>
+            <p style="font-size:12.5px;color:#94a3b8;margin-top:-4px;">أسئلة الإكمال والمقالي بتحتاج تصحيح يدوي. اختيار من متعدد وصح/غلط بيتصححوا أوتوماتيك.</p>
+            <div id="gradingList"><div class="empty-msg">اختر أسبوع أولاً من تبويب الأسئلة لعرض التسليمات</div></div>
+        </div>
+    </div>
+
+    <!-- ============ LEADERBOARD TAB ============ -->
+    <div class="tab-panel" id="tab-leaderboard">
+        <div class="section">
+            <h3>🎓 الدرجة النهائية للامتحان (كل المستويات)</h3>
+            <div style="font-size:12px;color:#94a3b8;margin-bottom:8px;">بتتحسب أوتوماتيك من مجموع درجات كل المستويات اللي اتصححت، من غير أي تعديل يدوي</div>
+            <div id="examPercentList"><div class="empty-msg">لا يوجد فرق بعد</div></div>
+        </div>
+        <div class="section">
+            <h3>🥇 لوحة الشرف - الترتيب التراكمي</h3>
+            <div id="leaderboardList"><div class="empty-msg">لا يوجد فرق بعد</div></div>
+        </div>
+    </div>
+
+    <!-- ============ BRACKET TAB ============ -->
+    <div class="tab-panel" id="tab-bracket">
+        <div class="section" id="bracketSetupSection">
+            <h3>🏆 إنشاء جدول الأدوار الإقصائية</h3>
+            <p style="font-size:12.5px;color:#94a3b8;margin-top:-4px;">حدّد عدد الفرق المشاركة في الجدول وسكّن كل فريق في مكانه، بحيث كل فريق يبقى عارف هيقابل مين.</p>
+            <label class="small-label">عدد الفرق في الجدول</label>
+            <select id="bracketSizeSelect" onchange="renderBracketSetupSlots()">
+                <option value="2">فريقين</option>
+                <option value="4">4 فرق</option>
+                <option value="8" selected>8 فرق</option>
+                <option value="16">16 فريق</option>
+            </select>
+            <div id="bracketSetupSlots" style="margin-top:10px;"></div>
+            <button class="main-btn btn-purple" onclick="createBracket()">🏆 إنشاء الجدول</button>
+        </div>
+        <div class="section" id="bracketManageSection" style="display:none;">
+            <h3 style="display:flex;justify-content:space-between;align-items:center;">
+                <span>🏆 شكل البطولة</span>
+                <button class="small-btn" style="background:#ef4444;" onclick="deleteBracket()">🗑️ حذف وإعادة إنشاء</button>
+            </h3>
+            <p style="font-size:12.5px;color:#94a3b8;margin-top:-4px;">شكل الجدول كامل - كل فريق عارف هيقابل مين (زحلق يمين/شمال لو مش ظاهر كامل)</p>
+            <div class="bracket-visual-wrap"><div id="bracketVisualBox"></div></div>
+            <div class="divider-h"></div>
+            <p style="font-size:12.5px;color:#94a3b8;">بعد ما تصحح أسئلة الأسبوع، حدد الفريق الفايز في كل مباراة عشان يتصفّى للدور اللي بعده.</p>
+            <div id="bracketAdminBox"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Manage questions for a week -->
+<div class="modal-overlay" id="questionsModal">
+    <div class="modal-box">
+        <button class="close-x" onclick="closeQuestionsModal()">✕</button>
+        <h3 id="qModalTitle">أسئلة الأسبوع</h3>
+
+        <div class="section" style="background:#0f172a;">
+            <h3>➕ إضافة سؤال</h3>
+            <div class="q-builder-tabs">
+                <button class="tab-btn active" data-qtype="mcq" onclick="setQType('mcq')">متعدد</button>
+                <button class="tab-btn" data-qtype="tf" onclick="setQType('tf')">صح/غلط</button>
+                <button class="tab-btn" data-qtype="fill" onclick="setQType('fill')">إكمال</button>
+                <button class="tab-btn" data-qtype="essay" onclick="setQType('essay')">مقالي</button>
+            </div>
+            <label class="small-label">نص السؤال</label>
+            <textarea id="qText" placeholder="اكتب السؤال هنا"></textarea>
+
+            <label class="small-label">نوع الأسئلة</label>
+            <select id="qScope" onchange="document.getElementById('qMemberWrap').style.display = this.value === 'personal' ? 'block' : 'none';">
+                <option value="general">👥 عام - لكل الفريق</option>
+                <option value="personal">👤 شخصي - لعضو معين</option>
+            </select>
+            <div id="qMemberWrap" style="display:none;">
+                <label class="small-label">لأنهي عضو (حسب ترتيبه وقت إنشاء الفريق)</label>
+                <select id="qMemberIndex">
+                    <option value="0">العضو الأول</option>
+                    <option value="1">العضو الثاني</option>
+                    <option value="2">العضو الثالث</option>
+                </select>
+            </div>
+
+            <div id="qBuilder_mcq">
+                <label class="small-label">الاختيارات (اختر الإجابة الصحيحة)</label>
+                <div class="opt-row"><input type="radio" name="mcqCorrect" value="0" checked><input type="text" id="mcqOpt0" placeholder="اختيار 1"></div>
+                <div class="opt-row"><input type="radio" name="mcqCorrect" value="1"><input type="text" id="mcqOpt1" placeholder="اختيار 2"></div>
+                <div class="opt-row"><input type="radio" name="mcqCorrect" value="2"><input type="text" id="mcqOpt2" placeholder="اختيار 3"></div>
+                <div class="opt-row"><input type="radio" name="mcqCorrect" value="3"><input type="text" id="mcqOpt3" placeholder="اختيار 4 (اختياري)"></div>
+            </div>
+            <div id="qBuilder_tf" style="display:none;">
+                <label class="small-label">الإجابة الصحيحة</label>
+                <select id="tfCorrect">
+                    <option value="true">✅ صح</option>
+                    <option value="false">❌ غلط</option>
+                </select>
+            </div>
+            <div id="qBuilder_fill" style="display:none;">
+                <label class="small-label">الإجابة الصحيحة (هترجع للتصحيح اليدوي برضه)</label>
+                <input type="text" id="fillAnswer" placeholder="مثال: موسى">
+            </div>
+            <div id="qBuilder_essay" style="display:none;">
+                <p style="font-size:12px;color:#94a3b8;">السؤال المقالي بيتصحح يدوي بالكامل من تبويب التصحيح.</p>
+            </div>
+
+            <label class="small-label">عدد النقاط</label>
+            <input type="number" id="qPoints" value="5" min="1">
+            <button class="main-btn btn-green" onclick="addQuestion()">إضافة السؤال</button>
+        </div>
+
+        <div id="qList"></div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const firebaseConfig = {
+    apiKey: "AIzaSyBhGsBIFzm-aoSNycttr1djw-c5QuwBNwg",
+    authDomain: "mariam-b85f5.firebaseapp.com",
+    databaseURL: "https://mariam-b85f5-default-rtdb.firebaseio.com/",
+    projectId: "mariam-b85f5",
+    storageBucket: "mariam-b85f5.firebasestorage.app",
+    messagingSenderId: "199175505566",
+    appId: "1:199175505566:web:29aa95ae9e6397fe701d8f"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const ROOT = 'bible_league';
+function ref(path) { return db.ref(ROOT + (path ? '/' + path : '')); }
+
+// ===== Login =====
+const ADMIN_PIN = '1234'; // غيّر الرقم السري هنا
+function tryLogin() {
+    const val = document.getElementById('adminPin').value;
+    if (val === ADMIN_PIN) {
+        document.getElementById('login').style.display = 'none';
+        document.getElementById('admin').style.display = 'block';
+        localStorage.setItem('bl_admin_ok', '1');
+        initAll();
+    } else {
+        alert('رقم سري غلط');
+    }
+}
+if (localStorage.getItem('bl_admin_ok') === '1') {
+    document.getElementById('login').style.display = 'none';
+    document.getElementById('admin').style.display = 'block';
+    initAll();
+}
+
+function toast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function showTab(name) {
+    document.querySelectorAll('.tab-btn').forEach(b => {
+        if (b.dataset.tab) b.classList.toggle('active', b.dataset.tab === name);
+    });
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    if (name === 'grading') renderGradingWeekPicker();
+    if (name === 'bracket') renderBracketSetupSlots();
+}
+
+function genCode() {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let c = '';
+    for (let i = 0; i < 5; i++) c += chars[Math.floor(Math.random() * chars.length)];
+    return c;
+}
+
+let allTeams = {};
+let allWeeks = {};
+let allSubmissions = {};
+let allLocks = {};
+let allManualAdj = {};
+let bracketData = null;
+
+function initAll() {
+    ref('teams').on('value', snap => {
+        allTeams = snap.val() || {};
+        renderTeams();
+        renderLeaderboard();
+        renderExamPercentList();
+        renderBracketSetupSlots();
+    });
+    ref('weeks').on('value', snap => {
+        allWeeks = snap.val() || {};
+        renderWeeks();
+        renderExamPercentList();
+    });
+    ref('submissions').on('value', snap => {
+        allSubmissions = snap.val() || {};
+        renderLeaderboard();
+        renderExamPercentList();
+        renderGradingWeekPicker();
+    });
+    ref('memberLocks').on('value', snap => {
+        allLocks = snap.val() || {};
+        renderTeams();
+    });
+    ref('manualAdjustments').on('value', snap => {
+        allManualAdj = snap.val() || {};
+        renderLeaderboard();
+    });
+    ref('bracket').on('value', snap => {
+        bracketData = snap.val() || null;
+        renderBracketAdmin();
+        renderBracketVisualAdmin();
+    });
+}
+
+// ===================== TEAMS =====================
+function createTeam() {
+    const name = document.getElementById('newTeamName').value.trim();
+    const m1 = document.getElementById('newMember1').value.trim();
+    const m2 = document.getElementById('newMember2').value.trim();
+    const m3 = document.getElementById('newMember3').value.trim();
+    if (!name || !m1 || !m2 || !m3) { alert('من فضلك املأ اسم الفريق وأسماء الأعضاء الثلاثة'); return; }
+    const code = genCode();
+    const teamRef = ref('teams').push();
+    teamRef.set({
+        name: name,
+        members: [m1, m2, m3],
+        code: code,
+        createdAt: Date.now()
+    }).then(() => {
+        document.getElementById('newTeamName').value = '';
+        document.getElementById('newMember1').value = '';
+        document.getElementById('newMember2').value = '';
+        document.getElementById('newMember3').value = '';
+        toast('✅ تم إنشاء الفريق - الكود: ' + code);
+    });
+}
+
+function bulkCreateTeams() {
+    const raw = document.getElementById('bulkTeamsInput').value;
+    const lines = raw.split('\n').map(l => l.trim()).filter(l => l.length);
+    if (!lines.length) { alert('اكتب فريق واحد على الأقل، سطر لكل فريق'); return; }
+
+    const parsed = [];
+    const errors = [];
+    lines.forEach((line, i) => {
+        const parts = line.split(',').map(p => p.trim()).filter(p => p.length);
+        if (parts.length < 4) {
+            errors.push(`سطر ${i + 1}: "${line}" — لازم اسم الفريق + ٣ أعضاء (٤ عناصر مفصولة بفاصلة)`);
+            return;
+        }
+        const [name, m1, m2, m3] = parts;
+        parsed.push({ name, members: [m1, m2, m3] });
+    });
+
+    if (!parsed.length) {
+        document.getElementById('bulkResultBox').innerHTML =
+            `<div class="empty-msg" style="color:#f87171;">${errors.map(e => `⚠️ ${e}`).join('<br>')}</div>`;
+        return;
+    }
+
+    const btn = event.target;
+    btn.disabled = true;
+    btn.textContent = '⏳ جاري الإنشاء...';
+
+    const created = [];
+    const savePromises = parsed.map(team => {
+        const code = genCode();
+        const teamRef = ref('teams').push();
+        created.push({ name: team.name, code });
+        return teamRef.set({
+            name: team.name,
+            members: team.members,
+            code: code,
+            createdAt: Date.now()
+        });
+    });
+
+    Promise.all(savePromises).then(() => {
+        document.getElementById('bulkTeamsInput').value = '';
+        btn.disabled = false;
+        btn.textContent = '➕ إنشاء كل الفرق دي';
+        toast(`✅ اتعمل ${created.length} فريق بنجاح!`);
+        let html = `<div class="empty-msg" style="color:#22c55e;text-align:right;">تم إنشاء ${created.length} فريق:</div>`;
+        html += created.map(t => `<div class="lock-row"><span>🛡️ ${t.name}</span><span class="t-code">${t.code}</span></div>`).join('');
+        if (errors.length) {
+            html += `<div style="margin-top:8px;color:#f87171;font-size:12px;">${errors.map(e => `⚠️ ${e}`).join('<br>')}</div>`;
+        }
+        document.getElementById('bulkResultBox').innerHTML = html;
+    }).catch(err => {
+        btn.disabled = false;
+        btn.textContent = '➕ إنشاء كل الفرق دي';
+        toast('❌ حصل خطأ: ' + (err && err.message ? err.message : 'حاول تاني'));
+    });
+}
+
+function renderTeams() {
+    const box = document.getElementById('teamsList');
+    const ids = Object.keys(allTeams);
+    if (!ids.length) { box.innerHTML = '<div class="empty-msg">لا توجد فرق بعد</div>'; return; }
+    box.innerHTML = ids.map(id => {
+        const t = allTeams[id];
+        const pts = computeTeamPoints(id);
+        const teamLocks = allLocks[id] || {};
+        const teamAdj = getManualAdj(id, 'team');
+        const locksHtml = (t.members || []).map((name, idx) => {
+            const locked = teamLocks[idx];
+            const auto = computeMemberAutoScore(id, idx);
+            const madj = getManualAdj(id, 'm' + idx);
+            const mtotal = auto + madj;
+            return `<div class="lock-row" style="flex-wrap:wrap;row-gap:6px;">
+                <span>👤 ${name} — <b style="color:#22c55e;">${mtotal}</b> <span style="font-size:10.5px;color:#64748b;">${madj ? '(أوتو ' + auto + (madj > 0 ? ' + تعديل ' + madj : ' - تعديل ' + Math.abs(madj)) + ')' : '(أوتو)'}</span></span>
+                <span style="display:flex;align-items:center;gap:6px;">
+                    <button class="small-btn" style="background:#6366f1;" onclick="renameMember('${id}',${idx},'${(name || '').replace(/'/g, "\\'")}')">✏️</button>
+                    ${locked
+                        ? `<span class="lock-badge lock-on">🔒 مقفول</span> <button class="small-btn" style="background:#475569;" onclick="unlockMember('${id}',${idx})">فك القفل</button>`
+                        : `<span class="lock-badge lock-off">🔓 غير مقفول</span>`}
+                </span>
+                <span style="display:flex;align-items:center;gap:5px;width:100%;justify-content:flex-end;">
+                    <span style="font-size:11px;color:#94a3b8;margin-left:4px;">تعديل الدرجة:</span>
+                    <button class="small-btn" style="background:#ef4444;" onclick="adjustManualScore('${id}','m${idx}',-5)">-5</button>
+                    <button class="small-btn" style="background:#ef4444;" onclick="adjustManualScore('${id}','m${idx}',-1)">➖</button>
+                    <button class="small-btn" style="background:#22c55e;" onclick="adjustManualScore('${id}','m${idx}',1)">➕</button>
+                    <button class="small-btn" style="background:#22c55e;" onclick="adjustManualScore('${id}','m${idx}',5)">+5</button>
+                </span>
+            </div>`;
+        }).join('');
+        return `<div class="team-card">
+            <div class="t-name">🛡️ ${t.name}</div>
+            <div class="t-code">كود الدخول: ${t.code}</div>
+            <div class="t-members">👤 ${(t.members || []).join(' • ')}</div>
+            <div class="t-points">⭐ ${pts} نقطة</div>
+            <div style="margin-top:8px;">${locksHtml}</div>
+            <div class="lock-row" style="margin-top:6px;background:#111827;flex-wrap:wrap;row-gap:6px;">
+                <span style="font-size:12px;">⭐ تعديل عام للفريق ${teamAdj ? '(' + (teamAdj > 0 ? '+' : '') + teamAdj + ')' : ''}</span>
+                <span style="display:flex;align-items:center;gap:5px;">
+                    <button class="small-btn" style="background:#ef4444;" onclick="adjustManualScore('${id}','team',-5)">-5</button>
+                    <button class="small-btn" style="background:#ef4444;" onclick="adjustManualScore('${id}','team',-1)">➖</button>
+                    <button class="small-btn" style="background:#22c55e;" onclick="adjustManualScore('${id}','team',1)">➕</button>
+                    <button class="small-btn" style="background:#22c55e;" onclick="adjustManualScore('${id}','team',5)">+5</button>
+                </span>
+            </div>
+            <div class="btn-row" style="margin-top:8px;">
+                <button class="small-btn" style="background:#6366f1;" onclick="renameTeam('${id}','${(t.name || '').replace(/'/g, "\\'")}')">✏️ تعديل الاسم</button>
+                <button class="small-btn btn-red" style="background:#ef4444;" onclick="deleteTeam('${id}')">حذف الفريق</button>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function adjustManualScore(teamId, key, delta) {
+    const current = getManualAdj(teamId, key);
+    const newVal = current + delta;
+    ref('manualAdjustments/' + teamId + '/' + key).set(newVal).then(() => toast((delta > 0 ? '➕ اتزودت الدرجة' : '➖ اتنقصت الدرجة') + ' (الإجمالي دلوقتي ' + newVal + ')'));
+}
+
+function renameMember(id, idx, currentName) {
+    const newName = prompt('اسم العضو الجديد:', currentName);
+    if (newName === null) return;
+    const trimmed = newName.trim();
+    if (!trimmed) { alert('الاسم متبقاش فاضي'); return; }
+    ref('teams/' + id + '/members/' + idx).set(trimmed).then(() => toast('✅ اتغير اسم العضو'));
+}
+
+function renameTeam(id, currentName) {
+    const newName = prompt('اسم الفريق الجديد:', currentName);
+    if (newName === null) return;
+    const trimmed = newName.trim();
+    if (!trimmed) { alert('الاسم متبقاش فاضي'); return; }
+    ref('teams/' + id + '/name').set(trimmed).then(() => toast('✅ اتغير اسم الفريق'));
+}
+
+function deleteTeam(id) {
+    if (!confirm('متأكد إنك عايز تحذف الفريق ده؟')) return;
+    ref('teams/' + id).remove();
+    ref('memberLocks/' + id).remove().then(() => toast('🗑️ تم حذف الفريق'));
+}
+
+function unlockMember(teamId, idx) {
+    if (!confirm('فك القفل هيسمح لأي حد يدخل باسم العضو ده من تليفون جديد. متأكد؟')) return;
+    ref('memberLocks/' + teamId + '/' + idx).remove().then(() => toast('🔓 تم فك القفل'));
+}
+
+function computeMemberAutoScore(teamId, idx) {
+    let total = 0;
+    Object.keys(allSubmissions).forEach(weekId => {
+        const sub = (allSubmissions[weekId] || {})[teamId];
+        if (!sub || !sub.personal) return;
+        const p = sub.personal[idx];
+        if (p && typeof p.totalScore === 'number') total += p.totalScore;
+    });
+    return total;
+}
+
+function getManualAdj(teamId, key) {
+    const adj = allManualAdj[teamId] || {};
+    return typeof adj[key] === 'number' ? adj[key] : 0;
+}
+
+function saveManualAdj(teamId, key) {
+    const el = document.getElementById(`madj_${teamId}_${key}`);
+    const val = parseInt(el.value) || 0;
+    ref('manualAdjustments/' + teamId + '/' + key).set(val).then(() => toast('✅ اتحفظ التعديل اليدوي'));
+}
+
+function computeTeamPoints(teamId) {
+    let total = 0;
+    Object.keys(allSubmissions).forEach(weekId => {
+        const sub = (allSubmissions[weekId] || {})[teamId];
+        if (!sub) return;
+        if (sub.general && typeof sub.general.totalScore === 'number') total += sub.general.totalScore;
+        if (sub.personal) {
+            Object.keys(sub.personal).forEach(idx => {
+                const p = sub.personal[idx];
+                if (p && typeof p.totalScore === 'number') total += p.totalScore;
+            });
+        }
+        if (sub.extra) {
+            if (sub.extra.paperExam && typeof sub.extra.paperExam.score === 'number') total += sub.extra.paperExam.score;
+            if (sub.extra.activity && typeof sub.extra.activity.score === 'number') total += sub.extra.activity.score;
+        }
+    });
+    const adj = allManualAdj[teamId] || {};
+    Object.keys(adj).forEach(key => { if (typeof adj[key] === 'number') total += adj[key]; });
+    return total;
+}
+
+// ===================== WEEKS =====================
+function createWeek() {
+    const title = document.getElementById('newWeekTitle').value.trim();
+    if (!title) { alert('اكتب عنوان الأسبوع'); return; }
+    const levelNumber = Object.keys(allWeeks).length + 1;
+    const weekRef = ref('weeks').push();
+    weekRef.set({
+        title: title,
+        levelNumber: levelNumber,
+        isOpen: false,
+        createdAt: Date.now()
+    }).then(() => {
+        document.getElementById('newWeekTitle').value = '';
+        toast('✅ تم إنشاء المستوى ' + levelNumber);
+    });
+}
+
+function renderWeeks() {
+    const box = document.getElementById('weeksList');
+    const ids = Object.keys(allWeeks).sort((a, b) => (allWeeks[a].levelNumber || 0) - (allWeeks[b].levelNumber || 0));
+    if (!ids.length) { box.innerHTML = '<div class="empty-msg">لا توجد أسابيع بعد</div>'; return; }
+    box.innerHTML = ids.map(id => {
+        const w = allWeeks[id];
+        const qCount = w.questions ? Object.keys(w.questions).length : 0;
+        return `<div class="week-card ${w.isOpen ? 'active-week' : ''}">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <div style="font-weight:bold;">📖 المستوى ${w.levelNumber || '?'} - ${w.title}</div>
+                <span class="week-status ${w.isOpen ? 'status-open' : 'status-closed'}">${w.isOpen ? 'مفتوح' : 'مغلق'}</span>
+            </div>
+            <div style="font-size:12px;color:#94a3b8;margin:6px 0;">${qCount} سؤال</div>
+            <div class="btn-row">
+                <button class="small-btn btn-purple" style="background:#6366f1;" onclick="openQuestionsModal('${id}')">📝 الأسئلة</button>
+                <button class="small-btn" style="background:${w.isOpen ? '#ef4444' : '#22c55e'};" onclick="toggleWeekOpen('${id}', ${!w.isOpen})">${w.isOpen ? 'إغلاق' : 'فتح'}</button>
+                <button class="small-btn" style="background:#475569;" onclick="deleteWeek('${id}')">حذف</button>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+// كل مستوى بيتفتح/يتقفل لوحده. الترتيب بين المستويات بيتحكم فيه القفل التسلسلي
+// عند الطالب (لازم يخلص ويتصحح المستوى اللي قبله الأول) — مش بقفل باقي الأسابيع هنا
+function toggleWeekOpen(weekId, open) {
+    ref('weeks/' + weekId + '/isOpen').set(open).then(() => toast(open ? '🟢 تم فتح المستوى' : '🔴 تم إغلاق المستوى'));
+}
+
+function deleteWeek(id) {
+    if (!confirm('حذف الأسبوع هيحذف كل أسئلته وإجابات الفرق عليه. متأكد؟')) return;
+    ref('weeks/' + id).remove();
+    ref('submissions/' + id).remove().then(() => toast('🗑️ تم حذف الأسبوع'));
+}
+
+// ===================== QUESTIONS MODAL =====================
+let currentWeekIdForModal = null;
+let currentQType = 'mcq';
+
+function openQuestionsModal(weekId) {
+    currentWeekIdForModal = weekId;
+    document.getElementById('qModalTitle').textContent = '📝 أسئلة: ' + (allWeeks[weekId] ? allWeeks[weekId].title : '');
+    document.getElementById('questionsModal').classList.add('show');
+    renderQuestionsInModal();
+}
+function closeQuestionsModal() {
+    document.getElementById('questionsModal').classList.remove('show');
+    currentWeekIdForModal = null;
+}
+
+function setQType(type) {
+    currentQType = type;
+    document.querySelectorAll('.q-builder-tabs .tab-btn').forEach(b => b.classList.toggle('active', b.dataset.qtype === type));
+    ['mcq', 'tf', 'fill', 'essay'].forEach(t => {
+        document.getElementById('qBuilder_' + t).style.display = (t === type) ? 'block' : 'none';
+    });
+}
+
+function addQuestion() {
+    const text = document.getElementById('qText').value.trim();
+    const points = parseInt(document.getElementById('qPoints').value) || 5;
+    if (!text) { alert('اكتب نص السؤال'); return; }
+    if (!currentWeekIdForModal) return;
+
+    const scope = document.getElementById('qScope').value;
+    let qData = { type: currentQType, text: text, points: points, createdAt: Date.now(), scope: scope };
+    if (scope === 'personal') {
+        qData.memberIndex = parseInt(document.getElementById('qMemberIndex').value);
+    }
+
+    if (currentQType === 'mcq') {
+        const opts = [
+            document.getElementById('mcqOpt0').value.trim(),
+            document.getElementById('mcqOpt1').value.trim(),
+            document.getElementById('mcqOpt2').value.trim(),
+            document.getElementById('mcqOpt3').value.trim()
+        ].filter(o => o);
+        if (opts.length < 2) { alert('اكتب اختيارين على الأقل'); return; }
+        const correctIdx = parseInt(document.querySelector('input[name=mcqCorrect]:checked').value);
+        qData.options = opts;
+        qData.correctIndex = Math.min(correctIdx, opts.length - 1);
+    } else if (currentQType === 'tf') {
+        qData.correctBool = document.getElementById('tfCorrect').value === 'true';
+    } else if (currentQType === 'fill') {
+        const ans = document.getElementById('fillAnswer').value.trim();
+        if (!ans) { alert('اكتب الإجابة الصحيحة'); return; }
+        qData.correctText = ans;
+    }
+    // essay: لا حاجة إضافية
+
+    ref('weeks/' + currentWeekIdForModal + '/questions').push().set(qData).then(() => {
+        document.getElementById('qText').value = '';
+        document.getElementById('mcqOpt0').value = '';
+        document.getElementById('mcqOpt1').value = '';
+        document.getElementById('mcqOpt2').value = '';
+        document.getElementById('mcqOpt3').value = '';
+        document.getElementById('fillAnswer').value = '';
+        document.getElementById('qPoints').value = 5;
+        document.getElementById('qScope').value = 'general';
+        document.getElementById('qMemberWrap').style.display = 'none';
+        toast('✅ تمت إضافة السؤال');
+    });
+}
+
+function renderQuestionsInModal() {
+    const box = document.getElementById('qList');
+    const week = allWeeks[currentWeekIdForModal];
+    if (!week || !week.questions) { box.innerHTML = '<div class="empty-msg">لا توجد أسئلة بعد</div>'; return; }
+    const typeLabels = { mcq: 'متعدد', tf: 'صح/غلط', fill: 'إكمال', essay: 'مقالي' };
+    const ids = Object.keys(week.questions);
+    box.innerHTML = ids.map(qid => {
+        const q = week.questions[qid];
+        let detail = '';
+        if (q.type === 'mcq') detail = (q.options || []).map((o, i) => (i === q.correctIndex ? '✅ ' : '▫️ ') + o).join('<br>');
+        else if (q.type === 'tf') detail = 'الإجابة: ' + (q.correctBool ? '✅ صح' : '❌ غلط');
+        else if (q.type === 'fill') detail = 'الإجابة: ' + q.correctText;
+        else detail = '<span style="color:#94a3b8;">يتصحح يدويًا</span>';
+        const memberLabels = ['العضو الأول', 'العضو الثاني', 'العضو الثالث'];
+        const scopeHtml = q.scope === 'personal'
+            ? `<span class="scope-tag tag-scope-personal">👤 شخصي - ${memberLabels[q.memberIndex] || ''}</span>`
+            : `<span class="scope-tag tag-scope-general">👥 عام</span>`;
+        return `<div class="q-card">
+            <span class="q-type-tag tag-${q.type}">${typeLabels[q.type]}</span> ${scopeHtml} <span style="font-weight:bold;">${q.points} نقطة</span>
+            <div style="margin:6px 0;">${q.text}</div>
+            <div style="font-size:12px;color:#cbd5e1;">${detail}</div>
+            <button class="small-btn" style="background:#ef4444;margin-top:8px;" onclick="deleteQuestion('${qid}')">حذف السؤال</button>
+        </div>`;
+    }).join('');
+}
+
+function deleteQuestion(qid) {
+    if (!currentWeekIdForModal) return;
+    ref('weeks/' + currentWeekIdForModal + '/questions/' + qid).remove().then(() => toast('🗑️ تم حذف السؤال'));
+}
+
+// ===================== GRADING =====================
+function renderGradingWeekPicker() {
+    const box = document.getElementById('gradingList');
+    const weekIds = Object.keys(allWeeks);
+    if (!weekIds.length) { box.innerHTML = '<div class="empty-msg">لا توجد أسابيع بعد</div>'; return; }
+
+    let html = '<select id="gradingWeekSelect" onchange="renderGradingForWeek(this.value)">';
+    html += '<option value="">-- اختر الأسبوع --</option>';
+    weekIds.forEach(id => { html += `<option value="${id}">${allWeeks[id].title}</option>`; });
+    html += '</select><div id="gradingSubsBox"></div>';
+    box.innerHTML = html;
+}
+
+const memberLabels = ['العضو الأول', 'العضو الثاني', 'العضو الثالث'];
+
+function buildAnswersGradingHtml(inputPrefix, qMap, sub) {
+    let needsGrading = false;
+    let html = '';
+    Object.keys(sub.answers || {}).forEach(qid => {
+        const q = qMap[qid];
+        if (!q) return;
+        const ans = sub.answers[qid];
+        if (q.type === 'essay' || q.type === 'fill') {
+            needsGrading = true;
+            const graded = sub.manualGrades && sub.manualGrades[qid] !== undefined;
+            const isPhoto = q.type === 'essay' && typeof ans === 'string' && ans.startsWith('data:image');
+            html += `<div class="sub-answer-box">
+                <div class="q-text">❓ ${q.text} <span class="q-type-tag tag-${q.type}">${q.type === 'essay' ? 'مقالي (صورة)' : 'إكمال'}</span></div>
+                ${isPhoto ? `<img src="${ans}" class="grading-photo">` : `<div class="a-text">📝 ${ans || '(بدون إجابة)'}</div>`}
+                ${q.type === 'fill' ? `<div style="font-size:11px;color:#94a3b8;">الإجابة الصحيحة: ${q.correctText}</div>` : ''}
+                <div class="grade-input-row">
+                    <span style="font-size:12px;">النقاط (من ${q.points}):</span>
+                    <input type="number" min="0" max="${q.points}" id="${inputPrefix}_${qid}" value="${graded ? sub.manualGrades[qid] : ''}" placeholder="0">
+                </div>
+            </div>`;
+        } else {
+            const isCorrect = (q.type === 'mcq' && ans === q.correctIndex) || (q.type === 'tf' && ans === q.correctBool);
+            html += `<div class="sub-answer-box" style="opacity:0.7;">
+                <div class="q-text">❓ ${q.text} <span class="q-type-tag tag-${q.type}">تلقائي</span></div>
+                <div class="a-text">${isCorrect ? '✅ صحيح' : '❌ خطأ'} (${isCorrect ? q.points : 0}/${q.points})</div>
+            </div>`;
+        }
+    });
+    return { html, needsGrading };
+}
+
+function renderGradingForWeek(weekId) {
+    const subBox = document.getElementById('gradingSubsBox');
+    if (!weekId) { subBox.innerHTML = ''; return; }
+    const week = allWeeks[weekId];
+    const subs = allSubmissions[weekId] || {};
+    const teamIds = Object.keys(allTeams);
+    if (!teamIds.length) { subBox.innerHTML = '<div class="empty-msg">لا يوجد فرق بعد</div>'; return; }
+
+    const qMap = week.questions || {};
+    const generalQMap = {};
+    const personalQMapByIdx = { 0: {}, 1: {}, 2: {} };
+    Object.keys(qMap).forEach(qid => {
+        const q = qMap[qid];
+        if (q.scope === 'personal') { if (personalQMapByIdx[q.memberIndex]) personalQMapByIdx[q.memberIndex][qid] = q; }
+        else generalQMap[qid] = q;
+    });
+
+    subBox.innerHTML = teamIds.map(teamId => {
+        const sub = subs[teamId] || {};
+        const teamName = allTeams[teamId] ? allTeams[teamId].name : (sub.general && sub.general.teamName) || 'فريق محذوف';
+        const members = allTeams[teamId] ? (allTeams[teamId].members || []) : [];
+        let blocksHtml = '';
+
+        // ----- General block -----
+        if (Object.keys(generalQMap).length && sub.general) {
+            const g = sub.general;
+            if (g.status !== 'confirmed') {
+                const confs = g.confirmations || {};
+                const confCount = Object.keys(confs).filter(k => confs[k]).length;
+                blocksHtml += `<div class="member-sub-card">
+                    <div style="font-weight:bold;color:#fbbf24;">👥 الأسئلة العامة</div>
+                    <div style="font-size:12.5px;color:#94a3b8;margin-top:4px;">⏳ لسه مستنيين موافقة الفريق (${confCount}/${members.length || 3} وافقوا) - مش هتظهر للتصحيح غير بعد ما الكل يوافق</div>
+                </div>`;
+            } else {
+                const { html: ansHtml, needsGrading } = buildAnswersGradingHtml(`grade_g_${weekId}_${teamId}`, generalQMap, g);
+                blocksHtml += `<div class="member-sub-card">
+                    <div style="font-weight:bold;color:#fbbf24;">👥 الأسئلة العامة ${g.graded ? '<span style="color:#22c55e;font-size:12px;">(تم التصحيح - ' + g.totalScore + ' نقطة)</span>' : '<span style="color:#f59e0b;font-size:12px;">(محتاج تصحيح)</span>'}</div>
+                    ${ansHtml}
+                    ${needsGrading ? `<button class="main-btn btn-green" style="margin-top:8px;" onclick="saveGradingGeneral('${weekId}','${teamId}')">💾 حفظ تصحيح العام</button>` : ''}
+                </div>`;
+            }
+        }
+
+        // ----- Personal blocks -----
+        [0, 1, 2].forEach(idx => {
+            const pQMap = personalQMapByIdx[idx];
+            if (!Object.keys(pQMap).length) return;
+            const p = sub.personal ? sub.personal[idx] : null;
+            const label = members[idx] ? `${memberLabels[idx]} - ${members[idx]}` : memberLabels[idx];
+            if (!p) {
+                blocksHtml += `<div class="member-sub-card">
+                    <div style="font-weight:bold;color:#fbbf24;">👤 ${label}</div>
+                    <div style="font-size:12.5px;color:#94a3b8;margin-top:4px;">لسه ما بعتش إجاباته الشخصية</div>
+                </div>`;
+                return;
+            }
+            const { html: ansHtml, needsGrading } = buildAnswersGradingHtml(`grade_p${idx}_${weekId}_${teamId}`, pQMap, p);
+            blocksHtml += `<div class="member-sub-card">
+                <div style="font-weight:bold;color:#fbbf24;">👤 ${label} ${p.graded ? '<span style="color:#22c55e;font-size:12px;">(تم التصحيح - ' + p.totalScore + ' نقطة)</span>' : '<span style="color:#f59e0b;font-size:12px;">(محتاج تصحيح)</span>'}</div>
+                ${ansHtml}
+                ${needsGrading ? `<button class="main-btn btn-green" style="margin-top:8px;" onclick="saveGradingPersonal('${weekId}','${teamId}',${idx})">💾 حفظ تصحيح ${members[idx] || memberLabels[idx]}</button>` : ''}
+            </div>`;
+        });
+
+        // ----- Extra points block (paper exam + practical activity) -----
+        blocksHtml += buildExtraPointsBlockHtml(weekId, teamId, sub);
+
+        return `<div class="sub-card">
+            <div class="sub-team">🛡️ ${teamName}</div>
+            ${blocksHtml}
+        </div>`;
+    }).join('');
+}
+
+function buildExtraPointsBlockHtml(weekId, teamId, sub) {
+    const extra = sub.extra || {};
+    const paper = extra.paperExam || {};
+    const activity = extra.activity || {};
+    return `<div class="member-sub-card" style="border-right-color:#38bdf8;">
+        <div style="font-weight:bold;color:#38bdf8;">📝 امتحان ورقي + 🤝 نشاط الافتقاد</div>
+        <label class="small-label">نقاط الامتحان الورقي</label>
+        <input type="number" min="0" id="extra_paper_${weekId}_${teamId}" value="${paper.score !== undefined ? paper.score : ''}" placeholder="مثال: 20">
+        <label class="small-label">نقاط النشاط العملي (زيارة / افتقاد)</label>
+        <input type="number" min="0" id="extra_activity_${weekId}_${teamId}" value="${activity.score !== undefined ? activity.score : ''}" placeholder="مثال: 10">
+        <label class="small-label">وصف مختصر للنشاط (هيظهر للطلاب)</label>
+        <textarea id="extra_activity_note_${weekId}_${teamId}" placeholder="مثال: زاروا جدة أحد الأعضاء في المستشفى">${activity.note || ''}</textarea>
+        <button class="main-btn btn-green" style="margin-top:6px;" onclick="saveExtraPoints('${weekId}','${teamId}')">💾 حفظ النقاط</button>
+    </div>`;
+}
+
+function saveExtraPoints(weekId, teamId) {
+    const paperEl = document.getElementById(`extra_paper_${weekId}_${teamId}`);
+    const activityEl = document.getElementById(`extra_activity_${weekId}_${teamId}`);
+    const noteEl = document.getElementById(`extra_activity_note_${weekId}_${teamId}`);
+    const paperVal = Math.max(0, parseInt(paperEl.value) || 0);
+    const activityVal = Math.max(0, parseInt(activityEl.value) || 0);
+    const note = (noteEl.value || '').trim();
+    ref('submissions/' + weekId + '/' + teamId + '/extra').set({
+        paperExam: { score: paperVal, gradedAt: Date.now() },
+        activity: { score: activityVal, note: note, gradedAt: Date.now() }
+    }).then(() => toast('✅ اتحفظت النقاط الإضافية لفريق ' + (allTeams[teamId] ? allTeams[teamId].name : '')));
+}
+
+function gradeScopedAnswers(qMap, answers, inputPrefix) {
+    let autoScore = 0, manualScore = 0;
+    const manualGrades = {};
+    Object.keys(answers || {}).forEach(qid => {
+        const q = qMap[qid];
+        if (!q) return;
+        const ans = answers[qid];
+        if (q.type === 'mcq') autoScore += (ans === q.correctIndex) ? q.points : 0;
+        else if (q.type === 'tf') autoScore += (ans === q.correctBool) ? q.points : 0;
+        else if (q.type === 'fill' || q.type === 'essay') {
+            const el = document.getElementById(`${inputPrefix}_${qid}`);
+            let val = el ? parseInt(el.value) || 0 : 0;
+            val = Math.max(0, Math.min(val, q.points));
+            manualGrades[qid] = val;
+            manualScore += val;
+        }
+    });
+    return { autoScore, manualScore, manualGrades };
+}
+
+function saveGradingGeneral(weekId, teamId) {
+    const week = allWeeks[weekId];
+    const sub = ((allSubmissions[weekId] || {})[teamId] || {}).general;
+    if (!week || !sub) return;
+    const qMap = {};
+    Object.keys(week.questions || {}).forEach(qid => { if ((week.questions[qid].scope || 'general') !== 'personal') qMap[qid] = week.questions[qid]; });
+    const { autoScore, manualScore, manualGrades } = gradeScopedAnswers(qMap, sub.answers, `grade_g_${weekId}_${teamId}`);
+    ref('submissions/' + weekId + '/' + teamId + '/general').update({
+        autoScore, manualScore, totalScore: autoScore + manualScore,
+        manualGrades, graded: true, gradedAt: Date.now()
+    }).then(() => toast('✅ تم حفظ تصحيح الأسئلة العامة لفريق ' + (allTeams[teamId] ? allTeams[teamId].name : '')));
+}
+
+function saveGradingPersonal(weekId, teamId, idx) {
+    const week = allWeeks[weekId];
+    const sub = (((allSubmissions[weekId] || {})[teamId] || {}).personal || {})[idx];
+    if (!week || !sub) return;
+    const qMap = {};
+    Object.keys(week.questions || {}).forEach(qid => { const q = week.questions[qid]; if (q.scope === 'personal' && q.memberIndex === idx) qMap[qid] = q; });
+    const { autoScore, manualScore, manualGrades } = gradeScopedAnswers(qMap, sub.answers, `grade_p${idx}_${weekId}_${teamId}`);
+    ref('submissions/' + weekId + '/' + teamId + '/personal/' + idx).update({
+        autoScore, manualScore, totalScore: autoScore + manualScore,
+        manualGrades, graded: true, gradedAt: Date.now()
+    }).then(() => toast('✅ تم حفظ التصحيح'));
+}
+
+// ===================== LEADERBOARD =====================
+// ===================== EXAM PERCENTAGE (LEVELS) =====================
+function computeWeekMaxPoints(week) {
+    const qs = week.questions || {};
+    return Object.keys(qs).reduce((sum, qid) => sum + (qs[qid].points || 0), 0);
+}
+
+function computeTeamWeekScore(teamId, weekId) {
+    const sub = (allSubmissions[weekId] || {})[teamId];
+    if (!sub) return 0;
+    let score = 0;
+    if (sub.general && typeof sub.general.totalScore === 'number') score += sub.general.totalScore;
+    if (sub.personal) {
+        Object.keys(sub.personal).forEach(idx => {
+            const p = sub.personal[idx];
+            if (p && typeof p.totalScore === 'number') score += p.totalScore;
+        });
+    }
+    return score;
+}
+
+// بيرجع { score, max, percent } لكل المستويات اللي فيها أسئلة فعلاً (بيتجاهل المستويات الفاضية)
+function computeTeamExamResult(teamId) {
+    let score = 0, max = 0;
+    Object.keys(allWeeks).forEach(weekId => {
+        const w = allWeeks[weekId];
+        const wMax = computeWeekMaxPoints(w);
+        if (!wMax) return; // مستوى لسه مفيهوش أسئلة - متتحسبش
+        max += wMax;
+        score += computeTeamWeekScore(teamId, weekId);
+    });
+    const percent = max > 0 ? Math.round((score / max) * 100) : 0;
+    return { score, max, percent };
+}
+
+function renderExamPercentList() {
+    const box = document.getElementById('examPercentList');
+    if (!box) return;
+    const ids = Object.keys(allTeams);
+    if (!ids.length) { box.innerHTML = '<div class="empty-msg">لا يوجد فرق بعد</div>'; return; }
+    const rows = ids.map(id => ({ id, team: allTeams[id], r: computeTeamExamResult(id) }))
+                     .sort((a, b) => b.r.percent - a.r.percent);
+    box.innerHTML = rows.map(row => {
+        const { score, max, percent } = row.r;
+        return `<div class="lock-row">
+            <span>🛡️ ${row.team.name}</span>
+            <span style="font-weight:bold;color:#fbbf24;">${max ? (percent + '% (' + score + ' من ' + max + ')') : 'لسه معملش أسئلة'}</span>
+        </div>`;
+    }).join('');
+}
+
+function renderLeaderboard() {
+    const box = document.getElementById('leaderboardList');
+    const ids = Object.keys(allTeams);
+    if (!ids.length) { box.innerHTML = '<div class="empty-msg">لا يوجد فرق بعد</div>'; return; }
+    const ranked = ids.map(id => ({ id: id, team: allTeams[id], pts: computeTeamPoints(id) }))
+                       .sort((a, b) => b.pts - a.pts);
+    const medals = ['🥇', '🥈', '🥉'];
+    box.innerHTML = ranked.map((r, i) => {
+        const id = r.id;
+        const t = r.team;
+        const members = t.members || [];
+        const teamAdj = getManualAdj(id, 'team');
+        const membersHtml = members.map((name, idx) => {
+            const auto = computeMemberAutoScore(id, idx);
+            const madj = getManualAdj(id, 'm' + idx);
+            const mtotal = auto + madj;
+            const adjNote = madj ? `<span style="color:#64748b;">(أوتوماتيك ${auto} ${madj > 0 ? '+ تعديل ' + madj : '- تعديل ' + Math.abs(madj)})</span>` : `<span style="color:#64748b;">(أوتوماتيك)</span>`;
+            return `<div class="lock-row" style="flex-wrap:wrap;row-gap:6px;">
+                <span>👤 ${name} — <b style="color:#22c55e;">${mtotal}</b> ${adjNote}</span>
+                <span style="display:flex;align-items:center;gap:5px;">
+                    <button class="small-btn" style="background:#ef4444;" onclick="adjustManualScore('${id}','m${idx}',-5)">-5</button>
+                    <button class="small-btn" style="background:#ef4444;" onclick="adjustManualScore('${id}','m${idx}',-1)">➖</button>
+                    <button class="small-btn" style="background:#22c55e;" onclick="adjustManualScore('${id}','m${idx}',1)">➕</button>
+                    <button class="small-btn" style="background:#22c55e;" onclick="adjustManualScore('${id}','m${idx}',5)">+5</button>
+                </span>
+            </div>`;
+        }).join('');
+        return `<div class="leader-row" style="flex-direction:column;align-items:stretch;">
+            <div style="display:flex;align-items:center;gap:10px;">
+                <div class="leader-rank">${medals[i] || (i + 1)}</div>
+                <div class="leader-info"><div class="leader-name">🛡️ ${t.name}</div></div>
+                <div class="leader-pts">${r.pts}</div>
+            </div>
+            <div style="margin-top:8px;">${membersHtml}</div>
+            <div class="lock-row" style="margin-top:2px;background:#111827;flex-wrap:wrap;row-gap:6px;">
+                <span style="font-size:12px;">⭐ تعديل عام (مش لعضو معين — عام/امتحان/نشاط) ${teamAdj ? '(' + (teamAdj > 0 ? '+' : '') + teamAdj + ')' : ''}</span>
+                <span style="display:flex;align-items:center;gap:5px;">
+                    <button class="small-btn" style="background:#ef4444;" onclick="adjustManualScore('${id}','team',-5)">-5</button>
+                    <button class="small-btn" style="background:#ef4444;" onclick="adjustManualScore('${id}','team',-1)">➖</button>
+                    <button class="small-btn" style="background:#22c55e;" onclick="adjustManualScore('${id}','team',1)">➕</button>
+                    <button class="small-btn" style="background:#22c55e;" onclick="adjustManualScore('${id}','team',5)">+5</button>
+                </span>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+// ===================== BRACKET =====================
+function bracketRoundLabel(matchesInRound) {
+    if (matchesInRound === 1) return 'النهائي';
+    if (matchesInRound === 2) return 'نصف النهائي';
+    if (matchesInRound === 4) return 'ربع النهائي';
+    if (matchesInRound === 8) return 'دور الـ16';
+    return 'دور تمهيدي';
+}
+
+function renderBracketSetupSlots() {
+    const sizeSel = document.getElementById('bracketSizeSelect');
+    if (!sizeSel) return;
+    const size = parseInt(sizeSel.value);
+    const round0Count = size / 2;
+    const teamIds = Object.keys(allTeams);
+    const optionsHtml = '<option value="">-- اختر فريق --</option>' + teamIds.map(id => `<option value="${id}">${allTeams[id].name}</option>`).join('');
+    let html = '';
+    for (let s = 0; s < round0Count; s++) {
+        html += `<div class="bslot-row">
+            <select id="bslot_${s}_A">${optionsHtml}</select>
+            <span class="vs-txt">ضد</span>
+            <select id="bslot_${s}_B">${optionsHtml}</select>
+        </div>`;
+    }
+    document.getElementById('bracketSetupSlots').innerHTML = html;
+}
+
+function createBracket() {
+    const size = parseInt(document.getElementById('bracketSizeSelect').value);
+    const totalRounds = Math.log2(size);
+    const round0Count = size / 2;
+    const matches = {};
+    const usedTeams = new Set();
+    for (let s = 0; s < round0Count; s++) {
+        const teamA = document.getElementById('bslot_' + s + '_A').value || null;
+        const teamB = document.getElementById('bslot_' + s + '_B').value || null;
+        if (teamA) usedTeams.add(teamA);
+        if (teamB) usedTeams.add(teamB);
+        matches['r0_m' + s] = { teamA, teamB, winner: null };
+    }
+    if (!usedTeams.size) { toast('❌ سكّن فريق واحد على الأقل قبل الإنشاء'); return; }
+    for (let r = 1; r < totalRounds; r++) {
+        const count = size / Math.pow(2, r + 1);
+        for (let s = 0; s < count; s++) matches['r' + r + '_m' + s] = { teamA: null, teamB: null, winner: null };
+    }
+    ref('bracket').set({ size, matches }).then(() => toast('✅ اتعمل جدول الأدوار'));
+}
+
+function deleteBracket() {
+    if (!confirm('متأكد إنك عايز تمسح الجدول الحالي وتبدأ من جديد؟')) return;
+    ref('bracket').remove().then(() => toast('🗑️ اتمسح الجدول'));
+}
+
+function renderBracketVisualAdmin() {
+    const box = document.getElementById('bracketVisualBox');
+    if (!box) return;
+    if (!bracketData || !bracketData.matches) { box.innerHTML = ''; return; }
+    const matches = bracketData.matches;
+    const totalRounds = Math.log2(bracketData.size);
+    let html = '<div class="bracket-visual">';
+    for (let round = 0; round < totalRounds; round++) {
+        const matchesInRound = bracketData.size / Math.pow(2, round + 1);
+        let colHtml = `<div class="bv-col-label">${bracketRoundLabel(matchesInRound)}</div>`;
+        for (let slot = 0; slot < matchesInRound; slot++) {
+            const m = matches['r' + round + '_m' + slot];
+            if (!m) continue;
+            const isFinal = (round === totalRounds - 1 && slot === 0);
+            const nameA = m.teamA ? (allTeams[m.teamA] ? allTeams[m.teamA].name : '؟') : null;
+            const nameB = m.teamB ? (allTeams[m.teamB] ? allTeams[m.teamB].name : '؟') : null;
+            colHtml += `<div class="bv-box">
+                <div class="bv-team ${!m.teamA ? 'tbd' : (m.winner === m.teamA ? 'winner' : '')}">${m.winner === m.teamA ? '🏆 ' : ''}${nameA || '⏳ مستني'}</div>
+                <div class="bv-vs">ضد</div>
+                <div class="bv-team ${!m.teamB ? 'tbd' : (m.winner === m.teamB ? 'winner' : '')}">${m.winner === m.teamB ? '🏆 ' : ''}${nameB || '⏳ مستني'}</div>`;
+            if (isFinal && m.teamC) {
+                const nameC = allTeams[m.teamC] ? allTeams[m.teamC].name : '؟';
+                colHtml += `<div class="bv-vs">🃏 وفريق راجع</div><div class="bv-team ${m.winner === m.teamC ? 'winner' : ''}">${m.winner === m.teamC ? '🏆 ' : ''}${nameC}</div>`;
+            }
+            colHtml += `</div>`;
+        }
+        html += `<div class="bv-col">${colHtml}</div>`;
+    }
+    const finalMatch = matches['r' + (totalRounds - 1) + '_m0'];
+    if (finalMatch && finalMatch.winner) {
+        html += `<div class="bv-col"><div class="bv-col-label">🏆 البطل</div><div class="bv-box" style="border:2px solid #fbbf24;"><div class="bv-team winner">🏆 ${allTeams[finalMatch.winner] ? allTeams[finalMatch.winner].name : ''}</div></div></div>`;
+    }
+    html += '</div>';
+    box.innerHTML = html;
+}
+
+function renderBracketAdmin() {
+    const setupSection = document.getElementById('bracketSetupSection');
+    const manageSection = document.getElementById('bracketManageSection');
+    if (!bracketData || !bracketData.matches) {
+        setupSection.style.display = 'block';
+        manageSection.style.display = 'none';
+        return;
+    }
+    setupSection.style.display = 'none';
+    manageSection.style.display = 'block';
+
+    const matches = bracketData.matches;
+    const totalRounds = Math.log2(bracketData.size);
+    let html = '';
+    for (let round = 0; round < totalRounds; round++) {
+        const matchesInRound = bracketData.size / Math.pow(2, round + 1);
+        html += `<div class="bracket-round-wrap"><div class="bracket-round-label">${bracketRoundLabel(matchesInRound)}</div>`;
+        for (let slot = 0; slot < matchesInRound; slot++) {
+            const m = matches['r' + round + '_m' + slot];
+            if (!m) continue;
+            const isFinal = (round === totalRounds - 1 && slot === 0);
+            const nameA = m.teamA ? (allTeams[m.teamA] ? allTeams[m.teamA].name : '؟ (فريق محذوف)') : null;
+            const nameB = m.teamB ? (allTeams[m.teamB] ? allTeams[m.teamB].name : '؟ (فريق محذوف)') : null;
+            html += `<div class="bmatch-card">`;
+            const teamEntries = [
+                { key: 'teamA', id: m.teamA, name: nameA },
+                { key: 'teamB', id: m.teamB, name: nameB }
+            ];
+            if (isFinal && m.teamC) {
+                teamEntries.push({ key: 'teamC', id: m.teamC, name: allTeams[m.teamC] ? allTeams[m.teamC].name : '؟ (فريق محذوف)' });
+            }
+            teamEntries.forEach(t => {
+                const isWinner = m.winner && m.winner === t.id;
+                if (!t.id) {
+                    html += `<div class="bmatch-team tbd">⏳ لسه مستني (TBD)</div>`;
+                } else {
+                    html += `<div class="bmatch-team ${isWinner ? 'is-winner' : ''}">
+                        <span>${isWinner ? '🏆 ' : (t.key === 'teamC' ? '🃏 ' : '👤 ')}${t.name}</span>
+                        ${!m.winner ? `<button class="win-btn" onclick="declareWinner(${round},${slot},'${t.id}')">فاز</button>` : ''}
+                    </div>`;
+                }
+            });
+            if (isFinal && totalRounds >= 2 && !m.winner) {
+                if (!m.teamC) {
+                    const eliminated = getEliminatedTeamIds().filter(tid => allTeams[tid]).sort((a, b) => computeTeamPoints(b) - computeTeamPoints(a));
+                    if (eliminated.length) {
+                        html += `<div style="margin-top:6px;">
+                            <label class="small-label">🃏 فريق راجع (من الفرق الخارجة، مرتبة من الأعلى نقط)</label>
+                            <select id="returningTeamSelect_${round}_${slot}">
+                                ${eliminated.map(tid => `<option value="${tid}">${allTeams[tid].name} (${computeTeamPoints(tid)} نقطة)</option>`).join('')}
+                            </select>
+                            <button class="win-btn" style="background:#f59e0b;margin-top:4px;" onclick="addReturningTeam(${round},${slot})">🃏 تأكيد إضافة الفريق الراجع</button>
+                        </div>`;
+                    }
+                } else {
+                    html += `<button class="bmatch-undo" onclick="removeReturningTeam(${round},${slot})">🗑️ إزالة الفريق الراجع</button>`;
+                }
+            }
+            if (m.winner) {
+                html += `<button class="bmatch-undo" onclick="undoWinner(${round},${slot})">↩️ تراجع عن النتيجة</button>`;
+            }
+            html += `</div>`;
+        }
+        html += `</div>`;
+    }
+    const finalMatch = matches['r' + (totalRounds - 1) + '_m0'];
+    if (finalMatch && finalMatch.winner) {
+        html += `<div class="bracket-round-wrap"><div class="bracket-round-label">🏆 البطل</div>
+            <div class="bmatch-card"><div class="bmatch-team is-winner">🏆 ${allTeams[finalMatch.winner] ? allTeams[finalMatch.winner].name : ''}</div></div>
+        </div>`;
+    }
+    document.getElementById('bracketAdminBox').innerHTML = html;
+}
+
+function getEliminatedTeamIds() {
+    const matches = bracketData.matches;
+    const eliminated = new Set();
+    Object.keys(matches).forEach(key => {
+        const m = matches[key];
+        if (!m.winner) return;
+        [m.teamA, m.teamB, m.teamC].forEach(tid => {
+            if (tid && tid !== m.winner) eliminated.add(tid);
+        });
+    });
+    return Array.from(eliminated);
+}
+
+function addReturningTeam(round, slot) {
+    const sel = document.getElementById(`returningTeamSelect_${round}_${slot}`);
+    if (!sel || !sel.value) return;
+    ref('bracket/matches/r' + round + '_m' + slot + '/teamC').set(sel.value).then(() => toast('🃏 اتضاف الفريق الراجع للنهائي'));
+}
+
+function removeReturningTeam(round, slot) {
+    ref('bracket/matches/r' + round + '_m' + slot + '/teamC').remove().then(() => toast('🗑️ اتشال الفريق الراجع'));
+}
+
+function declareWinner(round, slot, winnerId) {
+    ref('bracket/matches/r' + round + '_m' + slot + '/winner').set(winnerId).then(() => {
+        propagateWinner(round, slot, winnerId);
+        toast('🏆 اتسجل الفريق الفايز وهيتصفى للدور الجاي');
+    });
+}
+
+function propagateWinner(round, slot, winnerId) {
+    const totalRounds = Math.log2(bracketData.size);
+    const nextRound = round + 1;
+    if (nextRound >= totalRounds) return;
+    const nextSlot = Math.floor(slot / 2);
+    const key = slot % 2 === 0 ? 'teamA' : 'teamB';
+    ref('bracket/matches/r' + nextRound + '_m' + nextSlot + '/' + key).set(winnerId);
+}
+
+function undoWinner(round, slot) {
+    ref('bracket/matches/r' + round + '_m' + slot + '/winner').remove().then(() => {
+        clearBracketDownstream(round, slot);
+        toast('↩️ اتلغت النتيجة');
+    });
+}
+
+function clearBracketDownstream(round, slot) {
+    const totalRounds = Math.log2(bracketData.size);
+    const nextRound = round + 1;
+    if (nextRound >= totalRounds) return;
+    const nextSlot = Math.floor(slot / 2);
+    const key = slot % 2 === 0 ? 'teamA' : 'teamB';
+    const path = 'bracket/matches/r' + nextRound + '_m' + nextSlot;
+    ref(path + '/' + key).remove();
+    ref(path + '/winner').once('value').then(snap => {
+        if (snap.exists()) {
+            ref(path + '/winner').remove().then(() => clearBracketDownstream(nextRound, nextSlot));
+        }
+    });
+}
+</script>
+</body>
+</html>
