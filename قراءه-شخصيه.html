@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>قراءة العهد الجديد – ٥ أصحاحات يوميًا</title>
+<style>
+:root{--bg:#faf6ee;--card:#fff;--tx:#2b2418;--mu:#7a6f5c;--ac:#8a5a14;--ln:#e6dcc8;--ok:#2e7d4f}
+@media(prefers-color-scheme:dark){:root{--bg:#1c1812;--card:#272117;--tx:#f1e9d8;--mu:#a99d85;--ac:#e0a85a;--ln:#3a3226;--ok:#5fbf86}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:"Segoe UI",Tahoma,Arial,sans-serif;line-height:1.6}
+.w{max-width:680px;margin:auto;padding:16px}
+h1{font-size:1.25rem;margin:4px 0 12px;color:var(--ac)}
+.bar{height:10px;background:var(--ln);border-radius:9px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--ok);width:0;transition:width .3s}
+.mu{color:var(--mu);font-size:.85rem}
+.nav{display:flex;gap:8px;align-items:center;margin:14px 0}
+.nav h2{flex:1;text-align:center;margin:0;font-size:1.05rem}
+button,select,input[type=date]{font:inherit;background:var(--card);color:var(--tx);border:1px solid var(--ln);border-radius:10px;padding:8px 12px;cursor:pointer}
+button.p{background:var(--ac);color:#fff;border-color:var(--ac)}
+.card{background:var(--card);border:1px solid var(--ln);border-radius:14px;padding:14px;margin-bottom:12px}
+.card.done{border-color:var(--ok)}
+.top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.top label{display:flex;gap:8px;align-items:center;font-weight:700;font-size:1.1rem;cursor:pointer}
+input[type=checkbox]{width:22px;height:22px;accent-color:var(--ok)}
+textarea{width:100%;min-height:70px;margin-top:10px;background:var(--bg);color:var(--tx);border:1px solid var(--ln);border-radius:10px;padding:8px;font:inherit;resize:vertical}
+.img{margin-top:8px}
+.img img{max-width:100%;border-radius:10px;display:block;margin-top:8px}
+.set{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:18px;padding-top:12px;border-top:1px solid var(--ln)}
+input[type=file]{display:none}
+</style>
+</head>
+<body>
+<div class="w">
+<h1>📖 قراءة العهد الجديد – ٥ أصحاحات كل يوم</h1>
+<div class="bar"><i id="pb"></i></div>
+<div class="mu" id="pt"></div>
+<div class="nav">
+<button id="nx">›</button><h2 id="dt"></h2><button id="pv">‹</button>
+</div>
+<div class="nav" style="margin-top:0"><button id="td" class="p">اليوم</button><select id="sl" style="flex:1"></select></div>
+<div id="list"></div>
+<div class="set"><span class="mu">تاريخ البداية:</span><input type="date" id="st"></div>
+</div>
+<script>
+// الكتب: [الاسم, عدد الأصحاحات, المجموعة] 0=أناجيل وأعمال 1=رسائل 2=رؤيا
+const B=[["متى",28,0],["مرقس",16,0],["لوقا",24,0],["يوحنا",21,0],["أعمال الرسل",28,0],
+["رومية",16,1],["كورنثوس الأولى",16,1],["كورنثوس الثانية",13,1],["غلاطية",6,1],["أفسس",6,1],["فيلبي",4,1],["كولوسي",4,1],["تسالونيكي الأولى",5,1],["تسالونيكي الثانية",3,1],["تيموثاوس الأولى",6,1],["تيموثاوس الثانية",4,1],["تيطس",3,1],["فليمون",1,1],["العبرانيين",13,1],["يعقوب",5,1],["بطرس الأولى",5,1],["بطرس الثانية",3,1],["يوحنا الأولى",5,1],["يوحنا الثانية",1,1],["يوحنا الثالثة",1,1],["يهوذا",1,1],
+["رؤيا يوحنا",22,2]];
+const G=["📜 أناجيل وأعمال","✉️ رسائل","🔥 رؤيا"];
+// توزيع متناسب: كل مجموعة تتقدم بالترتيب وتنتهي كلها في آخر يوم
+const tr=[[],[],[]];
+B.forEach(([n,c,g])=>{for(let i=1;i<=c;i++)tr[g].push(n+" "+i)});
+let all=[];
+tr.forEach((a,g)=>a.forEach((k,i)=>all.push({k,g,p:(i+.5)/a.length})));
+all.sort((a,b)=>a.p-b.p||a.g-b.g);
+const D=[];for(let i=0;i<all.length;i+=5)D.push(all.slice(i,i+5));
+
+let S={start:null,read:{},note:{}};
+try{S=Object.assign(S,JSON.parse(localStorage.getItem("bible")||"{}"))}catch(e){}
+const iso=d=>{const x=new Date(d);return x.getFullYear()+"-"+String(x.getMonth()+1).padStart(2,"0")+"-"+String(x.getDate()).padStart(2,"0")};
+if(!S.start)S.start=iso(Date.now());
+const save=()=>{try{localStorage.setItem("bible",JSON.stringify(S))}catch(e){}};
+const $=id=>document.getElementById(id);
+
+// الصور في IndexedDB
+let db=null;const mem={};
+const open=new Promise(r=>{try{const q=indexedDB.open("bibleimg",1);q.onupgradeneeded=()=>q.result.createObjectStore("i");q.onsuccess=()=>{db=q.result;r()};q.onerror=()=>r()}catch(e){r()}});
+const idb=(m,k,v)=>new Promise(r=>{if(!db){m=="put"?mem[k]=v:0;return r(mem[k])}
+try{const s=db.transaction("i","readwrite").objectStore("i");const q=m=="put"?s.put(v,k):m=="delete"?s.delete(k):s.get(k);q.onsuccess=()=>r(q.result);q.onerror=()=>r()}catch(e){r()}});
+const shrink=f=>new Promise(r=>{const im=new Image();im.onload=()=>{const s=Math.min(1,900/im.width),c=document.createElement("canvas");c.width=im.width*s;c.height=im.height*s;c.getContext("2d").drawImage(im,0,0,c.width,c.height);r(c.toDataURL("image/jpeg",.75))};im.src=URL.createObjectURL(f)});
+
+const dayOf=d=>Math.floor((new Date(iso(Date.now()))-new Date(d))/864e5);
+const todayIdx=()=>Math.max(0,Math.min(D.length-1,dayOf(S.start)));
+let cur=todayIdx();
+
+function prog(){
+const n=all.filter(x=>S.read[x.k]).length;
+$("pb").style.width=(n/all.length*100)+"%";
+$("pt").textContent="قرأت "+n+" من "+all.length+" أصحاحًا ("+Math.round(n/all.length*100)+"٪)";
+}
+async function render(){
+await open;
+const dd=new Date(S.start);dd.setDate(dd.getDate()+cur);
+const isT=cur==todayIdx()&&dayOf(S.start)>=0;
+$("dt").innerHTML="اليوم "+(cur+1)+" من "+D.length+"<br><span class='mu'>"+dd.toLocaleDateString("ar-EG",{weekday:"long",day:"numeric",month:"long"})+(isT?" • اليوم":"")+"</span>";
+$("sl").value=cur;
+const L=$("list");L.innerHTML="";
+for(const x of D[cur]){
+const c=document.createElement("div");c.className="card"+(S.read[x.k]?" done":"");
+c.innerHTML=`<div class="top"><label><input type="checkbox" ${S.read[x.k]?"checked":""}> ${x.k}</label><span class="mu">${G[x.g]}</span></div>
+<textarea placeholder="تعليقك على هذا الأصحاح..."></textarea>
+<div class="img"><label><button type="button">📷 إضافة صورة</button><input type="file" accept="image/*"></label> <button type="button" class="rm" style="display:none">حذف الصورة</button><div class="pv"></div></div>`;
+const cb=c.querySelector("input[type=checkbox]"),ta=c.querySelector("textarea"),fi=c.querySelector("input[type=file]"),pv=c.querySelector(".pv"),rm=c.querySelector(".rm");
+ta.value=S.note[x.k]||"";
+cb.onchange=()=>{S.read[x.k]=cb.checked;c.classList.toggle("done",cb.checked);save();prog()};
+ta.oninput=()=>{S.note[x.k]=ta.value;save()};
+const show=u=>{pv.innerHTML=u?`<img src="${u}">`:"";rm.style.display=u?"":"none"};
+c.querySelector(".img button").onclick=()=>fi.click();
+fi.onchange=async()=>{if(!fi.files[0])return;const u=await shrink(fi.files[0]);await idb("put",x.k,u);show(u)};
+rm.onclick=async()=>{await idb("delete",x.k);show(null)};
+idb("get",x.k).then(show);
+L.appendChild(c);
+}
+prog();
+}
+$("sl").innerHTML=D.map((d,i)=>`<option value="${i}">اليوم ${i+1}: ${d[0].k} ← ${d[d.length-1].k}</option>`).join("");
+$("sl").onchange=e=>{cur=+e.target.value;render()};
+$("nx").onclick=()=>{if(cur<D.length-1){cur++;render()}};
+$("pv").onclick=()=>{if(cur>0){cur--;render()}};
+$("td").onclick=()=>{cur=todayIdx();render()};
+$("st").value=S.start;
+$("st").onchange=e=>{if(e.target.value){S.start=e.target.value;save();cur=todayIdx();render()}};
+render();
+</script>
+</body>
+</html>
